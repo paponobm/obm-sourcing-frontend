@@ -12,3 +12,9 @@ export const productSchema = z.object({
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
+
+// Used when editing a product from within a vendor's page, where the vendor
+// is already fixed by context and isn't re-selectable.
+export const productEditSchema = productSchema.omit({ vendorId: true });
+
+export type ProductEditFormValues = z.infer<typeof productEditSchema>;

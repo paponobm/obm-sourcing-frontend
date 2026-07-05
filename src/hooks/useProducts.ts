@@ -28,12 +28,29 @@ export function useCreateProduct() {
   });
 }
 
+export function useUpdateProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: Partial<CreateProductInput> }) =>
+      productService.update(id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["vendors"] });
+      queryClient.invalidateQueries({ queryKey: ["price-comparison"] });
+      toast.success("প্রোডাক্ট আপডেট করা হয়েছে");
+    },
+    onError: () => toast.error("প্রোডাক্ট আপডেট করা যায়নি"),
+  });
+}
+
 export function useDeleteProduct() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => productService.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PRODUCTS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["vendors"] });
+      queryClient.invalidateQueries({ queryKey: ["price-comparison"] });
       toast.success("প্রোডাক্ট মুছে ফেলা হয়েছে");
     },
     onError: () => toast.error("প্রোডাক্ট মুছে ফেলা যায়নি"),

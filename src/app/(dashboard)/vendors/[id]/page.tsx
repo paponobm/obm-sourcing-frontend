@@ -60,7 +60,7 @@ export default function VendorDetailPage() {
           <ProfileCard vendor={vendor} />
         </div>
         <div className="flex-1">
-          <VendorProductsTable products={vendor.products} totalCount={vendor.productCount} />
+          <VendorProductsTable vendorId={vendor.id} products={vendor.products} totalCount={vendor.productCount} />
         </div>
       </div>
     </>

@@ -19,6 +19,7 @@ export type VendorProductPrice = {
   productId: string;
   productName: string;
   unit: string;
+  category?: string;
   price: number;
   isLowestForProduct: boolean;
   lastUpdatedAt: string;
