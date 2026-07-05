@@ -53,3 +53,18 @@ export function useDeleteVendor() {
     onError: () => toast.error("ভেন্ডর মুছে ফেলা যায়নি"),
   });
 }
+
+export function useSetVendorProductPrice() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ vendorId, productId, price }: { vendorId: string; productId: string; price: number }) =>
+      vendorService.setProductPrice(vendorId, productId, price),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: VENDORS_KEY });
+      queryClient.invalidateQueries({ queryKey: [...VENDORS_KEY, variables.vendorId] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["price-comparison", variables.productId] });
+    },
+    onError: () => toast.error("ভেন্ডরের দাম সংরক্ষণ করা যায়নি"),
+  });
+}

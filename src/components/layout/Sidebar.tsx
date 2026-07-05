@@ -28,7 +28,7 @@ export function SidebarContent() {
     <div className="flex h-full flex-col text-[#CFE1E2]">
       <div className="mb-[14px] flex items-center gap-[9px] border-b border-white/10 pb-4 font-serif text-[15px] text-white">
         <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-brass font-sans text-[13px] font-bold text-[#2B1E08]">
-          আ
+          OS
         </span>
         OBM সোর্সিং
       </div>

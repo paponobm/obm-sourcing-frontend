@@ -25,4 +25,10 @@ export const vendorService = {
   async remove(id: string): Promise<void> {
     return apiClient.delete(`/vendors/${id}`).then(() => undefined);
   },
+
+  async setProductPrice(vendorId: string, productId: string, price: number): Promise<void> {
+    return apiClient
+      .post(`/vendors/${vendorId}/products`, { productId, price })
+      .then(() => undefined);
+  },
 };

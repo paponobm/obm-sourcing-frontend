@@ -11,7 +11,7 @@ export default function LoginPage() {
     >
       <div className="w-full max-w-[380px] rounded-md bg-paper px-8 py-9">
         <div className="mb-4 flex h-[42px] w-[42px] items-center justify-center rounded-lg bg-teal font-serif text-xl text-brass-soft">
-          আ
+          OS
         </div>
         <h2 className="m-0 mb-1 font-serif text-[21px] text-teal-dark">সাইন ইন করুন</h2>
         <p className="mb-6 text-[12.5px] text-gray">
