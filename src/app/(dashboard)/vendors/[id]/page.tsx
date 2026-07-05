@@ -1,10 +1,11 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Plus } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
+import { SearchBox } from "@/components/shared/SearchBox";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -16,6 +17,14 @@ import { ROUTES } from "@/constants/routes";
 export default function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: vendor, isLoading } = useVendor(id);
+  const [search, setSearch] = useState("");
+
+  const filteredProducts = useMemo(() => {
+    if (!vendor) return [];
+    const term = search.trim().toLowerCase();
+    if (!term) return vendor.products;
+    return vendor.products.filter((p) => p.productName.toLowerCase().includes(term));
+  }, [vendor, search]);
 
   if (isLoading) {
     return (
@@ -46,12 +55,11 @@ export default function VendorDetailPage() {
       <Topbar
         title={vendor.shopName}
         actions={
-          <div className="flex gap-2">
-            <Button variant="ghost">এডিট</Button>
-            <Button variant="brass">
-              <Plus className="h-4 w-4" /> প্রোডাক্ট যোগ করুন
-            </Button>
-          </div>
+          <SearchBox
+            value={search}
+            onChange={setSearch}
+            placeholder="প্রোডাক্ট সার্চ করুন..."
+          />
         }
       />
 
@@ -60,7 +68,11 @@ export default function VendorDetailPage() {
           <ProfileCard vendor={vendor} />
         </div>
         <div className="flex-1">
-          <VendorProductsTable vendorId={vendor.id} products={vendor.products} totalCount={vendor.productCount} />
+          <VendorProductsTable
+            vendorId={vendor.id}
+            products={filteredProducts}
+            totalCount={vendor.productCount}
+          />
         </div>
       </div>
     </>
