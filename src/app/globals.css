@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Design tokens ported 1:1 from the source HTML mockup
+  (vendor_system_mockups-1.html :root block). Values must
+  stay in sync with tailwind.config.ts `theme.extend.colors`.
+*/
+:root {
+  --ink: #16262a;
+  --teal: #12525a;
+  --teal-dark: #0b393f;
+  --paper: #fafaf7;
+  --paper-2: #f1efe9;
+  --line: #dcd8cc;
+  --brass: #ad7c2c;
+  --brass-soft: #f4e7ce;
+  --green: #3e6b4f;
+  --green-soft: #e4eee4;
+  --gray: #7a756b;
+  --red: #9c4a3c;
+
+  /* shadcn/ui semantic tokens mapped onto the palette above */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--teal);
+  --primary-foreground: #ffffff;
+  --secondary: var(--paper-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-2);
+  --muted-foreground: var(--gray);
+  --accent: var(--brass-soft);
+  --accent-foreground: var(--brass);
+  --destructive: var(--red);
+  --destructive-foreground: #ffffff;
+  --success: var(--green);
+  --success-soft: var(--green-soft);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--teal);
+  --radius: 6px;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-paper-2 font-sans text-ink;
+  }
+}
