@@ -29,7 +29,7 @@ export default function PriceComparePage() {
     <>
       <Breadcrumb items={[{ label: "প্রোডাক্ট তালিকা", href: ROUTES.products }, { label: comparison.productName }]} />
       <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="m-0 font-serif text-[19px] text-teal-dark">
+        <h2 className="m-0 font-serif text-[1.1875rem] text-teal-dark">
           {comparison.productName} — প্রাইস কম্পেয়ার
         </h2>
         <span className="text-xs text-gray">

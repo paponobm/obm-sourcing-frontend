@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 /** Mirrors the mockup's .pill / .pill.active / .pill.inactive / .pill.low classes. */
 const badgeVariants = cva(
-  "inline-block rounded-[20px] px-[10px] py-[3px] text-[11px] font-semibold",
+  "inline-block rounded-[20px] px-[10px] py-[3px] text-[0.6875rem] font-semibold",
   {
     variants: {
       variant: {

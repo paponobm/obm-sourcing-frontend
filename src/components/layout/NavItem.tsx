@@ -14,7 +14,7 @@ export function NavItem({ item }: { item: NavItemConfig }) {
     <Link
       href={item.href}
       className={cn(
-        "mb-[2px] flex items-center gap-[9px] rounded-[5px] px-[10px] py-[9px] text-[13px] font-medium text-[#B9CDCE] transition-colors",
+        "mb-[2px] flex items-center gap-[9px] rounded-[5px] px-[10px] py-[9px] text-[0.8125rem] font-medium text-[#B9CDCE] transition-colors",
         active ? "bg-white/[0.08] text-white" : "hover:bg-white/[0.05] hover:text-white",
       )}
     >

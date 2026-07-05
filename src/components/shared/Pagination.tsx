@@ -17,7 +17,7 @@ export function Pagination({
   const to = Math.min(page * pageSize, total);
 
   return (
-    <div className="flex items-center justify-between border-t border-line px-[18px] py-3 text-[12px] text-gray">
+    <div className="flex items-center justify-between border-t border-line px-[18px] py-3 text-[0.75rem] text-gray">
       <span>
         {total === 0 ? "কোনো ফলাফল নেই" : `${from}–${to} দেখানো হচ্ছে, মোট ${total}`}
       </span>

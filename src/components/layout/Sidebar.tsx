@@ -26,8 +26,8 @@ export function SidebarContent() {
 
   return (
     <div className="flex h-full flex-col text-[#CFE1E2]">
-      <div className="mb-[14px] flex items-center gap-[9px] border-b border-white/10 pb-4 font-serif text-[15px] text-white">
-        <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-brass font-sans text-[13px] font-bold text-[#2B1E08]">
+      <div className="mb-[14px] flex items-center gap-[9px] border-b border-white/10 pb-4 font-serif text-[0.9375rem] text-white">
+        <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-brass font-sans text-[0.8125rem] font-bold text-[#2B1E08]">
           OS
         </span>
         OBM সোর্সিং
@@ -41,9 +41,9 @@ export function SidebarContent() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="mt-4 flex w-full items-center justify-between border-t border-white/10 pt-[14px] text-left text-[11px] text-[#88a3a4]">
+          <button className="mt-4 flex w-full items-center justify-between border-t border-white/10 pt-[14px] text-left text-[0.6875rem] text-[#88a3a4]">
             <span>
-              <b className="block text-[12.5px] text-[#E9D6A9]">{user?.name ?? "..."}</b>
+              <b className="block text-[0.78125rem] text-[#E9D6A9]">{user?.name ?? "..."}</b>
               {user ? ROLE_LABEL_BN[user.role] : ""}
             </span>
             <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-70" />

@@ -17,7 +17,7 @@ export function SearchBox({
   return (
     <label
       className={cn(
-        "flex w-[280px] items-center gap-2 rounded-[5px] border border-line bg-white px-3 py-2 text-[13px] text-gray",
+        "flex w-[280px] items-center gap-2 rounded-[5px] border border-line bg-white px-3 py-2 text-[0.8125rem] text-gray",
         "focus-within:ring-2 focus-within:ring-ring/30",
         className,
       )}

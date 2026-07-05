@@ -28,14 +28,14 @@ CardHeader.displayName = "CardHeader";
 
 const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={cn("m-0 font-serif text-[14.5px] text-teal-dark", className)} {...props} />
+    <h3 ref={ref} className={cn("m-0 font-serif text-[0.90625rem] text-teal-dark", className)} {...props} />
   ),
 );
 CardTitle.displayName = "CardTitle";
 
 const CardTag = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
   ({ className, ...props }, ref) => (
-    <span ref={ref} className={cn("text-[11px] text-gray", className)} {...props} />
+    <span ref={ref} className={cn("text-[0.6875rem] text-gray", className)} {...props} />
   ),
 );
 CardTag.displayName = "CardTag";

@@ -14,7 +14,7 @@ export function InfoRow({
   return (
     <div
       className={cn(
-        "flex justify-between border-b border-paper-2 py-[9px] text-[12.5px]",
+        "flex justify-between border-b border-paper-2 py-[9px] text-[0.78125rem]",
         noBorder && "border-b-0",
       )}
     >

@@ -54,3 +54,21 @@
     @apply bg-paper-2 font-sans text-ink;
   }
 }
+
+/*
+  Every text-[Npx] size in the app was converted to an equivalent rem value
+  (see the font-size audit), so bumping the root size on large screens scales
+  all of them proportionally instead of leaving desktop-monitor users with
+  mockup-era small type.
+*/
+@media (min-width: 1536px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+@media (min-width: 1920px) {
+  html {
+    font-size: 18px;
+  }
+}
