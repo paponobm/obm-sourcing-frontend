@@ -68,6 +68,7 @@ export function SidebarContent() {
               logout.mutate();
             }}
           >
+          
             <LogOut className="h-4 w-4" /> লগ আউট
           </DropdownMenuItem>
         </DropdownMenuContent>
