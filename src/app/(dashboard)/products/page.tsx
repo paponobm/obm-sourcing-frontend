@@ -18,7 +18,9 @@ import {
 import { ProductForm } from "@/components/forms/ProductForm";
 import { useProducts } from "@/hooks/useProducts";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useHasRole } from "@/hooks/useHasRole";
 import { ROUTES } from "@/constants/routes";
+import { MANAGE_CATALOG_ROLES } from "@/constants/roles";
 import { formatBDT } from "@/utils/currency";
 import type { Product } from "@/types/product.types";
 import type { ProductSortColumn } from "@/services/product.service";
@@ -33,6 +35,7 @@ export default function ProductListPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [createOpen, setCreateOpen] = useState(false);
   const debouncedSearch = useDebounce(search);
+  const canManage = useHasRole(MANAGE_CATALOG_ROLES);
 
   const { data, isLoading } = useProducts({
     page,
@@ -99,9 +102,11 @@ export default function ProductListPage() {
               }}
               placeholder="প্রোডাক্ট সার্চ করুন..."
             />
-            <Button variant="brass" onClick={() => setCreateOpen(true)}>
-              <Plus className="h-4 w-4" /> নতুন প্রোডাক্ট
-            </Button>
+            {canManage && (
+              <Button variant="brass" onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" /> নতুন প্রোডাক্ট
+              </Button>
+            )}
           </div>
         }
       />

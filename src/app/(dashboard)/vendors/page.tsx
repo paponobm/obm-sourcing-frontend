@@ -12,7 +12,9 @@ import { SearchBox } from "@/components/shared/SearchBox";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import { useVendors } from "@/hooks/useVendors";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useHasRole } from "@/hooks/useHasRole";
 import { ROUTES } from "@/constants/routes";
+import { MANAGE_CATALOG_ROLES } from "@/constants/roles";
 import { vendorStatusBadgeVariant, VENDOR_STATUS_LABEL_BN } from "@/utils/status";
 import type { Vendor } from "@/types/vendor.types";
 import type { VendorSortColumn } from "@/services/vendor.service";
@@ -26,6 +28,7 @@ export default function VendorListPage() {
   const [sortColumn, setSortColumn] = useState<VendorSortColumn>("shopName");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const debouncedSearch = useDebounce(search);
+  const canManage = useHasRole(MANAGE_CATALOG_ROLES);
 
   const { data, isLoading } = useVendors({
     page,
@@ -100,11 +103,13 @@ export default function VendorListPage() {
               }}
               placeholder="ভেন্ডর সার্চ করুন..."
             />
-            <Button asChild variant="brass">
-              <Link href={ROUTES.vendorNew}>
-                <Plus className="h-4 w-4" /> নতুন ভেন্ডর
-              </Link>
-            </Button>
+            {canManage && (
+              <Button asChild variant="brass">
+                <Link href={ROUTES.vendorNew}>
+                  <Plus className="h-4 w-4" /> নতুন ভেন্ডর
+                </Link>
+              </Button>
+            )}
           </div>
         }
       />

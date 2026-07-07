@@ -7,12 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar } from "@/components/shared/Avatar";
 import { InfoRow } from "@/components/vendor/InfoRow";
 import { useCurrentUser } from "@/hooks/useAuth";
-
-const ROLE_LABEL_BN: Record<string, string> = {
-  SUPER_ADMIN: "Super Admin",
-  MANAGER: "Manager",
-  VIEWER: "Viewer",
-};
+import { ROLE_LABEL_BN } from "@/constants/roles";
 
 export default function ProfilePage() {
   const { data: user, isLoading } = useCurrentUser();

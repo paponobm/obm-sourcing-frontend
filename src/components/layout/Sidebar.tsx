@@ -4,6 +4,7 @@ import { ChevronsUpDown, LogOut, Settings, UserRound } from "lucide-react";
 import Link from "next/link";
 import { NAV_ITEMS } from "@/constants/nav";
 import { ROUTES } from "@/constants/routes";
+import { ROLE_LABEL_BN } from "@/constants/roles";
 import { NavItem } from "./NavItem";
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 import {
@@ -13,12 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const ROLE_LABEL_BN: Record<string, string> = {
-  SUPER_ADMIN: "Super Admin",
-  MANAGER: "Manager",
-  VIEWER: "Viewer",
-};
 
 export function SidebarContent() {
   const { data: user } = useCurrentUser();
