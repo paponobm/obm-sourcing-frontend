@@ -1,15 +1,19 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { productEditSchema, type ProductEditFormValues } from "@/lib/validations/product.schema";
-import { useUpdateProduct } from "@/hooks/useProducts";
+import {
+  vendorProductEditSchema,
+  type VendorProductEditFormValues,
+} from "@/lib/validations/product.schema";
 import { useSetVendorProductPrice } from "@/hooks/useVendors";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
+import { StarRating } from "@/components/product/StarRating";
 import { FormField } from "./FormField";
 
+/** Edits one vendor's price+rating for a product — not the shared product fields (name/unit/category/sku). */
 export function ProductEditForm({
   vendorId,
   productId,
@@ -18,59 +22,51 @@ export function ProductEditForm({
 }: {
   vendorId: string;
   productId: string;
-  defaultValues: { name: string; unit: string; category?: string; price: number };
+  defaultValues: { price: number; rating: number };
   onSuccess: () => void;
 }) {
-  const updateProduct = useUpdateProduct();
   const setVendorProductPrice = useSetVendorProductPrice();
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProductEditFormValues>({
-    resolver: zodResolver(productEditSchema),
+  } = useForm<VendorProductEditFormValues>({
+    resolver: zodResolver(vendorProductEditSchema),
     defaultValues: {
-      name: defaultValues.name,
-      unit: defaultValues.unit,
-      category: defaultValues.category ?? "",
       price: String(defaultValues.price),
+      rating: defaultValues.rating,
     },
   });
 
-  const onSubmit = async (values: ProductEditFormValues) => {
-    await updateProduct.mutateAsync({
-      id: productId,
-      input: { name: values.name, unit: values.unit, category: values.category },
-    });
+  const onSubmit = async (values: VendorProductEditFormValues) => {
     await setVendorProductPrice.mutateAsync({
       vendorId,
       productId,
       price: Number(values.price),
+      rating: values.rating,
     });
     onSuccess();
   };
 
-  const isPending = updateProduct.isPending || setVendorProductPrice.isPending;
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3.5">
-      <FormField label="প্রোডাক্টের নাম" htmlFor="edit-name" error={errors.name?.message}>
-        <Input id="edit-name" invalid={Boolean(errors.name)} {...register("name")} />
-      </FormField>
-      <FormField label="ইউনিট" htmlFor="edit-unit" error={errors.unit?.message}>
-        <Input id="edit-unit" invalid={Boolean(errors.unit)} {...register("unit")} />
-      </FormField>
-      <FormField label="ক্যাটাগরি (ঐচ্ছিক)" htmlFor="edit-category">
-        <Input id="edit-category" {...register("category")} />
-      </FormField>
       <FormField label="দাম (৳)" htmlFor="edit-price" error={errors.price?.message}>
         <Input id="edit-price" type="number" min={0} invalid={Boolean(errors.price)} {...register("price")} />
       </FormField>
 
+      <FormField label="রেটিং" htmlFor="edit-rating" error={errors.rating?.message}>
+        <Controller
+          control={control}
+          name="rating"
+          render={({ field }) => <StarRating value={field.value} onChange={field.onChange} size={18} />}
+        />
+      </FormField>
+
       <DialogFooter>
-        <Button type="submit" variant="brass" disabled={isPending}>
-          {isPending ? "সংরক্ষণ হচ্ছে..." : "পরিবর্তন সংরক্ষণ করুন"}
+        <Button type="submit" variant="brass" disabled={setVendorProductPrice.isPending}>
+          {setVendorProductPrice.isPending ? "সংরক্ষণ হচ্ছে..." : "পরিবর্তন সংরক্ষণ করুন"}
         </Button>
       </DialogFooter>
     </form>

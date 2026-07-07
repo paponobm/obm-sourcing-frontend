@@ -15,6 +15,7 @@ import {
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { PriceCell } from "@/components/product/PriceCell";
+import { StarRating } from "@/components/product/StarRating";
 import { ProductEditForm } from "@/components/forms/ProductEditForm";
 import { useDeleteProduct } from "@/hooks/useProducts";
 import { useHasRole } from "@/hooks/useHasRole";
@@ -54,6 +55,7 @@ export function VendorProductsTable({
             <TableRow>
               <TableHead>প্রোডাক্ট</TableHead>
               <TableHead>দাম</TableHead>
+              <TableHead>রেটিং</TableHead>
               <TableHead>সর্বশেষ আপডেট</TableHead>
               {showActionsColumn && <TableHead />}
             </TableRow>
@@ -64,6 +66,9 @@ export function VendorProductsTable({
                 <TableCell>{p.productName}</TableCell>
                 <TableCell>
                   <PriceCell amount={p.price} lowest={p.isLowestForProduct} />
+                </TableCell>
+                <TableCell>
+                  <StarRating value={p.rating} />
                 </TableCell>
                 <TableCell className="text-gray">{formatBnDate(p.lastUpdatedAt)}</TableCell>
                 {showActionsColumn && (
@@ -84,20 +89,16 @@ export function VendorProductsTable({
                           </Button>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>প্রোডাক্ট এডিট করুন</DialogTitle>
+                              <DialogTitle>দাম ও রেটিং এডিট করুন</DialogTitle>
                               <DialogDescription>
-                                প্রোডাক্টের নাম, ইউনিট, ক্যাটাগরি পরিবর্তন করলে তা অন্য সব ভেন্ডরের জন্যও পরিবর্তিত হবে।
+                                এই ভেন্ডরের জন্য শুধু দাম ও রেটিং পরিবর্তন হবে — প্রোডাক্টের নাম/ইউনিট/ক্যাটাগরি প্রোডাক্ট
+                                তালিকা পাতা থেকে এডিট করুন।
                               </DialogDescription>
                             </DialogHeader>
                             <ProductEditForm
                               vendorId={vendorId}
                               productId={p.productId}
-                              defaultValues={{
-                                name: p.productName,
-                                unit: p.unit,
-                                category: p.category,
-                                price: p.price,
-                              }}
+                              defaultValues={{ price: p.price, rating: p.rating }}
                               onSuccess={() => setEditingId(null)}
                             />
                           </DialogContent>

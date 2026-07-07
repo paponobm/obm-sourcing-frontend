@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Plus, Scale } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SearchBox } from "@/components/shared/SearchBox";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import {
   Dialog,
@@ -16,31 +16,40 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ProductForm } from "@/components/forms/ProductForm";
-import { useProducts } from "@/hooks/useProducts";
+import { ProductDetailsEditForm } from "@/components/forms/ProductDetailsEditForm";
+import { ProductVendorPicker } from "@/components/product/ProductVendorPicker";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { useProducts, useDeleteProduct } from "@/hooks/useProducts";
+import { useCategories } from "@/hooks/useCategories";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useHasRole } from "@/hooks/useHasRole";
-import { ROUTES } from "@/constants/routes";
-import { MANAGE_CATALOG_ROLES } from "@/constants/roles";
-import { formatBDT } from "@/utils/currency";
+import { MANAGE_CATALOG_ROLES, SUPER_ADMIN_ONLY } from "@/constants/roles";
 import type { Product } from "@/types/product.types";
 import type { ProductSortColumn } from "@/services/product.service";
 import type { SortDirection } from "@/types/common.types";
 
 const PAGE_SIZE = 10;
+const ALL_CATEGORIES = "__all__";
 
 export default function ProductListPage() {
   const [search, setSearch] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [page, setPage] = useState(1);
   const [sortColumn, setSortColumn] = useState<ProductSortColumn>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [createOpen, setCreateOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search);
   const canManage = useHasRole(MANAGE_CATALOG_ROLES);
+  const canDelete = useHasRole(SUPER_ADMIN_ONLY);
+  const deleteProduct = useDeleteProduct();
+  const { data: categories } = useCategories();
 
   const { data, isLoading } = useProducts({
     page,
     pageSize: PAGE_SIZE,
     search: debouncedSearch,
+    categoryId: categoryId || undefined,
     sortColumn,
     sortDirection,
   });
@@ -56,10 +65,13 @@ export default function ProductListPage() {
     setPage(1);
   };
 
+  const editingProduct = data?.data.find((p) => p.id === editingId);
+
   const columns: DataTableColumn<Product>[] = [
+    { key: "sku", header: "SKU", render: (p) => <span className="font-mono text-xs">{p.sku}</span> },
     { key: "name", header: "প্রোডাক্টের নাম", sortable: true, render: (p) => p.name },
     { key: "unit", header: "ইউনিট", render: (p) => p.unit },
-    { key: "category", header: "ক্যাটাগরি", render: (p) => p.category ?? "—" },
+    { key: "category", header: "ক্যাটাগরি", render: (p) => p.categoryName },
     {
       key: "vendorCount",
       header: "ভেন্ডর সংখ্যা",
@@ -67,25 +79,41 @@ export default function ProductListPage() {
       render: (p) => `${p.vendorCount} জন`,
     },
     {
-      key: "lowestPrice",
-      header: "সর্বনিম্ন দাম",
-      sortable: true,
-      render: (p) => (
-        <span className="font-mono font-bold text-brass">{formatBDT(p.lowestPrice)}</span>
-      ),
+      key: "vendors",
+      header: "ভেন্ডর ও দাম",
+      render: (p) => <ProductVendorPicker vendors={p.vendors} />,
     },
-    {
-      key: "compare",
-      header: "",
-      render: (p) => (
-        <Link
-          href={ROUTES.priceCompare(p.id)}
-          className="inline-flex items-center gap-1 text-xs text-teal hover:underline"
-        >
-          <Scale className="h-3.5 w-3.5" /> কম্পেয়ার
-        </Link>
-      ),
-    },
+    ...(canManage || canDelete
+      ? [
+          {
+            key: "actions",
+            header: "",
+            render: (p: Product) => (
+              <div className="flex justify-end gap-1.5">
+                {canManage && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(p.id)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                {canDelete && (
+                  <ConfirmDialog
+                    trigger={
+                      <Button type="button" variant="ghost" size="sm">
+                        <Trash2 className="h-3.5 w-3.5 text-red" />
+                      </Button>
+                    }
+                    title="প্রোডাক্ট মুছে ফেলবেন?"
+                    description={`"${p.name}" সম্পূর্ণরূপে মুছে ফেলা হবে — এটি সব ভেন্ডরের তালিকা থেকেও বাদ যাবে। এই কাজটি ফিরিয়ে আনা যাবে না।`}
+                    confirmLabel="মুছে ফেলুন"
+                    onConfirm={() => deleteProduct.mutate(p.id)}
+                    isLoading={deleteProduct.isPending}
+                  />
+                )}
+              </div>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -100,8 +128,27 @@ export default function ProductListPage() {
                 setSearch(v);
                 setPage(1);
               }}
-              placeholder="প্রোডাক্ট সার্চ করুন..."
+              placeholder="প্রোডাক্ট বা SKU সার্চ করুন..."
             />
+            <Select
+              value={categoryId || ALL_CATEGORIES}
+              onValueChange={(v) => {
+                setCategoryId(v === ALL_CATEGORIES ? "" : v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[170px]">
+                <SelectValue placeholder="ক্যাটাগরি" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_CATEGORIES}>সব ক্যাটাগরি</SelectItem>
+                {categories?.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {canManage && (
               <Button variant="brass" onClick={() => setCreateOpen(true)}>
                 <Plus className="h-4 w-4" /> নতুন প্রোডাক্ট
@@ -133,9 +180,32 @@ export default function ProductListPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>নতুন প্রোডাক্ট যোগ করুন</DialogTitle>
-            <DialogDescription>প্রোডাক্টের নাম, ইউনিট ও ক্যাটাগরি দিন।</DialogDescription>
+            <DialogDescription>SKU, নাম, ইউনিট, ক্যাটাগরি ও এক বা একাধিক ভেন্ডরের দাম/রেটিং দিন।</DialogDescription>
           </DialogHeader>
           <ProductForm onSuccess={() => setCreateOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(editingProduct)} onOpenChange={(open) => !open && setEditingId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>প্রোডাক্ট এডিট করুন</DialogTitle>
+            <DialogDescription>
+              এই পরিবর্তন সব ভেন্ডরের জন্য প্রযোজ্য হবে। ভেন্ডর-ভিত্তিক দাম/রেটিং এডিট করতে সেই ভেন্ডরের পাতায় যান।
+            </DialogDescription>
+          </DialogHeader>
+          {editingProduct && (
+            <ProductDetailsEditForm
+              productId={editingProduct.id}
+              defaultValues={{
+                sku: editingProduct.sku,
+                name: editingProduct.name,
+                unit: editingProduct.unit,
+                categoryId: editingProduct.categoryId,
+              }}
+              onSuccess={() => setEditingId(null)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>

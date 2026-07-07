@@ -57,13 +57,21 @@ export function useDeleteVendor() {
 export function useSetVendorProductPrice() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ vendorId, productId, price }: { vendorId: string; productId: string; price: number }) =>
-      vendorService.setProductPrice(vendorId, productId, price),
+    mutationFn: ({
+      vendorId,
+      productId,
+      price,
+      rating,
+    }: {
+      vendorId: string;
+      productId: string;
+      price: number;
+      rating: number;
+    }) => vendorService.setProductPrice(vendorId, productId, price, rating),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: VENDORS_KEY });
       queryClient.invalidateQueries({ queryKey: [...VENDORS_KEY, variables.vendorId] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      queryClient.invalidateQueries({ queryKey: ["price-comparison", variables.productId] });
     },
     onError: () => toast.error("ভেন্ডরের দাম সংরক্ষণ করা যায়নি"),
   });

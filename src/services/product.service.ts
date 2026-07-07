@@ -1,12 +1,14 @@
-import type { Product, PriceComparison, CreateProductInput } from "@/types/product.types";
+import type { Product, CreateProductInput } from "@/types/product.types";
 import type { PaginatedResult } from "@/types/common.types";
 import type { ListQuery } from "@/utils/pagination";
 import { apiClient } from "./api-client";
 
 export type ProductSortColumn = "name" | "vendorCount" | "lowestPrice";
 
+export type ProductListQuery = ListQuery<ProductSortColumn> & { categoryId?: string };
+
 export const productService = {
-  async list(query: ListQuery<ProductSortColumn> = {}): Promise<PaginatedResult<Product>> {
+  async list(query: ProductListQuery = {}): Promise<PaginatedResult<Product>> {
     return apiClient.get<PaginatedResult<Product>>("/products", { params: query }).then((r) => r.data);
   },
 
@@ -20,9 +22,5 @@ export const productService = {
 
   async remove(id: string): Promise<void> {
     return apiClient.delete(`/products/${id}`).then(() => undefined);
-  },
-
-  async getPriceComparison(productId: string): Promise<PriceComparison | undefined> {
-    return apiClient.get<PriceComparison>(`/price-comparison/${productId}`).then((r) => r.data);
   },
 };
