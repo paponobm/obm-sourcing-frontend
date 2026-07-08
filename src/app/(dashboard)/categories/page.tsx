@@ -17,6 +17,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { CategoryForm } from "@/components/forms/CategoryForm";
+import { Avatar } from "@/components/shared/Avatar";
 import { useCategories, useDeleteCategory } from "@/hooks/useCategories";
 import { useHasRole } from "@/hooks/useHasRole";
 import { MANAGE_CATALOG_ROLES, SUPER_ADMIN_ONLY } from "@/constants/roles";
@@ -73,7 +74,12 @@ export default function CategoriesPage() {
             <TableBody>
               {categories.map((c) => (
                 <TableRow key={c.id}>
-                  <TableCell>{c.name}</TableCell>
+                  <TableCell>
+                    <span className="flex items-center">
+                      <Avatar initials={c.name.slice(0, 2)} imageUrl={c.imageUrl} />
+                      {c.name}
+                    </span>
+                  </TableCell>
                   <TableCell>{c.productCount} টি</TableCell>
                   {showActionsColumn && (
                     <TableCell>
@@ -117,7 +123,7 @@ export default function CategoriesPage() {
             <DialogTitle>নতুন ক্যাটাগরি যোগ করুন</DialogTitle>
             <DialogDescription>ক্যাটাগরির নাম দিন।</DialogDescription>
           </DialogHeader>
-          <CategoryForm onSuccess={() => setCreateOpen(false)} />
+          <CategoryForm onSuccess={() => setCreateOpen(false)} onCancel={() => setCreateOpen(false)} />
         </DialogContent>
       </Dialog>
 
@@ -129,8 +135,9 @@ export default function CategoriesPage() {
           {editingCategory && (
             <CategoryForm
               categoryId={editingCategory.id}
-              defaultValues={{ name: editingCategory.name }}
+              defaultValues={{ name: editingCategory.name, imageUrl: editingCategory.imageUrl }}
               onSuccess={() => setEditingId(null)}
+              onCancel={() => setEditingId(null)}
             />
           )}
         </DialogContent>

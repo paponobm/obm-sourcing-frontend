@@ -56,7 +56,7 @@ export default function VendorListPage() {
       sortable: true,
       render: (v) => (
         <Link href={ROUTES.vendorDetail(v.id)} className="flex items-center hover:underline">
-          <Avatar initials={v.shopName.slice(0, 2)} />
+          <Avatar initials={v.shopName.slice(0, 2)} imageUrl={v.imageUrl} />
           {v.shopName}
         </Link>
       ),

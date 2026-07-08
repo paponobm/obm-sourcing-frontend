@@ -11,6 +11,7 @@ export type Vendor = {
   status: VendorStatus;
   productCount: number;
   note?: string;
+  imageUrl?: string;
   createdAt: string;
 };
 
@@ -37,6 +38,7 @@ export type CreateVendorInput = {
   whatsapp: string;
   phone: string;
   note?: string;
+  imageUrl?: string;
 };
 
 export type UpdateVendorInput = Partial<CreateVendorInput> & {

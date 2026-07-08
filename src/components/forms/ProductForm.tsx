@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
@@ -7,19 +8,26 @@ import { productSchema, type ProductFormValues } from "@/lib/validations/product
 import { useCreateProduct } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
 import { useVendors, useSetVendorProductPrice } from "@/hooks/useVendors";
+import { useUploadImage } from "@/hooks/useUploadImage";
+import { resolveImageValue, resolveImageValues, type ImageValue } from "@/lib/image-value";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { StarRating } from "@/components/product/StarRating";
+import { ImageUploadField } from "@/components/shared/ImageUploadField";
+import { MultiImageUploadField } from "@/components/shared/MultiImageUploadField";
 import { FormField } from "./FormField";
 
 export function ProductForm({ onSuccess }: { onSuccess: () => void }) {
   const createProduct = useCreateProduct();
   const setVendorProductPrice = useSetVendorProductPrice();
+  const uploadImage = useUploadImage();
   const { data: vendorsPage, isLoading: vendorsLoading } = useVendors({ page: 1, pageSize: 100 });
   const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const [thumbnailValue, setThumbnailValue] = useState<ImageValue>();
+  const [imageValues, setImageValues] = useState<(File | string)[]>([]);
 
   const {
     register,
@@ -42,11 +50,19 @@ export function ProductForm({ onSuccess }: { onSuccess: () => void }) {
   const watchedVendorPrices = watch("vendorPrices");
 
   const onSubmit = async (values: ProductFormValues) => {
+    const upload = (file: File) => uploadImage.mutateAsync(file);
+    const [thumbnailUrl, imageUrls] = await Promise.all([
+      resolveImageValue(thumbnailValue, upload),
+      resolveImageValues(imageValues, upload),
+    ]);
+
     const product = await createProduct.mutateAsync({
       sku: values.sku,
       name: values.name,
       unit: values.unit,
       categoryId: values.categoryId,
+      thumbnailUrl,
+      imageUrls,
     });
 
     await Promise.all(
@@ -63,7 +79,7 @@ export function ProductForm({ onSuccess }: { onSuccess: () => void }) {
     onSuccess();
   };
 
-  const isPending = createProduct.isPending || setVendorProductPrice.isPending;
+  const isPending = uploadImage.isPending || createProduct.isPending || setVendorProductPrice.isPending;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3.5">
@@ -96,6 +112,16 @@ export function ProductForm({ onSuccess }: { onSuccess: () => void }) {
           )}
         />
       </FormField>
+
+      <div>
+        <Label>থাম্বনেইল ছবি (ঐচ্ছিক)</Label>
+        <ImageUploadField value={thumbnailValue} onChange={setThumbnailValue} />
+      </div>
+
+      <div>
+        <Label>আরও ছবি (ঐচ্ছিক)</Label>
+        <MultiImageUploadField value={imageValues} onChange={setImageValues} />
+      </div>
 
       <div>
         <Label>ভেন্ডর ও দাম</Label>

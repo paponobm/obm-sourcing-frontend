@@ -13,6 +13,8 @@ export type Product = {
   unit: string;
   categoryId: string;
   categoryName: string;
+  thumbnailUrl?: string;
+  imageUrls: string[];
   vendorCount: number;
   lowestPrice: number;
   createdAt: string;
@@ -25,6 +27,8 @@ export type CreateProductInput = {
   name: string;
   unit: string;
   categoryId: string;
+  thumbnailUrl?: string;
+  imageUrls?: string[];
 };
 
 export type VendorPriceInput = {

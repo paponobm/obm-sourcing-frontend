@@ -6,6 +6,14 @@ import type { Vendor } from "@/types/vendor.types";
 export function ProfileCard({ vendor }: { vendor: Vendor }) {
   return (
     <div className="rounded-md border border-line bg-white p-5">
+      {vendor.imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={vendor.imageUrl}
+          alt=""
+          className="mb-3.5 h-32 w-full rounded-md object-cover"
+        />
+      )}
       <div className="font-serif text-lg text-teal-dark">{vendor.shopName}</div>
       <div className="mb-3.5 text-xs text-gray">Vendor ID: {vendor.vendorCode}</div>
 

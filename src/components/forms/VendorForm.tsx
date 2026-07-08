@@ -1,14 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { vendorSchema, type VendorFormValues } from "@/lib/validations/vendor.schema";
 import { useCreateVendor } from "@/hooks/useVendors";
+import { useUploadImage } from "@/hooks/useUploadImage";
+import { resolveImageValue, type ImageValue } from "@/lib/image-value";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { ImageUploadField } from "@/components/shared/ImageUploadField";
 import { FormField } from "./FormField";
 import { FormGrid } from "./FormGrid";
 import { ROUTES } from "@/constants/routes";
@@ -16,6 +21,8 @@ import { ROUTES } from "@/constants/routes";
 export function VendorForm() {
   const router = useRouter();
   const createVendor = useCreateVendor();
+  const uploadImage = useUploadImage();
+  const [imageValue, setImageValue] = useState<ImageValue>();
   const {
     register,
     handleSubmit,
@@ -32,16 +39,24 @@ export function VendorForm() {
     },
   });
 
-  const onSubmit = (values: VendorFormValues) => {
-    createVendor.mutate(values, {
-      onSuccess: (vendor) => router.push(ROUTES.vendorDetail(vendor.id)),
-    });
+  const onSubmit = async (values: VendorFormValues) => {
+    const imageUrl = await resolveImageValue(imageValue, (file) => uploadImage.mutateAsync(file));
+    createVendor.mutate(
+      { ...values, imageUrl },
+      { onSuccess: (vendor) => router.push(ROUTES.vendorDetail(vendor.id)) },
+    );
   };
+
+  const isPending = uploadImage.isPending || createVendor.isPending;
 
   return (
     <Card>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <FormGrid>
+          <div className="col-span-full">
+            <Label>ছবি (ঐচ্ছিক)</Label>
+            <ImageUploadField value={imageValue} onChange={setImageValue} />
+          </div>
           <FormField label="দোকানের নাম" htmlFor="shopName" error={errors.shopName?.message}>
             <Input
               id="shopName"
@@ -95,10 +110,10 @@ export function VendorForm() {
           </FormField>
         </FormGrid>
         <div className="flex gap-2.5 px-[18px] pb-[18px]">
-          <Button type="submit" variant="brass" disabled={createVendor.isPending}>
-            {createVendor.isPending ? "সংরক্ষণ হচ্ছে..." : "ভেন্ডর সংরক্ষণ করুন"}
+          <Button type="submit" variant="brass" disabled={isPending}>
+            {isPending ? "সংরক্ষণ হচ্ছে..." : "ভেন্ডর সংরক্ষণ করুন"}
           </Button>
-          <Button type="button" variant="ghost" onClick={() => router.push(ROUTES.vendors)}>
+          <Button type="button" variant="ghost" disabled={isPending} onClick={() => router.push(ROUTES.vendors)}>
             বাতিল
           </Button>
         </div>

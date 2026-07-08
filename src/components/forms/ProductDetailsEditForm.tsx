@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -8,24 +9,39 @@ import {
 } from "@/lib/validations/product.schema";
 import { useUpdateProduct } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
+import { useUploadImage } from "@/hooks/useUploadImage";
+import { resolveImageValue, resolveImageValues, type ImageValue } from "@/lib/image-value";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { ImageUploadField } from "@/components/shared/ImageUploadField";
+import { MultiImageUploadField } from "@/components/shared/MultiImageUploadField";
 import { FormField } from "./FormField";
 
-/** Edits a product's shared fields (SKU/name/unit/category) — affects every vendor supplying it. */
+/** Edits a product's shared fields (SKU/name/unit/category/images) — affects every vendor supplying it. */
 export function ProductDetailsEditForm({
   productId,
   defaultValues,
   onSuccess,
 }: {
   productId: string;
-  defaultValues: { sku: string; name: string; unit: string; categoryId: string };
+  defaultValues: {
+    sku: string;
+    name: string;
+    unit: string;
+    categoryId: string;
+    thumbnailUrl?: string;
+    imageUrls: string[];
+  };
   onSuccess: () => void;
 }) {
   const updateProduct = useUpdateProduct();
+  const uploadImage = useUploadImage();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const [thumbnailValue, setThumbnailValue] = useState<ImageValue>(defaultValues.thumbnailUrl);
+  const [imageValues, setImageValues] = useState<(File | string)[]>(defaultValues.imageUrls);
 
   const {
     register,
@@ -43,9 +59,17 @@ export function ProductDetailsEditForm({
   });
 
   const onSubmit = async (values: ProductDetailsEditFormValues) => {
-    await updateProduct.mutateAsync({ id: productId, input: values });
+    const upload = (file: File) => uploadImage.mutateAsync(file);
+    const [thumbnailUrl, imageUrls] = await Promise.all([
+      resolveImageValue(thumbnailValue, upload),
+      resolveImageValues(imageValues, upload),
+    ]);
+
+    await updateProduct.mutateAsync({ id: productId, input: { ...values, thumbnailUrl, imageUrls } });
     onSuccess();
   };
+
+  const isPending = uploadImage.isPending || updateProduct.isPending;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3.5">
@@ -79,9 +103,19 @@ export function ProductDetailsEditForm({
         />
       </FormField>
 
+      <div>
+        <Label>থাম্বনেইল ছবি (ঐচ্ছিক)</Label>
+        <ImageUploadField value={thumbnailValue} onChange={setThumbnailValue} />
+      </div>
+
+      <div>
+        <Label>আরও ছবি (ঐচ্ছিক)</Label>
+        <MultiImageUploadField value={imageValues} onChange={setImageValues} />
+      </div>
+
       <DialogFooter>
-        <Button type="submit" variant="brass" disabled={updateProduct.isPending}>
-          {updateProduct.isPending ? "সংরক্ষণ হচ্ছে..." : "পরিবর্তন সংরক্ষণ করুন"}
+        <Button type="submit" variant="brass" disabled={isPending}>
+          {isPending ? "সংরক্ষণ হচ্ছে..." : "পরিবর্তন সংরক্ষণ করুন"}
         </Button>
       </DialogFooter>
     </form>

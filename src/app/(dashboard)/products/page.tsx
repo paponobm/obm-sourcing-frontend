@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SearchBox } from "@/components/shared/SearchBox";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { Avatar } from "@/components/shared/Avatar";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import {
   Dialog,
@@ -18,7 +19,7 @@ import {
 import { ProductForm } from "@/components/forms/ProductForm";
 import { ProductDetailsEditForm } from "@/components/forms/ProductDetailsEditForm";
 import { ProductVendorPicker } from "@/components/product/ProductVendorPicker";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { CategoryStrip } from "@/components/product/CategoryStrip";
 import { useProducts, useDeleteProduct } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -29,7 +30,6 @@ import type { ProductSortColumn } from "@/services/product.service";
 import type { SortDirection } from "@/types/common.types";
 
 const PAGE_SIZE = 10;
-const ALL_CATEGORIES = "__all__";
 
 export default function ProductListPage() {
   const [search, setSearch] = useState("");
@@ -68,8 +68,18 @@ export default function ProductListPage() {
   const editingProduct = data?.data.find((p) => p.id === editingId);
 
   const columns: DataTableColumn<Product>[] = [
+    {
+      key: "name",
+      header: "প্রোডাক্টের নাম",
+      sortable: true,
+      render: (p) => (
+        <span className="flex items-center">
+          <Avatar initials={p.name.slice(0, 2)} imageUrl={p.thumbnailUrl} />
+          {p.name}
+        </span>
+      ),
+    },
     { key: "sku", header: "SKU", render: (p) => <span className="font-mono text-xs">{p.sku}</span> },
-    { key: "name", header: "প্রোডাক্টের নাম", sortable: true, render: (p) => p.name },
     { key: "unit", header: "ইউনিট", render: (p) => p.unit },
     { key: "category", header: "ক্যাটাগরি", render: (p) => p.categoryName },
     {
@@ -130,25 +140,6 @@ export default function ProductListPage() {
               }}
               placeholder="প্রোডাক্ট বা SKU সার্চ করুন..."
             />
-            <Select
-              value={categoryId || ALL_CATEGORIES}
-              onValueChange={(v) => {
-                setCategoryId(v === ALL_CATEGORIES ? "" : v);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-[170px]">
-                <SelectValue placeholder="ক্যাটাগরি" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_CATEGORIES}>সব ক্যাটাগরি</SelectItem>
-                {categories?.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             {canManage && (
               <Button variant="brass" onClick={() => setCreateOpen(true)}>
                 <Plus className="h-4 w-4" /> নতুন প্রোডাক্ট
@@ -156,6 +147,15 @@ export default function ProductListPage() {
             )}
           </div>
         }
+      />
+
+      <CategoryStrip
+        categories={categories ?? []}
+        selectedId={categoryId}
+        onSelect={(id) => {
+          setCategoryId(id);
+          setPage(1);
+        }}
       />
 
       <Card>
@@ -202,6 +202,8 @@ export default function ProductListPage() {
                 name: editingProduct.name,
                 unit: editingProduct.unit,
                 categoryId: editingProduct.categoryId,
+                thumbnailUrl: editingProduct.thumbnailUrl,
+                imageUrls: editingProduct.imageUrls,
               }}
               onSuccess={() => setEditingId(null)}
             />
