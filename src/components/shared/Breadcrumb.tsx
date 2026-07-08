@@ -8,7 +8,7 @@ export type BreadcrumbItem = {
 
 export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
   return (
-    <div className="mb-2 text-xs text-gray">
+    <div className="mb-1.5 text-[11px] text-gray sm:mb-2 sm:text-xs lg:text-sm">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         return (

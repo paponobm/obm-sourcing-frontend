@@ -63,7 +63,9 @@ export function VendorProductsTable({
           <TableBody>
             {products.map((p) => (
               <TableRow key={p.id}>
-                <TableCell>{p.productName}</TableCell>
+                <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
+                  {p.productName}
+                </TableCell>
                 <TableCell>
                   <PriceCell amount={p.price} lowest={p.isLowestForProduct} />
                 </TableCell>
@@ -85,7 +87,7 @@ export function VendorProductsTable({
                             size="sm"
                             onClick={() => setEditingId(p.id)}
                           >
-                            <Pencil className="h-3.5 w-3.5" />
+                            <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
                           </Button>
                           <DialogContent>
                             <DialogHeader>
@@ -109,7 +111,7 @@ export function VendorProductsTable({
                         <ConfirmDialog
                           trigger={
                             <Button type="button" variant="ghost" size="sm">
-                              <Trash2 className="h-3.5 w-3.5 text-red" />
+                              <Trash2 className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
                             </Button>
                           }
                           title="প্রোডাক্ট মুছে ফেলবেন?"

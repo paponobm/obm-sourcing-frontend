@@ -28,9 +28,9 @@ export default function VendorDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-[18px] lg:flex-row">
-        <Skeleton className="h-64 w-full lg:w-[270px] lg:shrink-0" />
-        <Skeleton className="h-64 flex-1" />
+      <div className="flex flex-col gap-3.5 sm:gap-4 lg:flex-row lg:gap-[18px]">
+        <Skeleton className="h-56 w-full sm:h-60 lg:h-64 lg:w-[270px] lg:shrink-0" />
+        <Skeleton className="h-56 flex-1 sm:h-60 lg:h-64" />
       </div>
     );
   }
@@ -63,8 +63,8 @@ export default function VendorDetailPage() {
         }
       />
 
-      <div className="flex flex-col gap-[18px] lg:flex-row">
-        <div className="w-full lg:w-[270px] lg:shrink-0">
+      <div className="flex flex-col gap-3.5 sm:gap-4 lg:flex-row lg:gap-[18px]">
+        <div className="w-full lg:w-[270px] lg:shrink-0 xl:w-[300px]">
           <ProfileCard vendor={vendor} />
         </div>
         <div className="flex-1">
