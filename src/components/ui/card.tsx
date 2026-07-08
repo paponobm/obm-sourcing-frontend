@@ -17,7 +17,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
     <div
       ref={ref}
       className={cn(
-        "flex items-center justify-between border-b border-line px-[18px] py-[13px]",
+        "flex items-center justify-between border-b border-line px-3 py-2.5 sm:px-4 sm:py-3 lg:px-[18px] lg:py-3.5",
         className,
       )}
       {...props}
@@ -28,14 +28,18 @@ CardHeader.displayName = "CardHeader";
 
 const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={cn("m-0 font-serif text-[0.90625rem] text-teal-dark", className)} {...props} />
+    <h3
+      ref={ref}
+      className={cn("m-0 font-serif text-sm text-teal-dark sm:text-base lg:text-lg", className)}
+      {...props}
+    />
   ),
 );
 CardTitle.displayName = "CardTitle";
 
 const CardTag = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
   ({ className, ...props }, ref) => (
-    <span ref={ref} className={cn("text-[0.6875rem] text-gray", className)} {...props} />
+    <span ref={ref} className={cn("text-[11px] text-gray sm:text-xs", className)} {...props} />
   ),
 );
 CardTag.displayName = "CardTag";

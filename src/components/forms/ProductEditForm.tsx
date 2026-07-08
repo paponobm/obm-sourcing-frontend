@@ -60,7 +60,9 @@ export function ProductEditForm({
         <Controller
           control={control}
           name="rating"
-          render={({ field }) => <StarRating value={field.value} onChange={field.onChange} size={18} />}
+          render={({ field }) => (
+            <StarRating value={field.value} onChange={field.onChange} iconClassName="h-[18px] w-[18px]" />
+          )}
         />
       </FormField>
 

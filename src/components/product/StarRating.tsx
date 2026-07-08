@@ -9,12 +9,12 @@ const SCALE = [1, 2, 3, 4, 5] as const;
 export function StarRating({
   value,
   onChange,
-  size = 14,
+  iconClassName = "h-3.5 w-3.5 sm:h-4 sm:w-4 lg:h-[18px] lg:w-[18px]",
   className,
 }: {
   value: number;
   onChange?: (value: number) => void;
-  size?: number;
+  iconClassName?: string;
   className?: string;
 }) {
   const interactive = Boolean(onChange);
@@ -31,8 +31,10 @@ export function StarRating({
           aria-label={`${star} স্টার`}
         >
           <Star
-            size={size}
-            className={star <= value ? "fill-brass text-brass" : "fill-transparent text-line"}
+            className={cn(
+              iconClassName,
+              star <= value ? "fill-brass text-brass" : "fill-transparent text-line",
+            )}
           />
         </button>
       ))}

@@ -16,9 +16,9 @@ export function ProductVendorPicker({ vendors }: { vendors: ProductVendorEntry[]
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2.5">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 lg:gap-3">
       <Select value={selected.vendorId} onValueChange={setSelectedId}>
-        <SelectTrigger className="h-8 w-[150px] text-xs">
+        <SelectTrigger className="h-7 w-[120px] text-[11px] sm:h-8 sm:w-[150px] sm:text-xs lg:h-9 lg:w-[170px] lg:text-sm">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

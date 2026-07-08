@@ -18,7 +18,7 @@ export function FormField({
     <div className={cn(full && "col-span-full")}>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
-      {error && <p className="mt-1 text-xs text-red">{error}</p>}
+      {error && <p className="mt-1 text-[11px] text-red sm:text-xs">{error}</p>}
     </div>
   );
 }

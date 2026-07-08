@@ -40,7 +40,7 @@ export default function CategoriesPage() {
         actions={
           canManage && (
             <Button variant="brass" onClick={() => setCreateOpen(true)}>
-              <Plus className="h-4 w-4" /> নতুন ক্যাটাগরি
+              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> নতুন ক্যাটাগরি
             </Button>
           )
         }
@@ -75,7 +75,7 @@ export default function CategoriesPage() {
               {categories.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell>
-                    <span className="flex items-center">
+                    <span className="flex items-center text-sm md:text-base lg:text-lg xl:text-xl">
                       <Avatar initials={c.name.slice(0, 2)} imageUrl={c.imageUrl} />
                       {c.name}
                     </span>
@@ -86,14 +86,14 @@ export default function CategoriesPage() {
                       <div className="flex justify-end gap-1.5">
                         {canManage && (
                           <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(c.id)}>
-                            <Pencil className="h-3.5 w-3.5" />
+                            <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
                           </Button>
                         )}
                         {canDelete && (
                           <ConfirmDialog
                             trigger={
                               <Button type="button" variant="ghost" size="sm">
-                                <Trash2 className="h-3.5 w-3.5 text-red" />
+                                <Trash2 className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
                               </Button>
                             }
                             title="ক্যাটাগরি মুছে ফেলবেন?"

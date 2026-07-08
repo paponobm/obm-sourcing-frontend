@@ -15,7 +15,10 @@ export function Avatar({
       <img
         src={imageUrl}
         alt=""
-        className={cn("mr-2.5 h-[30px] w-[30px] shrink-0 rounded-[6px] object-cover", className)}
+        className={cn(
+          "mr-1.5 h-6 w-6 shrink-0 rounded-md object-cover sm:mr-2 sm:h-7 sm:w-7 lg:mr-2.5 lg:h-[30px] lg:w-[30px]",
+          className,
+        )}
       />
     );
   }
@@ -23,7 +26,7 @@ export function Avatar({
   return (
     <span
       className={cn(
-        "mr-2.5 inline-flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[6px] bg-teal font-serif text-xs text-white",
+        "mr-1.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-teal font-serif text-[10px] text-white sm:mr-2 sm:h-7 sm:w-7 sm:text-xs lg:mr-2.5 lg:h-[30px] lg:w-[30px] lg:text-xs",
         className,
       )}
     >

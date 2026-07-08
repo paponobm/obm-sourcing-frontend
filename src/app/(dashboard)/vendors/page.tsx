@@ -55,7 +55,10 @@ export default function VendorListPage() {
       header: "দোকানের নাম",
       sortable: true,
       render: (v) => (
-        <Link href={ROUTES.vendorDetail(v.id)} className="flex items-center hover:underline">
+        <Link
+          href={ROUTES.vendorDetail(v.id)}
+          className="flex items-center text-sm hover:underline md:text-base lg:text-lg xl:text-xl"
+        >
           <Avatar initials={v.shopName.slice(0, 2)} imageUrl={v.imageUrl} />
           {v.shopName}
         </Link>
@@ -106,7 +109,7 @@ export default function VendorListPage() {
             {canManage && (
               <Button asChild variant="brass">
                 <Link href={ROUTES.vendorNew}>
-                  <Plus className="h-4 w-4" /> নতুন ভেন্ডর
+                  <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> নতুন ভেন্ডর
                 </Link>
               </Button>
             )}

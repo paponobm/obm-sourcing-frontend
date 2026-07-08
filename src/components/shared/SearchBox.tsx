@@ -17,12 +17,12 @@ export function SearchBox({
   return (
     <label
       className={cn(
-        "flex w-[280px] items-center gap-2 rounded-[5px] border border-line bg-white px-3 py-2 text-[0.8125rem] text-gray",
+        "flex h-9 w-full items-center gap-1.5 rounded border border-line bg-white px-2.5 text-xs text-gray sm:h-10 sm:w-56 sm:gap-2 sm:px-3 sm:text-sm lg:h-11 lg:w-72 lg:px-3.5 lg:text-base",
         "focus-within:ring-2 focus-within:ring-ring/30",
         className,
       )}
     >
-      <Search className="h-4 w-4 shrink-0 opacity-70" />
+      <Search className="h-3.5 w-3.5 shrink-0 opacity-70 sm:h-4 sm:w-4 lg:h-[18px] lg:w-[18px]" />
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}

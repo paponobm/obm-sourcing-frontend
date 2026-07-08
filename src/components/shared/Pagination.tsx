@@ -17,11 +17,11 @@ export function Pagination({
   const to = Math.min(page * pageSize, total);
 
   return (
-    <div className="flex items-center justify-between border-t border-line px-[18px] py-3 text-[0.75rem] text-gray">
+    <div className="flex items-center justify-between border-t border-line px-3 py-2.5 text-[0.6875rem] text-gray sm:px-4 sm:py-3 sm:text-xs lg:px-[18px] lg:text-sm">
       <span>
         {total === 0 ? "কোনো ফলাফল নেই" : `${from}–${to} দেখানো হচ্ছে, মোট ${total}`}
       </span>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <Button
           type="button"
           variant="ghost"
@@ -29,7 +29,7 @@ export function Pagination({
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
-          <ChevronLeft className="h-3.5 w-3.5" />
+          <ChevronLeft className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
         </Button>
         <span className="font-mono">
           {page} / {totalPages}
@@ -41,7 +41,7 @@ export function Pagination({
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
         >
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
         </Button>
       </div>
     </div>

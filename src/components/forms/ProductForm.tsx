@@ -179,7 +179,11 @@ export function ProductForm({ onSuccess }: { onSuccess: () => void }) {
                         control={control}
                         name={`vendorPrices.${index}.rating`}
                         render={({ field: ratingField }) => (
-                          <StarRating value={ratingField.value} onChange={ratingField.onChange} size={16} />
+                          <StarRating
+                            value={ratingField.value}
+                            onChange={ratingField.onChange}
+                            iconClassName="h-4 w-4"
+                          />
                         )}
                       />
                     </div>
