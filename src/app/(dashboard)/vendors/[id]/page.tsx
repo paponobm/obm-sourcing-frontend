@@ -1,30 +1,37 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Topbar } from "@/components/layout/Topbar";
-import { Breadcrumb } from "@/components/shared/Breadcrumb";
-import { SearchBox } from "@/components/shared/SearchBox";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { ProfileCard } from "@/components/vendor/ProfileCard";
-import { VendorProductsTable } from "@/components/vendor/VendorProductsTable";
+import { VendorHeader } from "@/components/vendor/VendorHeader";
+import {
+  VendorSectionTabs,
+  type VendorSectionKey,
+  type NavigateToSection,
+} from "@/components/vendor/VendorSectionTabs";
+import { ProfileSection } from "@/components/vendor/ProfileSection";
+import { NewOrderSection } from "@/components/vendor/NewOrderSection";
+import { PendingInvoiceSection } from "@/components/vendor/PendingInvoiceSection";
+import { WarehouseReceiveCheckSection } from "@/components/vendor/WarehouseReceiveCheckSection";
+import { ClosedInvoiceSection } from "@/components/vendor/ClosedInvoiceSection";
+import { ReceivedInvoiceSection } from "@/components/vendor/ReceivedInvoiceSection";
+import { OrderHistorySection } from "@/components/vendor/OrderHistorySection";
 import { useVendor } from "@/hooks/useVendor";
 import { ROUTES } from "@/constants/routes";
 
 export default function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: vendor, isLoading } = useVendor(id);
-  const [search, setSearch] = useState("");
+  const [activeSection, setActiveSection] = useState<VendorSectionKey>("profile");
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | undefined>();
 
-  const filteredProducts = useMemo(() => {
-    if (!vendor) return [];
-    const term = search.trim().toLowerCase();
-    if (!term) return vendor.products;
-    return vendor.products.filter((p) => p.productName.toLowerCase().includes(term));
-  }, [vendor, search]);
+  const navigate: NavigateToSection = (section, invoiceId) => {
+    setSelectedInvoiceId(invoiceId);
+    setActiveSection(section);
+  };
 
   if (isLoading) {
     return (
@@ -51,29 +58,27 @@ export default function VendorDetailPage() {
 
   return (
     <>
-      <Breadcrumb items={[{ label: "ভেন্ডর তালিকা", href: ROUTES.vendors }, { label: vendor.shopName }]} />
-      <Topbar
-        title={vendor.shopName}
-        actions={
-          <SearchBox
-            value={search}
-            onChange={setSearch}
-            placeholder="প্রোডাক্ট সার্চ করুন..."
-          />
-        }
-      />
+      <VendorHeader vendor={vendor} />
+      <VendorSectionTabs active={activeSection} onChange={(key) => navigate(key)} />
 
-      <div className="flex flex-col gap-3.5 sm:gap-4 lg:flex-row lg:gap-[18px]">
-        <div className="w-full lg:w-[270px] lg:shrink-0 xl:w-[300px]">
-          <ProfileCard vendor={vendor} />
-        </div>
-        <div className="flex-1">
-          <VendorProductsTable
+      <div key={activeSection} className="animate-in fade-in-0 duration-300">
+        {activeSection === "profile" && <ProfileSection vendor={vendor} />}
+        {activeSection === "newOrder" && <NewOrderSection vendor={vendor} onNavigateSection={navigate} />}
+        {activeSection === "invoicePending" && (
+          <PendingInvoiceSection vendorId={vendor.id} invoiceId={selectedInvoiceId} onNavigateSection={navigate} />
+        )}
+        {activeSection === "warehouseReceive" && (
+          <WarehouseReceiveCheckSection
             vendorId={vendor.id}
-            products={filteredProducts}
-            totalCount={vendor.productCount}
+            invoiceId={selectedInvoiceId}
+            onNavigateSection={navigate}
           />
-        </div>
+        )}
+        {activeSection === "invoiceClosed" && (
+          <ClosedInvoiceSection vendorId={vendor.id} invoiceId={selectedInvoiceId} />
+        )}
+        {activeSection === "invoiceReceived" && <ReceivedInvoiceSection />}
+        {activeSection === "orderHistory" && <OrderHistorySection vendorId={vendor.id} onNavigateSection={navigate} />}
       </div>
     </>
   );
