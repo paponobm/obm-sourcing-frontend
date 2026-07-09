@@ -63,11 +63,21 @@ export function useLogout() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => authService.logout(),
+    mutationFn: async () => {
+      // Invalidating the refresh token server-side is best-effort cleanup —
+      // fired in the background so logout doesn't wait on a network round trip.
+      authService.logout(authStorage.getToken()).catch(() => undefined);
+    },
     onSuccess: () => {
+      // Token cleared immediately — the middleware checks this cookie on every
+      // navigation, so it must be gone before we push to /login or the
+      // still-authenticated request would just get redirected back.
       authStorage.clear();
-      queryClient.clear();
       router.push(ROUTES.login);
+      // Cache wipe deferred one tick so the outgoing page's still-mounted
+      // queries (e.g. the dashboard's) aren't still-observed-but-uncached at
+      // the moment their token disappears, which would auto-refetch → 401.
+      setTimeout(() => queryClient.clear(), 0);
     },
   });
 }
