@@ -4,6 +4,8 @@ export const ROUTES = {
   vendors: "/vendors",
   vendorNew: "/vendors/new",
   vendorDetail: (id: string) => `/vendors/${id}`,
+  invoiceDetail: (id: string) => `/invoices/${id}`,
+  invoiceReceive: (id: string) => `/invoices/${id}/receive`,
   products: "/products",
   productsCompareAll: "/products/compare",
   categories: "/categories",
