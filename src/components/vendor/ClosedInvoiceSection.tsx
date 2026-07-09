@@ -17,8 +17,10 @@ const CLOSED_STATUSES = ["CLOSED"] as const;
 
 /** Read-only summary of a fully-closed order — either a specific `invoiceId`
  * (navigated to from Order History) or, by default, the vendor's most recently
- * closed one. Nothing here is editable; Print/PDF/Excel are placeholder actions
- * until export is wired up. */
+ * closed one. Nothing here is editable. Print and PDF both use the browser's
+ * native print (PDF is just "Save as PDF" in that same dialog) — the app shell
+ * and these action buttons are hidden for print via `print:hidden` so only the
+ * invoice itself renders. Excel export is still a placeholder. */
 export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string; invoiceId?: string }) {
   const { invoice, isLoading, hasTarget } = useSectionInvoice(vendorId, CLOSED_STATUSES, invoiceId);
 
@@ -55,8 +57,8 @@ export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string
   const totalOrderedQty = invoice.items.reduce((sum, item) => sum + item.orderedQty, 0);
   const totalReceivedQty = invoice.items.reduce((sum, item) => sum + (item.receivedQty ?? 0), 0);
 
-  const handlePrint = () => toast.success("প্রিন্ট শুরু হয়েছে");
-  const handleDownloadPdf = () => toast.success("PDF ডাউনলোড শুরু হয়েছে");
+  const handlePrint = () => window.print();
+  const handleDownloadPdf = () => window.print();
   const handleExportExcel = () => toast.success("এক্সেল এক্সপোর্ট শুরু হয়েছে");
 
   return (
@@ -141,7 +143,7 @@ export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
+      <div className="mt-4 flex flex-wrap gap-2 print:hidden sm:mt-5">
         <Button type="button" variant="ghost" onClick={handlePrint}>
           <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> প্রিন্ট ইনভয়েস
         </Button>

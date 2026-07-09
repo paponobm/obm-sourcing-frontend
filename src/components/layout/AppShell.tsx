@@ -5,11 +5,11 @@ import { MobileSidebar } from "./MobileSidebar";
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen">
-      <div className="hidden md:block">
+      <div className="hidden print:hidden md:block">
         <Sidebar />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center gap-3 border-b border-line bg-white px-4 py-3 md:hidden">
+        <div className="flex items-center gap-3 border-b border-line bg-white px-4 py-3 print:hidden md:hidden">
           <MobileSidebar />
           <span className="font-serif text-[0.9375rem] text-teal-dark">OBM সোর্সিং</span>
         </div>

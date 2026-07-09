@@ -1,7 +1,6 @@
 "use client";
 
 import { Download, Package } from "lucide-react";
-import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -39,9 +38,10 @@ export function PendingInvoiceSection({
     onNavigateSection("warehouseReceive", invoice.id);
   };
 
-  const handleDownload = () => {
-    toast.success("ইনভয়েস ডাউনলোড শুরু হয়েছে");
-  };
+  // Browser's native print — "Save as PDF" in that same dialog covers the
+  // download case too. The app shell and this button row are hidden for
+  // print via `print:hidden` so only the invoice itself renders.
+  const handleDownload = () => window.print();
 
   const sectionTitle = (
     <h2 className="m-0 mb-3.5 font-serif text-base text-teal-dark sm:mb-4 sm:text-lg lg:text-[1.1875rem] xl:text-xl">
@@ -136,7 +136,7 @@ export function PendingInvoiceSection({
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2 sm:mt-5">
+      <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
         <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleReceiveGoods}>
           <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> মাল রিসিভ করুন
         </Button>

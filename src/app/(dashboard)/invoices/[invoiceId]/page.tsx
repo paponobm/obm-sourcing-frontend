@@ -117,7 +117,7 @@ export default function InvoiceDetailPage() {
         </div>
       </Card>
 
-      <div className="mt-4 flex gap-2 sm:mt-5">
+      <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
         {invoice.status === "IN_TRANSIT" && (
           <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleStartReceiveCheck}>
             <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> মাল রিসিভড — চেক শুরু করুন

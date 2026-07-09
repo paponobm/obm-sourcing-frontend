@@ -37,7 +37,7 @@ export function VendorSectionTabs({
   onChange: (key: VendorSectionKey) => void;
 }) {
   return (
-    <div className="sticky top-0 z-10 mb-4 border-b border-line bg-paper pb-2 pt-1 sm:mb-5 sm:pb-2.5">
+    <div className="sticky top-0 z-10 mb-4 border-b border-line bg-paper pb-2 pt-1 print:hidden sm:mb-5 sm:pb-2.5">
       <div
         className="flex gap-1.5 overflow-x-auto sm:gap-2 [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: "none" }}

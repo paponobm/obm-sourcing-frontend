@@ -72,3 +72,34 @@
     font-size: 18px;
   }
 }
+
+/*
+  Browsers strip background colors/images when printing unless told
+  otherwise — without this, the order-tracking stepper's colored badges
+  (bg-teal/bg-brass/bg-paper-2) print as blank outlines. `print:hidden`
+  (Tailwind's print variant) is used per-component to hide the sidebar,
+  sticky tabs, breadcrumb, and action buttons from the printed/PDF output.
+
+  `@page { margin: 0 }` also stops Chrome/Edge from drawing their own
+  date/title/page-number header-footer band, since that band is drawn in
+  the page margin — with no margin, there's no room left for it. We add
+  the margin back as padding on `main` instead, so the invoice content
+  itself doesn't print edge-to-edge.
+*/
+@page {
+  margin: 0;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body,
+  main {
+    background: #fff !important;
+  }
+  main {
+    padding: 0.6in !important;
+  }
+}
