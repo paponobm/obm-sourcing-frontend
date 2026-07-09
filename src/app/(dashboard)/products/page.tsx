@@ -181,7 +181,12 @@ export default function ProductListPage() {
       </Card>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent
+          className="sm:max-w-2xl"
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>নতুন প্রোডাক্ট যোগ করুন</DialogTitle>
             <DialogDescription>SKU, নাম, ইউনিট, ক্যাটাগরি ও এক বা একাধিক ভেন্ডরের দাম/রেটিং দিন।</DialogDescription>
@@ -191,7 +196,12 @@ export default function ProductListPage() {
       </Dialog>
 
       <Dialog open={Boolean(editingProduct)} onOpenChange={(open) => !open && setEditingId(null)}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent
+          className="sm:max-w-2xl"
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>প্রোডাক্ট এডিট করুন</DialogTitle>
             <DialogDescription>
