@@ -181,17 +181,17 @@ export default function ProductListPage() {
       </Card>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>নতুন প্রোডাক্ট যোগ করুন</DialogTitle>
             <DialogDescription>SKU, নাম, ইউনিট, ক্যাটাগরি ও এক বা একাধিক ভেন্ডরের দাম/রেটিং দিন।</DialogDescription>
           </DialogHeader>
-          <ProductForm onSuccess={() => setCreateOpen(false)} />
+          <ProductForm onSuccess={() => setCreateOpen(false)} onCancel={() => setCreateOpen(false)} />
         </DialogContent>
       </Dialog>
 
       <Dialog open={Boolean(editingProduct)} onOpenChange={(open) => !open && setEditingId(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>প্রোডাক্ট এডিট করুন</DialogTitle>
             <DialogDescription>
@@ -210,6 +210,7 @@ export default function ProductListPage() {
                 imageUrls: editingProduct.imageUrls,
               }}
               onSuccess={() => setEditingId(null)}
+              onCancel={() => setEditingId(null)}
             />
           )}
         </DialogContent>
