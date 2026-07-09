@@ -40,8 +40,13 @@ export function useMarkReceived() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => invoiceService.markReceived(id),
-    onSuccess: (_data, id) => {
-      queryClient.invalidateQueries({ queryKey: [...INVOICES_KEY, id] });
+    onSuccess: async (invoice, id) => {
+      // Awaited so callers that navigate straight to the Warehouse Receive Check
+      // screen right after this resolves never render a stale (still "পেন্ডিং") status.
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: [...INVOICES_KEY, id] }),
+        queryClient.invalidateQueries({ queryKey: [...INVOICES_KEY, "vendor", invoice.vendorId] }),
+      ]);
     },
     onError: (error) => toast.error(getApiErrorMessage(error, "স্ট্যাটাস আপডেট করা যায়নি")),
   });

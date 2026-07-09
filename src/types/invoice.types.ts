@@ -7,6 +7,8 @@ export type InvoiceListItem = {
   itemCount: number;
   totalAmount: number;
   status: OrderStatus;
+  orderedByName: string;
+  updatedAt: string;
 };
 
 export type InvoiceItem = {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, ArrowUp, Check, X } from "lucide-react";
+import { AlertTriangle, ArrowUp, Check, Info, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -19,14 +19,20 @@ import { useSectionInvoice } from "@/hooks/useSectionInvoice";
 const WAREHOUSE_STATUSES = ["RECEIVED", "DISCREPANCY"] as const;
 
 type RowState = { receivedQty: string; remark: string };
-type RowStatus = "matched" | "short" | "over";
+type RowStatus = "pending" | "matched" | "short" | "over";
 
-function getRowStatus(receivedQty: number, orderedQty: number): RowStatus {
+/** Empty input = warehouse staff hasn't counted this product yet — "pending" is
+ * deliberately not treated as a mismatch (0 vs ordered) so an untouched row
+ * doesn't read as a shortage before anyone has looked at it. */
+function getRowStatus(receivedQtyRaw: string, orderedQty: number): RowStatus {
+  if (receivedQtyRaw.trim() === "") return "pending";
+  const receivedQty = Number(receivedQtyRaw);
   if (receivedQty === orderedQty) return "matched";
   return receivedQty < orderedQty ? "short" : "over";
 }
 
 const ROW_BG: Record<RowStatus, string> = {
+  pending: "",
   matched: "bg-green-soft",
   short: "bg-[#f6e5e2]",
   over: "bg-brass-soft",
@@ -52,32 +58,38 @@ export function WarehouseReceiveCheckSection({
 
   const items = invoice?.items ?? [];
 
-  const getRow = (itemId: string, orderedQty: number, receivedQty: number | null): RowState =>
-    rows[itemId] ?? { receivedQty: String(receivedQty ?? orderedQty), remark: "" };
+  // Only pre-fill from a value the warehouse actually recorded before (e.g.
+  // re-opening a DISCREPANCY invoice) — never from orderedQty, so a fresh row
+  // starts blank and forces a real count rather than silently assuming a match.
+  const getRow = (itemId: string, receivedQty: number | null): RowState =>
+    rows[itemId] ?? { receivedQty: receivedQty !== null ? String(receivedQty) : "", remark: "" };
 
-  const setRow = (itemId: string, patch: Partial<RowState>, orderedQty: number, receivedQty: number | null) => {
-    setRows((prev) => ({ ...prev, [itemId]: { ...getRow(itemId, orderedQty, receivedQty), ...patch } }));
+  const setRow = (itemId: string, patch: Partial<RowState>, receivedQty: number | null) => {
+    setRows((prev) => ({ ...prev, [itemId]: { ...getRow(itemId, receivedQty), ...patch } }));
   };
 
   const rowsWithStatus = items.map((item) => {
-    const row = getRow(item.id, item.orderedQty, item.receivedQty);
-    const receivedQty = Number(row.receivedQty || 0);
-    return { item, row, receivedQty, status: getRowStatus(receivedQty, item.orderedQty) };
+    const row = getRow(item.id, item.receivedQty);
+    const status = getRowStatus(row.receivedQty, item.orderedQty);
+    const receivedQtyNum = status === "pending" ? 0 : Number(row.receivedQty);
+    return { item, row, receivedQtyNum, status };
   });
 
   const totalProducts = rowsWithStatus.length;
   const matchedCount = rowsWithStatus.filter((r) => r.status === "matched").length;
   const shortCount = rowsWithStatus.filter((r) => r.status === "short").length;
   const overCount = rowsWithStatus.filter((r) => r.status === "over").length;
+  const pendingCount = rowsWithStatus.filter((r) => r.status === "pending").length;
   const hasMismatch = shortCount > 0 || overCount > 0;
+  const hasPending = pendingCount > 0;
 
   const submit = async (mode: "draft" | "final") => {
     if (!invoice) return;
     const updated = await receiveCheck.mutateAsync({
       mode,
-      items: rowsWithStatus.map(({ item, row, receivedQty }) => ({
+      items: rowsWithStatus.map(({ item, row, receivedQtyNum }) => ({
         itemId: item.id,
-        receivedQty,
+        receivedQty: receivedQtyNum,
         remark: row.remark || undefined,
       })),
     });
@@ -144,8 +156,8 @@ export function WarehouseReceiveCheckSection({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rowsWithStatus.map(({ item, row, receivedQty, status }) => {
-              const diff = receivedQty - item.orderedQty;
+            {rowsWithStatus.map(({ item, row, receivedQtyNum, status }) => {
+              const diff = receivedQtyNum - item.orderedQty;
               return (
                 <TableRow key={item.id} className={ROW_BG[status]}>
                   <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">{item.productName}</TableCell>
@@ -154,14 +166,14 @@ export function WarehouseReceiveCheckSection({
                     <Input
                       type="number"
                       min={0}
+                      placeholder="লিখুন"
                       value={row.receivedQty}
-                      onChange={(e) =>
-                        setRow(item.id, { receivedQty: e.target.value }, item.orderedQty, item.receivedQty)
-                      }
+                      onChange={(e) => setRow(item.id, { receivedQty: e.target.value }, item.receivedQty)}
                       className="w-20 sm:w-24"
                     />
                   </TableCell>
                   <TableCell>
+                    {status === "pending" && <span className="text-gray">এন্ট্রি বাকি</span>}
                     {status === "matched" && (
                       <span className="inline-flex items-center gap-1 font-semibold text-green">
                         <Check className="h-3.5 w-3.5" /> পুরোপুরি মিলেছে
@@ -191,7 +203,7 @@ export function WarehouseReceiveCheckSection({
                   <TableCell>
                     <Input
                       value={row.remark}
-                      onChange={(e) => setRow(item.id, { remark: e.target.value }, item.orderedQty, item.receivedQty)}
+                      onChange={(e) => setRow(item.id, { remark: e.target.value }, item.receivedQty)}
                       placeholder={status === "matched" ? "–" : "ভেন্ডরকে জানাতে হবে"}
                       className="w-40 sm:w-48"
                     />
@@ -222,6 +234,15 @@ export function WarehouseReceiveCheckSection({
         </StatRow>
       </div>
 
+      {hasPending && (
+        <div className="mb-3.5 flex gap-2 rounded-md bg-paper-2 px-3 py-2.5 text-xs text-gray sm:mb-4 sm:text-sm">
+          <Info className="h-4 w-4 shrink-0" />
+          <p className="m-0">
+            {pendingCount} টি প্রোডাক্টের রিসিভড Qty এখনো লেখা হয়নি — ভেরিফাই করার আগে সবগুলো পূরণ করুন।
+          </p>
+        </div>
+      )}
+
       {hasMismatch && (
         <div className="mb-3.5 flex gap-2 rounded-md bg-brass-soft px-3 py-2.5 text-xs text-brass sm:mb-4 sm:text-sm">
           <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -238,7 +259,7 @@ export function WarehouseReceiveCheckSection({
         {hasMismatch ? (
           <ConfirmDialog
             trigger={
-              <Button type="button" variant="brass" disabled={receiveCheck.isPending}>
+              <Button type="button" variant="brass" disabled={receiveCheck.isPending || hasPending}>
                 ⚠ ডিসক্রেপান্সি নোট করে সাবমিট করুন
               </Button>
             }
@@ -249,7 +270,12 @@ export function WarehouseReceiveCheckSection({
             isLoading={receiveCheck.isPending}
           />
         ) : (
-          <Button type="button" variant="primary" disabled={receiveCheck.isPending} onClick={() => submit("final")}>
+          <Button
+            type="button"
+            variant="primary"
+            disabled={receiveCheck.isPending || hasPending}
+            onClick={() => submit("final")}
+          >
             ✓ গুডস রিসিপ্ট ভেরিফাই করুন
           </Button>
         )}

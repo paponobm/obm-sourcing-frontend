@@ -16,7 +16,7 @@ export function Avatar({
         src={imageUrl}
         alt=""
         className={cn(
-          "mr-1.5 h-6 w-6 shrink-0 rounded-md object-cover sm:mr-2 sm:h-7 sm:w-7 lg:mr-2.5 lg:h-[30px] lg:w-[30px]",
+          "mr-1.5 h-6 w-6 shrink-0 rounded-md border border-line object-cover sm:mr-2 sm:h-7 sm:w-7 lg:mr-2.5 lg:h-[30px] lg:w-[30px]",
           className,
         )}
       />
