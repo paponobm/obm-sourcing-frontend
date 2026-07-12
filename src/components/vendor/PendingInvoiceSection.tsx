@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import { OrderStepper } from "@/components/vendor/OrderStepper";
+import { InvoicePrintView } from "@/components/invoice/InvoicePrintView";
 import type { NavigateToSection } from "@/components/vendor/VendorSectionTabs";
 import { useMarkReceived } from "@/hooks/useInvoices";
 import { useSectionInvoice } from "@/hooks/useSectionInvoice";
@@ -44,7 +45,7 @@ export function PendingInvoiceSection({
   const handleDownload = () => window.print();
 
   const sectionTitle = (
-    <h2 className="m-0 mb-3.5 font-serif text-base text-teal-dark sm:mb-4 sm:text-lg lg:text-[1.1875rem] xl:text-xl">
+    <h2 className="m-0 mb-3.5 font-serif text-base text-teal-dark print:hidden sm:mb-4 sm:text-lg lg:text-[1.1875rem] xl:text-xl">
       ইনভয়েস (পেন্ডিং)
     </h2>
   );
@@ -78,7 +79,7 @@ export function PendingInvoiceSection({
   return (
     <>
       {sectionTitle}
-      <Card>
+      <Card className="print:hidden">
         <div className="flex flex-col gap-3 border-b border-line px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between sm:px-5 sm:py-4">
           <div>
             <div className="font-mono text-xs text-gray sm:text-sm">INVOICE #{invoice.invoiceNumber}</div>
@@ -119,7 +120,7 @@ export function PendingInvoiceSection({
         </Table>
       </Card>
 
-      <div className="mt-3.5 flex flex-col items-end gap-1 text-xs sm:mt-4 sm:text-sm">
+      <div className="mt-3.5 flex flex-col items-end gap-1 text-xs print:hidden sm:mt-4 sm:text-sm">
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট প্রোডাক্ট</span>
           <span className="font-semibold">{totalProducts} টি</span>
@@ -135,6 +136,8 @@ export function PendingInvoiceSection({
           </span>
         </div>
       </div>
+
+      <InvoicePrintView invoice={invoice} />
 
       <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
         <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleReceiveGoods}>

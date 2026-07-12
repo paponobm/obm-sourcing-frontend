@@ -12,7 +12,7 @@ export function VendorHeader({ vendor }: { vendor: Vendor }) {
           { label: vendor.shopName },
         ]}
       />
-      <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-1 print:hidden sm:flex-row sm:items-center">
         <h2 className="m-0 font-serif text-base text-teal-dark sm:text-lg lg:text-[1.1875rem] xl:text-xl">
           {vendor.shopName}
         </h2>

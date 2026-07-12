@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import { OrderStepper } from "@/components/vendor/OrderStepper";
+import { InvoicePrintView } from "@/components/invoice/InvoicePrintView";
 import { useInvoice, useMarkReceived } from "@/hooks/useInvoices";
 import { formatBDT } from "@/utils/currency";
 import { formatBnDate } from "@/utils/date";
@@ -49,7 +50,7 @@ export default function InvoiceDetailPage() {
         ]}
       />
 
-      <Card>
+      <Card className="print:hidden">
         <div className="flex flex-col gap-3 border-b border-line px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between sm:px-5 sm:py-4">
           <div>
             <div className="font-mono text-xs text-gray sm:text-sm">
@@ -116,6 +117,8 @@ export default function InvoiceDetailPage() {
           </div>
         </div>
       </Card>
+
+      <InvoicePrintView invoice={invoice} />
 
       <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
         {invoice.status === "IN_TRANSIT" && (

@@ -30,6 +30,8 @@ export type Invoice = {
   vendorId: string;
   vendorName: string;
   vendorCode: string;
+  vendorAddress: string;
+  vendorPhone: string;
   orderedByName: string;
   orderedAt: string;
   closedAt?: string | null;
