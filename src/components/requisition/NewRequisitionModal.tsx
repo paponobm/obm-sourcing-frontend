@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { FormField } from "@/components/forms/FormField";
 import { ActionButtons } from "@/components/forms/ActionButtons";
 import { REQUISITION_PRIORITY_LABEL_BN } from "@/utils/status";
@@ -97,18 +98,14 @@ export function NewRequisitionModal({ open, onOpenChange }: { open: boolean; onO
                 control={control}
                 name="productId"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="req-productId">
-                      <SelectValue placeholder={productsLoading ? "লোড হচ্ছে..." : "প্রোডাক্ট নির্বাচন করুন"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {productsPage?.data.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableProductSelect
+                    id="req-productId"
+                    products={productsPage?.data ?? []}
+                    value={field.value}
+                    onChange={field.onChange}
+                    isLoading={productsLoading}
+                    invalid={Boolean(errors.productId)}
+                  />
                 )}
               />
             </FormField>
@@ -168,6 +165,7 @@ export function NewRequisitionModal({ open, onOpenChange }: { open: boolean; onO
           <ActionButtons
             onCancel={handleClose}
             isPending={createRequisition.isPending}
+            disabled={!selectedProductId}
             savingLabel="সংরক্ষণ হচ্ছে..."
             saveLabel="রিকুইজিশন তৈরি করুন"
           />
