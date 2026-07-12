@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Store,
+  PackageCheck,
   Package,
   ClipboardList,
   Tags,
@@ -36,6 +37,12 @@ export const NAV_ITEMS: NavItemConfig[] = [
     href: ROUTES.vendors,
     icon: Store,
     isActive: (p) => p.startsWith(ROUTES.vendors),
+  },
+  {
+    label: "অর্ডার ম্যানেজমেন্ট",
+    href: ROUTES.orders,
+    icon: PackageCheck,
+    isActive: (p) => p.startsWith(ROUTES.orders),
   },
   {
     label: "প্রোডাক্ট তালিকা",

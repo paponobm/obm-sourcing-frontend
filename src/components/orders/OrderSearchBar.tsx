@@ -1,0 +1,13 @@
+"use client";
+
+import { SearchBox } from "@/components/shared/SearchBox";
+
+export function OrderSearchBar({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  return (
+    <SearchBox
+      value={value}
+      onChange={onChange}
+      placeholder="ইনভয়েস নম্বর, ভেন্ডর, ভেন্ডর আইডি বা প্রোডাক্ট সার্চ করুন..."
+    />
+  );
+}

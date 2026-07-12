@@ -4,6 +4,7 @@ export const ROUTES = {
   vendors: "/vendors",
   vendorNew: "/vendors/new",
   vendorDetail: (id: string) => `/vendors/${id}`,
+  orders: "/orders",
   invoiceDetail: (id: string) => `/invoices/${id}`,
   invoiceReceive: (id: string) => `/invoices/${id}/receive`,
   requisitions: "/requisitions",

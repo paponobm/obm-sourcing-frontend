@@ -22,16 +22,31 @@ import { OrderHistorySection } from "@/components/vendor/OrderHistorySection";
 import { useVendor } from "@/hooks/useVendor";
 import { ROUTES } from "@/constants/routes";
 
+const VALID_SECTIONS: VendorSectionKey[] = [
+  "profile",
+  "newOrder",
+  "invoicePending",
+  "warehouseReceive",
+  "invoiceReceived",
+  "invoiceClosed",
+  "orderHistory",
+];
+
 export default function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const { data: vendor, isLoading } = useVendor(id);
-  // Deep-linked from a Requisition's suggested-vendor chip (?tab=newOrder&...) —
-  // read once on mount so the New Order tab opens pre-selected instead of Profile.
+  // Deep-linked from a Requisition's suggested-vendor chip (?tab=newOrder&...)
+  // or the global Order Management table's "View" action
+  // (?tab=invoicePending&invoiceId=...) — read once on mount so the right
+  // section/invoice opens pre-selected instead of defaulting to Profile.
+  const tabParam = searchParams.get("tab");
   const [activeSection, setActiveSection] = useState<VendorSectionKey>(() =>
-    searchParams.get("tab") === "newOrder" ? "newOrder" : "profile",
+    VALID_SECTIONS.includes(tabParam as VendorSectionKey) ? (tabParam as VendorSectionKey) : "profile",
   );
-  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | undefined>();
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | undefined>(
+    () => searchParams.get("invoiceId") ?? undefined,
+  );
   const requisitionId = searchParams.get("requisitionId") ?? undefined;
   const prefillProductId = searchParams.get("productId") ?? undefined;
   const prefillQty = searchParams.get("qty") ?? undefined;
