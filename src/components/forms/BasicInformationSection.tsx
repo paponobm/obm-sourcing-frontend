@@ -2,11 +2,12 @@
 
 import { Controller, type Control, type FieldErrors, type UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { FormField } from "./FormField";
 import type { Category } from "@/types/category.types";
 
-type BasicFields = { sku: string; name: string; unit: string; categoryId: string };
+type BasicFields = { sku: string; name: string; unit: string; categoryId: string; description?: string };
 
 /** SKU/Unit on the left, Name/Category on the right — shared by the create and
  * edit product forms, which both carry these four fields identically. */
@@ -73,6 +74,18 @@ export function BasicInformationSection<TFieldValues extends BasicFields>({
               </SelectContent>
             </Select>
           )}
+        />
+      </FormField>
+      <FormField
+        label="বিবরণ (ঐচ্ছিক)"
+        htmlFor={`${idPrefix}description`}
+        error={errors.description?.message as string | undefined}
+        full
+      >
+        <Textarea
+          id={`${idPrefix}description`}
+          placeholder="প্রোডাক্ট সম্পর্কে অতিরিক্ত তথ্য"
+          {...register("description" as never)}
         />
       </FormField>
     </div>

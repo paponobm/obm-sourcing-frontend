@@ -1,13 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { productSchema, type ProductFormValues } from "@/lib/validations/product.schema";
+import {
+  productSchema,
+  managerProductCreateSchema,
+  type ProductFormValues,
+} from "@/lib/validations/product.schema";
 import { useCreateProduct } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
 import { useVendors, useSetVendorProductPrice } from "@/hooks/useVendors";
 import { useUploadImage } from "@/hooks/useUploadImage";
+import { useHasRole } from "@/hooks/useHasRole";
+import { SUPER_ADMIN_ONLY } from "@/constants/roles";
 import { resolveImageValue, resolveImageValues, type ImageValue } from "@/lib/image-value";
 import { BasicInformationSection } from "./BasicInformationSection";
 import { ImageUploadSection } from "./ImageUploadSection";
@@ -18,11 +24,16 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
   const createProduct = useCreateProduct();
   const setVendorProductPrice = useSetVendorProductPrice();
   const uploadImage = useUploadImage();
+  const isSuperAdmin = useHasRole(SUPER_ADMIN_ONLY);
   const { data: vendorsPage, isLoading: vendorsLoading } = useVendors({ page: 1, pageSize: 100 });
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const [thumbnailValue, setThumbnailValue] = useState<ImageValue>();
   const [imageValues, setImageValues] = useState<(File | string)[]>([]);
 
+  // A Manager's submission goes to Pending with no vendor/price at all (see
+  // ApproveProductModal, where an Admin assigns those later) — the vendor
+  // section only renders, and is only validated, for a Super Admin's own
+  // direct-create flow, which keeps today's behavior unchanged.
   const {
     register,
     control,
@@ -30,12 +41,15 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
     watch,
     formState: { errors },
   } = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+    resolver: (isSuperAdmin
+      ? zodResolver(productSchema)
+      : zodResolver(managerProductCreateSchema)) as unknown as Resolver<ProductFormValues>,
     defaultValues: {
       sku: "",
       name: "",
       unit: "",
       categoryId: "",
+      description: "",
       vendorPrices: [{ vendorId: "", price: "", rating: 0 }],
     },
   });
@@ -55,20 +69,23 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
       name: values.name,
       unit: values.unit,
       categoryId: values.categoryId,
+      description: values.description || undefined,
       thumbnailUrl,
       imageUrls,
     });
 
-    await Promise.all(
-      values.vendorPrices.map((vp) =>
-        setVendorProductPrice.mutateAsync({
-          vendorId: vp.vendorId,
-          productId: product.id,
-          price: Number(vp.price),
-          rating: vp.rating,
-        }),
-      ),
-    );
+    if (isSuperAdmin) {
+      await Promise.all(
+        values.vendorPrices.map((vp) =>
+          setVendorProductPrice.mutateAsync({
+            vendorId: vp.vendorId,
+            productId: product.id,
+            price: Number(vp.price),
+            rating: vp.rating,
+          }),
+        ),
+      );
+    }
 
     onSuccess();
   };
@@ -92,17 +109,19 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
         onImageValuesChange={setImageValues}
       />
 
-      <VendorInformationSection
-        fields={fields}
-        control={control}
-        register={register}
-        errors={errors}
-        watchedVendorPrices={watchedVendorPrices}
-        vendors={vendorsPage?.data}
-        vendorsLoading={vendorsLoading}
-        onAppend={() => append({ vendorId: "", price: "", rating: 0 })}
-        onRemove={remove}
-      />
+      {isSuperAdmin && (
+        <VendorInformationSection
+          fields={fields}
+          control={control}
+          register={register}
+          errors={errors}
+          watchedVendorPrices={watchedVendorPrices}
+          vendors={vendorsPage?.data}
+          vendorsLoading={vendorsLoading}
+          onAppend={() => append({ vendorId: "", price: "", rating: 0 })}
+          onRemove={remove}
+        />
+      )}
 
       <ActionButtons
         onCancel={onCancel}

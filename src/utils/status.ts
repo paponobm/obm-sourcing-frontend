@@ -1,6 +1,7 @@
 import type { VendorStatus } from "@/types/common.types";
 import type { OrderStatus } from "@/types/invoice.types";
 import type { RequisitionPriority, RequisitionStatus } from "@/types/requisition.types";
+import type { ProductStatus } from "@/types/product.types";
 
 export const VENDOR_STATUS_LABEL_BN: Record<VendorStatus, string> = {
   ACTIVE: "অ্যাক্টিভ",
@@ -9,6 +10,27 @@ export const VENDOR_STATUS_LABEL_BN: Record<VendorStatus, string> = {
 
 export function vendorStatusBadgeVariant(status: VendorStatus): "active" | "inactive" {
   return status === "ACTIVE" ? "active" : "inactive";
+}
+
+export const PRODUCT_STATUS_LABEL_BN: Record<ProductStatus, string> = {
+  ACTIVE: "অ্যাক্টিভ",
+  INACTIVE: "ইনঅ্যাক্টিভ",
+  PENDING: "পেন্ডিং",
+  REJECTED: "প্রত্যাখ্যাত",
+};
+
+export function productStatusBadgeVariant(status: ProductStatus): "active" | "inactive" | "low" | "destructive" {
+  switch (status) {
+    case "ACTIVE":
+      return "active";
+    case "PENDING":
+      return "low";
+    case "REJECTED":
+      return "destructive";
+    case "INACTIVE":
+    default:
+      return "inactive";
+  }
 }
 
 export const ORDER_STATUS_LABEL_BN: Record<OrderStatus, string> = {

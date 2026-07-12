@@ -20,6 +20,8 @@ export function ConfirmDialog({
   cancelLabel = "বাতিল",
   onConfirm,
   isLoading,
+  open,
+  onOpenChange,
 }: {
   trigger: React.ReactNode;
   title: string;
@@ -28,9 +30,14 @@ export function ConfirmDialog({
   cancelLabel?: string;
   onConfirm: () => void;
   isLoading?: boolean;
+  /** Controls the dialog externally (e.g. opened by a Select's onChange
+   * rather than by clicking `trigger` directly) — omit for the default
+   * uncontrolled trigger-click-to-open behavior. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

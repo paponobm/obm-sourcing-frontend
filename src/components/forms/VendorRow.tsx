@@ -6,14 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { StarRating } from "@/components/product/StarRating";
-import type { ProductFormValues } from "@/lib/validations/product.schema";
 
 type VendorOption = { id: string; shopName: string };
+type VendorPriceFields = { vendorPrices: { vendorId: string; price: string; rating: number }[] };
 
 /** One vendor's dropdown + price + rating + remove — all on a single row on
  * tablet/desktop, stacking only on mobile. Multiple rows stay equal-width and
- * column-aligned since each field has a fixed width at sm+. */
-export function VendorRow({
+ * column-aligned since each field has a fixed width at sm+. Generic so it's
+ * reusable by any form that has a `vendorPrices` field array (product
+ * create, product approve, ...), not just `ProductFormValues`. */
+export function VendorRow<TFieldValues extends VendorPriceFields>({
   index,
   control,
   register,
@@ -25,16 +27,22 @@ export function VendorRow({
   removeDisabled,
 }: {
   index: number;
-  control: Control<ProductFormValues>;
-  register: UseFormRegister<ProductFormValues>;
-  errors: FieldErrors<ProductFormValues>;
+  control: Control<TFieldValues>;
+  register: UseFormRegister<TFieldValues>;
+  errors: FieldErrors<TFieldValues>;
   vendors?: VendorOption[];
   vendorsLoading: boolean;
   excludeVendorIds: string[];
   onRemove: () => void;
   removeDisabled: boolean;
 }) {
-  const rowErrors = errors.vendorPrices?.[index];
+  // react-hook-form can't fully resolve FieldErrors for a generic
+  // TFieldValues constrained only by `vendorPrices`'s shape — narrowed here
+  // to the one shape every caller (ProductForm, ApproveProductModal) shares.
+  const vendorPriceErrors = errors.vendorPrices as unknown as
+    | { vendorId?: { message?: string }; price?: { message?: string }; rating?: { message?: string } }[]
+    | undefined;
+  const rowErrors = vendorPriceErrors?.[index];
 
   return (
     <div className="rounded-md border border-line p-2.5 sm:p-3">
@@ -42,7 +50,7 @@ export function VendorRow({
         <div className="sm:w-44 lg:w-48">
           <Controller
             control={control}
-            name={`vendorPrices.${index}.vendorId`}
+            name={`vendorPrices.${index}.vendorId` as never}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger className={rowErrors?.vendorId ? "border-red" : undefined}>
@@ -68,7 +76,7 @@ export function VendorRow({
             min={0}
             placeholder="দাম (৳)"
             invalid={Boolean(rowErrors?.price)}
-            {...register(`vendorPrices.${index}.price`)}
+            {...register(`vendorPrices.${index}.price` as never)}
           />
         </div>
 
@@ -76,7 +84,7 @@ export function VendorRow({
           <span className="text-xs text-gray sm:hidden">রেটিং:</span>
           <Controller
             control={control}
-            name={`vendorPrices.${index}.rating`}
+            name={`vendorPrices.${index}.rating` as never}
             render={({ field }) => (
               <StarRating value={field.value} onChange={field.onChange} iconClassName="h-4 w-4" />
             )}

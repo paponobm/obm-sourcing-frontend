@@ -16,6 +16,7 @@ export const productSchema = z.object({
   name: z.string().min(2, "প্রোডাক্টের নাম আবশ্যক"),
   unit: z.string().min(1, "ইউনিট আবশ্যক (যেমন: কেজি)"),
   categoryId: z.string().min(1, "ক্যাটাগরি নির্বাচন করুন"),
+  description: z.string().optional(),
   vendorPrices: z.array(vendorPriceEntrySchema).min(1, "কমপক্ষে একটি ভেন্ডর যোগ করুন"),
 });
 
@@ -26,6 +27,17 @@ export type ProductFormValues = z.infer<typeof productSchema>;
 export const productDetailsEditSchema = productSchema.omit({ vendorPrices: true });
 
 export type ProductDetailsEditFormValues = z.infer<typeof productDetailsEditSchema>;
+
+// A Manager's product submission — no vendor/price allowed until an Admin
+// approves it (see ApproveProductModal), so this omits vendorPrices entirely
+// rather than just hiding the field.
+export const managerProductCreateSchema = productSchema.omit({ vendorPrices: true });
+
+export type ManagerProductCreateFormValues = z.infer<typeof managerProductCreateSchema>;
+
+// ApproveProductModal reuses `productSchema`/`ProductFormValues` directly —
+// an Admin approving a Pending product sees and can correct the exact same
+// fields (name/SKU/unit/category/description) plus vendor(s)/price/rating.
 
 // Used when editing one vendor's price+rating for a product from within that
 // vendor's own page, where the vendor is already fixed by context.

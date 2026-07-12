@@ -1,15 +1,28 @@
-import type { Product, CreateProductInput } from "@/types/product.types";
+import type {
+  Product,
+  CreateProductInput,
+  PendingProduct,
+  ApproveProductInput,
+  RejectProductInput,
+} from "@/types/product.types";
 import type { PaginatedResult } from "@/types/common.types";
 import type { ListQuery } from "@/utils/pagination";
 import { apiClient } from "./api-client";
 
 export type ProductSortColumn = "name" | "vendorCount" | "lowestPrice";
 
-export type ProductListQuery = ListQuery<ProductSortColumn> & { categoryId?: string };
+export type ProductListQuery = ListQuery<ProductSortColumn> & {
+  categoryId?: string;
+  statusFilter?: "active" | "inactive" | "all";
+};
 
 export const productService = {
   async list(query: ProductListQuery = {}): Promise<PaginatedResult<Product>> {
     return apiClient.get<PaginatedResult<Product>>("/products", { params: query }).then((r) => r.data);
+  },
+
+  async listPending(): Promise<PendingProduct[]> {
+    return apiClient.get<PendingProduct[]>("/products/pending").then((r) => r.data);
   },
 
   async create(input: CreateProductInput): Promise<Product> {
@@ -20,7 +33,23 @@ export const productService = {
     return apiClient.patch<Product>(`/products/${id}`, input).then((r) => r.data);
   },
 
-  async remove(id: string): Promise<void> {
-    return apiClient.delete(`/products/${id}`).then(() => undefined);
+  async approve(id: string, input: ApproveProductInput): Promise<void> {
+    return apiClient.patch(`/products/${id}/approve`, input).then(() => undefined);
+  },
+
+  async reject(id: string, input: RejectProductInput): Promise<void> {
+    return apiClient.patch(`/products/${id}/reject`, input).then(() => undefined);
+  },
+
+  async activate(id: string): Promise<void> {
+    return apiClient.patch(`/products/${id}/activate`).then(() => undefined);
+  },
+
+  async deactivate(id: string): Promise<void> {
+    return apiClient.patch(`/products/${id}/deactivate`).then(() => undefined);
+  },
+
+  async setPreferredVendor(id: string, vendorId: string): Promise<void> {
+    return apiClient.patch(`/products/${id}/preferred-vendor`, { vendorId }).then(() => undefined);
   },
 };

@@ -1,3 +1,5 @@
+export type ProductStatus = "ACTIVE" | "INACTIVE" | "PENDING" | "REJECTED";
+
 export type ProductVendorEntry = {
   vendorId: string;
   vendorName: string;
@@ -13,8 +15,11 @@ export type Product = {
   unit: string;
   categoryId: string;
   categoryName: string;
+  description?: string | null;
   thumbnailUrl?: string;
   imageUrls: string[];
+  status: ProductStatus;
+  preferredVendorId?: string | null;
   vendorCount: number;
   lowestPrice: number;
   createdAt: string;
@@ -22,11 +27,29 @@ export type Product = {
   vendors: ProductVendorEntry[];
 };
 
+/** A Manager's product submission awaiting Admin approval — never has
+ * vendor/price data, since that's only assignable on approval. */
+export type PendingProduct = {
+  id: string;
+  name: string;
+  sku: string;
+  unit: string;
+  description?: string | null;
+  thumbnailUrl?: string;
+  imageUrls: string[];
+  categoryId: string;
+  categoryName: string;
+  createdByName: string;
+  createdAt: string;
+  status: ProductStatus;
+};
+
 export type CreateProductInput = {
   sku: string;
   name: string;
   unit: string;
   categoryId: string;
+  description?: string;
   thumbnailUrl?: string;
   imageUrls?: string[];
 };
@@ -35,4 +58,21 @@ export type VendorPriceInput = {
   vendorId: string;
   price: number;
   rating: number;
+};
+
+/** Admin can correct the Manager's submitted fields as part of the same
+ * approve action — all optional, so approving unchanged still works. */
+export type ApproveProductInput = {
+  name?: string;
+  sku?: string;
+  unit?: string;
+  categoryId?: string;
+  description?: string;
+  thumbnailUrl?: string;
+  imageUrls?: string[];
+  vendors: VendorPriceInput[];
+};
+
+export type RejectProductInput = {
+  reason: string;
 };

@@ -28,6 +28,7 @@ export function ProductDetailsEditForm({
     name: string;
     unit: string;
     categoryId: string;
+    description?: string;
     thumbnailUrl?: string;
     imageUrls: string[];
   };
@@ -52,6 +53,7 @@ export function ProductDetailsEditForm({
       name: defaultValues.name,
       unit: defaultValues.unit,
       categoryId: defaultValues.categoryId,
+      description: defaultValues.description ?? "",
     },
   });
 
