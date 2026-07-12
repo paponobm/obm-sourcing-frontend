@@ -6,6 +6,7 @@ export const ROUTES = {
   vendorDetail: (id: string) => `/vendors/${id}`,
   invoiceDetail: (id: string) => `/invoices/${id}`,
   invoiceReceive: (id: string) => `/invoices/${id}/receive`,
+  requisitions: "/requisitions",
   products: "/products",
   productsCompareAll: "/products/compare",
   categories: "/categories",

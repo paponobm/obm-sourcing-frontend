@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Store,
   Package,
+  ClipboardList,
   Tags,
   Scale,
   Activity,
@@ -15,6 +16,8 @@ export type NavItemConfig = {
   href: string;
   icon: LucideIcon;
   isActive: (pathname: string) => boolean;
+  /** Shows a live count badge (currently only the pending-requisitions count) beside the label. */
+  badge?: "pendingRequisitions";
 };
 
 /**
@@ -39,6 +42,13 @@ export const NAV_ITEMS: NavItemConfig[] = [
     href: ROUTES.products,
     icon: Package,
     isActive: (p) => p === ROUTES.products,
+  },
+  {
+    label: "রিকুইজিশন",
+    href: ROUTES.requisitions,
+    icon: ClipboardList,
+    isActive: (p) => p.startsWith(ROUTES.requisitions),
+    badge: "pendingRequisitions",
   },
   {
     label: "প্রাইস কম্পেয়ার",

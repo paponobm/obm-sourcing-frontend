@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -24,9 +24,17 @@ import { ROUTES } from "@/constants/routes";
 
 export default function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const { data: vendor, isLoading } = useVendor(id);
-  const [activeSection, setActiveSection] = useState<VendorSectionKey>("profile");
+  // Deep-linked from a Requisition's suggested-vendor chip (?tab=newOrder&...) —
+  // read once on mount so the New Order tab opens pre-selected instead of Profile.
+  const [activeSection, setActiveSection] = useState<VendorSectionKey>(() =>
+    searchParams.get("tab") === "newOrder" ? "newOrder" : "profile",
+  );
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | undefined>();
+  const requisitionId = searchParams.get("requisitionId") ?? undefined;
+  const prefillProductId = searchParams.get("productId") ?? undefined;
+  const prefillQty = searchParams.get("qty") ?? undefined;
 
   const navigate: NavigateToSection = (section, invoiceId) => {
     setSelectedInvoiceId(invoiceId);
@@ -63,7 +71,15 @@ export default function VendorDetailPage() {
 
       <div key={activeSection} className="animate-in fade-in-0 duration-300">
         {activeSection === "profile" && <ProfileSection vendor={vendor} />}
-        {activeSection === "newOrder" && <NewOrderSection vendor={vendor} onNavigateSection={navigate} />}
+        {activeSection === "newOrder" && (
+          <NewOrderSection
+            vendor={vendor}
+            onNavigateSection={navigate}
+            requisitionId={requisitionId}
+            prefillProductId={prefillProductId}
+            prefillQty={prefillQty}
+          />
+        )}
         {activeSection === "invoicePending" && (
           <PendingInvoiceSection vendorId={vendor.id} invoiceId={selectedInvoiceId} onNavigateSection={navigate} />
         )}

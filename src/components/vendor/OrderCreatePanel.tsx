@@ -18,13 +18,21 @@ export function OrderCreatePanel({
   vendor,
   onCreated,
   onCancel,
+  prefillProductId,
+  prefillQty,
 }: {
   vendor: VendorWithProducts;
   onCreated: (invoiceId: string) => void;
   onCancel?: () => void;
+  /** Pre-selects and pre-fills one row (e.g. arriving from a Requisition's
+   * suggested-vendor chip) — the admin still reviews/edits qty before confirming. */
+  prefillProductId?: string;
+  prefillQty?: string;
 }) {
   const createInvoice = useCreateInvoice(vendor.id);
-  const [rows, setRows] = useState<Record<string, RowState>>({});
+  const [rows, setRows] = useState<Record<string, RowState>>(() =>
+    prefillProductId ? { [prefillProductId]: { selected: true, qty: prefillQty ?? "1" } } : {},
+  );
 
   const products = vendor.products;
 
