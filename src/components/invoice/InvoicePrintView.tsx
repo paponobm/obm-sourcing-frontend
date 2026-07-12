@@ -40,8 +40,8 @@ export function InvoicePrintView({ invoice }: { invoice: Invoice }) {
         <div className="mb-1 text-xs font-bold uppercase tracking-wide text-black">ভেন্ডর তথ্য</div>
         <div className="text-sm text-black">
           <div className="font-serif text-base font-bold">{invoice.vendorName}</div>
-          <div>{invoice.vendorAddress}</div>
-          <div>ফোন: {invoice.vendorPhone}</div>
+          {/* <div>{invoice.vendorAddress}</div>
+          <div>ফোন: {invoice.vendorPhone}</div> */}
         </div>
       </div>
 
