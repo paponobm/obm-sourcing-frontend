@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { Controller, type Control, type FieldErrors, type UseFormRegister } from "react-hook-form";
+import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MultiSelectCombobox } from "@/components/shared/MultiSelectCombobox";
 import { FormField } from "./FormField";
+import { QuickCreateCategoryModal } from "./QuickCreateCategoryModal";
 import type { Category } from "@/types/category.types";
 
 type BasicFields = { sku: string; name: string; unit: string; categoryIds: string[]; description?: string };
@@ -26,6 +29,8 @@ export function BasicInformationSection<TFieldValues extends BasicFields>({
   categoriesLoading: boolean;
   idPrefix?: string;
 }) {
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
+
   return (
     <div className="grid grid-cols-1 gap-x-3.5 gap-y-3 sm:grid-cols-2">
       <FormField label="SKU" htmlFor={`${idPrefix}sku`} error={errors.sku?.message as string | undefined}>
@@ -61,15 +66,30 @@ export function BasicInformationSection<TFieldValues extends BasicFields>({
           control={control}
           name={"categoryIds" as never}
           render={({ field }) => (
-            <MultiSelectCombobox
-              id={`${idPrefix}categoryIds`}
-              options={categories?.map((c) => ({ id: c.id, label: c.name })) ?? []}
-              value={field.value ?? []}
-              onChange={field.onChange}
-              isLoading={categoriesLoading}
-              invalid={Boolean(errors.categoryIds)}
-              placeholder="ক্যাটাগরি নির্বাচন করুন"
-            />
+            <>
+              <MultiSelectCombobox
+                id={`${idPrefix}categoryIds`}
+                options={categories?.map((c) => ({ id: c.id, label: c.name })) ?? []}
+                value={field.value ?? []}
+                onChange={field.onChange}
+                isLoading={categoriesLoading}
+                invalid={Boolean(errors.categoryIds)}
+                placeholder="ক্যাটাগরি নির্বাচন করুন"
+              />
+              <button
+                type="button"
+                onClick={() => setQuickCreateOpen(true)}
+                className="mt-1.5 inline-flex items-center gap-1 text-xs text-teal hover:underline sm:text-sm"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                নতুন ক্যাটাগরি যোগ করুন
+              </button>
+              <QuickCreateCategoryModal
+                open={quickCreateOpen}
+                onOpenChange={setQuickCreateOpen}
+                onCreated={(category) => field.onChange([...(field.value ?? []), category.id])}
+              />
+            </>
           )}
         />
       </FormField>

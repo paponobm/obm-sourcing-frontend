@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { vendorService, type VendorSortColumn } from "@/services/vendor.service";
 import type { ListQuery } from "@/utils/pagination";
 import type { CreateVendorInput, UpdateVendorInput } from "@/types/vendor.types";
+import type { VendorStatus } from "@/types/common.types";
 
 const VENDORS_KEY = ["vendors"] as const;
 
@@ -62,17 +63,27 @@ export function useSetVendorProductPrice() {
       productId,
       price,
       rating,
+      status,
     }: {
       vendorId: string;
       productId: string;
       price: number;
       rating: number;
-    }) => vendorService.setProductPrice(vendorId, productId, price, rating),
+      status?: VendorStatus;
+    }) => vendorService.setProductPrice(vendorId, productId, price, rating, status),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: VENDORS_KEY });
       queryClient.invalidateQueries({ queryKey: [...VENDORS_KEY, variables.vendorId] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
     onError: () => toast.error("ভেন্ডরের দাম সংরক্ষণ করা যায়নি"),
+  });
+}
+
+export function useVendorActivityLogs(vendorId: string | undefined) {
+  return useQuery({
+    queryKey: [...VENDORS_KEY, "activity-logs", vendorId],
+    queryFn: () => vendorService.getActivityLogs(vendorId!),
+    enabled: !!vendorId,
   });
 }

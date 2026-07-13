@@ -1,3 +1,5 @@
+import type { VendorStatus } from "./common.types";
+
 export type ProductStatus = "ACTIVE" | "INACTIVE" | "PENDING" | "REJECTED";
 
 export type ProductVendorEntry = {
@@ -5,6 +7,8 @@ export type ProductVendorEntry = {
   vendorName: string;
   price: number;
   rating: number;
+  /** The vendor's own global active/inactive status — not scoped to this product. */
+  status: VendorStatus;
   lastUpdatedAt: string;
 };
 
@@ -90,7 +94,9 @@ export type ProductActivityActionType =
   | "CATEGORY_CHANGED"
   | "IMAGE_CHANGED"
   | "NAME_CHANGED"
-  | "UNIT_CHANGED";
+  | "UNIT_CHANGED"
+  | "RATING_CHANGED"
+  | "VENDOR_STATUS_CHANGED";
 
 export type ProductActivityLog = {
   id: string;

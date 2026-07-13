@@ -246,7 +246,7 @@ export function AllProductsSection() {
           <DialogHeader>
             <DialogTitle>প্রোডাক্ট এডিট করুন</DialogTitle>
             <DialogDescription>
-              এই পরিবর্তন সব ভেন্ডরের জন্য প্রযোজ্য হবে। ভেন্ডর-ভিত্তিক দাম/রেটিং এডিট করতে সেই ভেন্ডরের পাতায় যান।
+              এই পরিবর্তন সব ভেন্ডরের জন্য প্রযোজ্য হবে। নিচে প্রতিটি ভেন্ডরের দাম/রেটিং/স্ট্যাটাসও এখান থেকেই পরিবর্তন করা যাবে।
             </DialogDescription>
           </DialogHeader>
           {editingProduct && (
@@ -261,6 +261,7 @@ export function AllProductsSection() {
                 thumbnailUrl: editingProduct.thumbnailUrl,
                 imageUrls: editingProduct.imageUrls,
               }}
+              vendors={editingProduct.vendors}
               onSuccess={() => setEditingId(null)}
               onCancel={() => setEditingId(null)}
             />

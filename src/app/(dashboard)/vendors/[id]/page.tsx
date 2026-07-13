@@ -19,6 +19,7 @@ import { WarehouseReceiveCheckSection } from "@/components/vendor/WarehouseRecei
 import { ClosedInvoiceSection } from "@/components/vendor/ClosedInvoiceSection";
 import { ReceivedInvoiceSection } from "@/components/vendor/ReceivedInvoiceSection";
 import { OrderHistorySection } from "@/components/vendor/OrderHistorySection";
+import { VendorActivityLogSection } from "@/components/vendor/VendorActivityLogSection";
 import { useVendor } from "@/hooks/useVendor";
 import { ROUTES } from "@/constants/routes";
 
@@ -30,6 +31,7 @@ const VALID_SECTIONS: VendorSectionKey[] = [
   "invoiceReceived",
   "invoiceClosed",
   "orderHistory",
+  "activityLog",
 ];
 
 export default function VendorDetailPage() {
@@ -110,6 +112,7 @@ export default function VendorDetailPage() {
         )}
         {activeSection === "invoiceReceived" && <ReceivedInvoiceSection />}
         {activeSection === "orderHistory" && <OrderHistorySection vendorId={vendor.id} onNavigateSection={navigate} />}
+        {activeSection === "activityLog" && <VendorActivityLogSection vendorId={vendor.id} />}
       </div>
     </>
   );

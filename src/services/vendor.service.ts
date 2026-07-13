@@ -1,4 +1,11 @@
-import type { Vendor, VendorWithProducts, CreateVendorInput, UpdateVendorInput } from "@/types/vendor.types";
+import type {
+  Vendor,
+  VendorWithProducts,
+  CreateVendorInput,
+  UpdateVendorInput,
+  VendorActivityLog,
+} from "@/types/vendor.types";
+import type { VendorStatus } from "@/types/common.types";
 import type { PaginatedResult } from "@/types/common.types";
 import type { ListQuery } from "@/utils/pagination";
 import { apiClient } from "./api-client";
@@ -26,9 +33,19 @@ export const vendorService = {
     return apiClient.delete(`/vendors/${id}`).then(() => undefined);
   },
 
-  async setProductPrice(vendorId: string, productId: string, price: number, rating: number): Promise<void> {
+  async setProductPrice(
+    vendorId: string,
+    productId: string,
+    price: number,
+    rating: number,
+    status?: VendorStatus,
+  ): Promise<void> {
     return apiClient
-      .post(`/vendors/${vendorId}/products`, { productId, price, rating })
+      .post(`/vendors/${vendorId}/products`, { productId, price, rating, status })
       .then(() => undefined);
+  },
+
+  async getActivityLogs(id: string): Promise<VendorActivityLog[]> {
+    return apiClient.get<VendorActivityLog[]>(`/vendors/${id}/activity-logs`).then((r) => r.data);
   },
 };

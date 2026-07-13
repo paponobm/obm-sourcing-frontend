@@ -9,7 +9,8 @@ export type VendorSectionKey =
   | "warehouseReceive"
   | "invoiceReceived"
   | "invoiceClosed"
-  | "orderHistory";
+  | "orderHistory"
+  | "activityLog";
 
 /** Shared callback shape for any action that jumps to another section of the
  * vendor workspace — optionally pinning a specific invoice (e.g. Order History's
@@ -25,6 +26,7 @@ const TABS: { key: VendorSectionKey; label: string }[] = [
   // { key: "invoiceReceived", label: "ইনভয়েস (রিসিভড)" },
   // { key: "invoiceClosed", label: "ইনভয়েস (ক্লোজড)" },
   { key: "orderHistory", label: "অর্ডার হিস্টরি" },
+  { key: "activityLog", label: "অ্যাক্টিভিটি লগ" },
 ];
 
 /** Sticky horizontal section nav for the vendor workspace — keeps every vendor-related

@@ -1,4 +1,5 @@
 import type { VendorStatus } from "./common.types";
+import type { ProductActivityActionType } from "./product.types";
 
 export type Vendor = {
   id: string;
@@ -54,4 +55,19 @@ export type CreateVendorInput = {
 
 export type UpdateVendorInput = Partial<CreateVendorInput> & {
   status?: VendorStatus;
+};
+
+/** Same shape as ProductActivityLog, but spans every product this vendor
+ * supplies, so each entry also names its own product. */
+export type VendorActivityLog = {
+  id: string;
+  actionType: ProductActivityActionType;
+  oldValue: Record<string, unknown> | null;
+  newValue: Record<string, unknown> | null;
+  description: string;
+  performedByName: string;
+  performedByRole: string;
+  createdAt: string;
+  productId: string;
+  productName: string;
 };

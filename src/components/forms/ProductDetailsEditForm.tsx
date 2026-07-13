@@ -13,12 +13,18 @@ import { useUploadImage } from "@/hooks/useUploadImage";
 import { resolveImageValue, resolveImageValues, type ImageValue } from "@/lib/image-value";
 import { BasicInformationSection } from "./BasicInformationSection";
 import { ImageUploadSection } from "./ImageUploadSection";
+import { VendorInformationEditTable } from "./VendorInformationEditTable";
 import { ActionButtons } from "./ActionButtons";
+import type { ProductVendorEntry } from "@/types/product.types";
 
-/** Edits a product's shared fields (SKU/name/unit/category/images) — affects every vendor supplying it. */
+/** Edits a product's shared fields (SKU/name/unit/category/images) — affects
+ * every vendor supplying it — plus, below that, each supplying vendor's own
+ * price/rating/status (see VendorInformationEditTable, saved independently
+ * per row). */
 export function ProductDetailsEditForm({
   productId,
   defaultValues,
+  vendors,
   onSuccess,
   onCancel,
 }: {
@@ -32,6 +38,7 @@ export function ProductDetailsEditForm({
     thumbnailUrl?: string;
     imageUrls: string[];
   };
+  vendors: ProductVendorEntry[];
   onSuccess: () => void;
   onCancel: () => void;
 }) {
@@ -87,6 +94,8 @@ export function ProductDetailsEditForm({
         imageValues={imageValues}
         onImageValuesChange={setImageValues}
       />
+
+      <VendorInformationEditTable productId={productId} vendors={vendors} />
 
       <ActionButtons
         onCancel={onCancel}
