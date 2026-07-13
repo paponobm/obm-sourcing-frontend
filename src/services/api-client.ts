@@ -1,15 +1,15 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import { authStorage } from "@/lib/auth-storage";
+import type { RefreshTokenResult } from "@/types/auth.types";
 
 /**
  * Central axios instance. Every service imports this instead of calling
  * axios directly, so swapping environments/auth behavior is a single edit.
- * Not yet wired to a live backend — see each service's mock implementation.
  */
 export const apiClient = axios.create({
-      //  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api",
-      baseURL: process.env.NEXT_PUBLIC_API_URL ?? "https://obm-sourcing-backend.onrender.com/api",
- 
+    // baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "https://obm-sourcing-backend.onrender.com/api",
+
   timeout: 15_000,
 });
 
@@ -21,12 +21,62 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Endpoints where a 401 means "these credentials/this code/this refresh
+// token are wrong" — never the "access token expired mid-session" case the
+// retry-after-refresh flow below exists for. Retrying these through a
+// refresh would be meaningless (login/verify-otp aren't even authenticated
+// calls) or would recurse into refreshAccessToken itself (refresh/logout).
+const AUTH_ENDPOINTS_EXCLUDED_FROM_REFRESH = ["/auth/login", "/auth/verify-otp", "/auth/refresh", "/auth/logout"];
+
+/** De-duped across concurrent 401s: the first one to land triggers the
+ * refresh call, every other concurrent 401 just awaits the same promise
+ * instead of each firing its own /auth/refresh request. */
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  const refreshToken = authStorage.getRefreshToken();
+  if (!refreshToken) return null;
+
+  try {
+    // Deliberately a bare axios call, not `apiClient` — going through
+    // apiClient would re-run these same interceptors on the refresh call.
+    const { data } = await axios.post<RefreshTokenResult>(`${apiClient.defaults.baseURL}/auth/refresh`, {
+      refreshToken,
+    });
+    authStorage.setTokens(data.accessToken, data.refreshToken);
+    return data.accessToken;
+  } catch {
+    return null;
+  }
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      authStorage.clear();
+  async (error) => {
+    const config = error.config as (AxiosRequestConfig & { _retried?: boolean }) | undefined;
+    const status = error.response?.status;
+    const isExcluded = AUTH_ENDPOINTS_EXCLUDED_FROM_REFRESH.some((path) => config?.url?.includes(path));
+
+    // Only attempt the silent-refresh-and-retry dance once per request, and
+    // never for the auth endpoints above — everything else just falls
+    // through to the original hard-logout behavior.
+    if (status !== 401 || !config || config._retried || isExcluded) {
+      if (status === 401) authStorage.clear();
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
+
+    config._retried = true;
+    refreshPromise ??= refreshAccessToken().finally(() => {
+      refreshPromise = null;
+    });
+    const newAccessToken = await refreshPromise;
+
+    if (!newAccessToken) {
+      authStorage.clear();
+      return Promise.reject(error);
+    }
+
+    config.headers = { ...config.headers, Authorization: `Bearer ${newAccessToken}` };
+    return apiClient.request(config);
   },
 );

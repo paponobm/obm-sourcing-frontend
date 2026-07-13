@@ -26,3 +26,10 @@ export type VerifyOtpInput = {
   code: string;
   deviceId: string;
 };
+
+/** POST /auth/refresh returns a fresh token pair only — no `user`, unlike
+ * login/verify-otp. */
+export type RefreshTokenResult = {
+  accessToken: string;
+  refreshToken: string;
+};
