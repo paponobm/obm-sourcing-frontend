@@ -16,6 +16,14 @@ export function useProducts(query: ProductListQuery) {
   });
 }
 
+export function useProductActivityLogs(productId: string | undefined) {
+  return useQuery({
+    queryKey: [...PRODUCTS_KEY, "activity-logs", productId],
+    queryFn: () => productService.getActivityLogs(productId!),
+    enabled: !!productId,
+  });
+}
+
 export function usePendingProducts() {
   return useQuery({
     queryKey: [...PRODUCTS_KEY, "pending"],

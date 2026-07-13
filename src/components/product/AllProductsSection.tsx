@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Ban, CheckCircle2 } from "lucide-react";
+import { Plus, Pencil, Ban, CheckCircle2, History } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
 import { ProductForm } from "@/components/forms/ProductForm";
 import { ProductDetailsEditForm } from "@/components/forms/ProductDetailsEditForm";
 import { ProductVendorPicker } from "@/components/product/ProductVendorPicker";
+import { ProductActivityLogModal } from "@/components/product/ProductActivityLogModal";
 import { ProductSearchBar } from "@/components/product/ProductSearchBar";
 import { CategoryStrip } from "@/components/product/CategoryStrip";
 import { useProducts, useActivateProduct, useDeactivateProduct } from "@/hooks/useProducts";
@@ -42,6 +43,7 @@ export function AllProductsSection() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [createOpen, setCreateOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [historyId, setHistoryId] = useState<string | null>(null);
   const canManage = useHasRole(MANAGE_CATALOG_ROLES);
   const activateProduct = useActivateProduct();
   const deactivateProduct = useDeactivateProduct();
@@ -69,6 +71,7 @@ export function AllProductsSection() {
   };
 
   const editingProduct = data?.data.find((p) => p.id === editingId);
+  const historyProduct = data?.data.find((p) => p.id === historyId);
 
   const columns: DataTableColumn<Product>[] = [
     {
@@ -107,48 +110,51 @@ export function AllProductsSection() {
       header: "স্ট্যাটাস",
       render: (p) => <Badge variant={productStatusBadgeVariant(p.status)}>{PRODUCT_STATUS_LABEL_BN[p.status]}</Badge>,
     },
-    ...(canManage
-      ? [
-          {
-            key: "actions",
-            header: "",
-            render: (p: Product) => (
-              <div className="flex justify-end gap-1.5">
-                <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(p.id)}>
-                  <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
-                </Button>
-                {p.status === "ACTIVE" ? (
-                  <ConfirmDialog
-                    trigger={
-                      <Button type="button" variant="ghost" size="sm">
-                        <Ban className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
-                      </Button>
-                    }
-                    title="প্রোডাক্টটি নিষ্ক্রিয় করবেন?"
-                    description={`আপনি কি নিশ্চিত "${p.name}" নিষ্ক্রিয় করতে চান?`}
-                    confirmLabel="নিষ্ক্রিয় করুন"
-                    onConfirm={() => deactivateProduct.mutate(p.id)}
-                    isLoading={deactivateProduct.isPending}
-                  />
-                ) : (
-                  <ConfirmDialog
-                    trigger={
-                      <Button type="button" variant="ghost" size="sm">
-                        <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
-                      </Button>
-                    }
-                    title="প্রোডাক্টটি সক্রিয় করবেন?"
-                    description={`আপনি কি নিশ্চিত "${p.name}" সক্রিয় করতে চান?`}
-                    confirmLabel="সক্রিয় করুন"
-                    onConfirm={() => activateProduct.mutate(p.id)}
-                    isLoading={activateProduct.isPending}
-                  />
-                )}
-              </div>
-            ),
-          },
-        ]
-      : []),
+    {
+      key: "actions",
+      header: "",
+      render: (p: Product) => (
+        <div className="flex justify-end gap-1.5">
+          <Button type="button" variant="ghost" size="sm" onClick={() => setHistoryId(p.id)}>
+            <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+          </Button>
+          {canManage && (
+            <>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(p.id)}>
+                <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+              </Button>
+              {p.status === "ACTIVE" ? (
+                <ConfirmDialog
+                  trigger={
+                    <Button type="button" variant="ghost" size="sm">
+                      <Ban className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                    </Button>
+                  }
+                  title="প্রোডাক্টটি নিষ্ক্রিয় করবেন?"
+                  description={`আপনি কি নিশ্চিত "${p.name}" নিষ্ক্রিয় করতে চান?`}
+                  confirmLabel="নিষ্ক্রিয় করুন"
+                  onConfirm={() => deactivateProduct.mutate(p.id)}
+                  isLoading={deactivateProduct.isPending}
+                />
+              ) : (
+                <ConfirmDialog
+                  trigger={
+                    <Button type="button" variant="ghost" size="sm">
+                      <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                    </Button>
+                  }
+                  title="প্রোডাক্টটি সক্রিয় করবেন?"
+                  description={`আপনি কি নিশ্চিত "${p.name}" সক্রিয় করতে চান?`}
+                  confirmLabel="সক্রিয় করুন"
+                  onConfirm={() => activateProduct.mutate(p.id)}
+                  isLoading={activateProduct.isPending}
+                />
+              )}
+            </>
+          )}
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -261,6 +267,12 @@ export function AllProductsSection() {
           )}
         </DialogContent>
       </Dialog>
+
+      <ProductActivityLogModal
+        productId={historyId}
+        productName={historyProduct?.name ?? ""}
+        onOpenChange={(open) => !open && setHistoryId(null)}
+      />
     </>
   );
 }

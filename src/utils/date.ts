@@ -9,6 +9,17 @@ export function formatBnDate(isoDate: string): string {
   return BN_DATE_FORMATTER.format(new Date(isoDate));
 }
 
+const BN_TIME_FORMATTER = new Intl.DateTimeFormat("bn-BD", {
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
+
+/** e.g. "২:৩৫ PM", matching formatBnDate's style for activity log timestamps. */
+export function formatBnTime(isoDate: string): string {
+  return BN_TIME_FORMATTER.format(new Date(isoDate));
+}
+
 const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 
 function toBnDigits(n: number): string {

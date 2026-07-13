@@ -1,7 +1,7 @@
 import type { VendorStatus } from "@/types/common.types";
 import type { OrderStatus } from "@/types/invoice.types";
 import type { RequisitionPriority, RequisitionStatus } from "@/types/requisition.types";
-import type { ProductStatus } from "@/types/product.types";
+import type { ProductActivityActionType, ProductStatus } from "@/types/product.types";
 
 export const VENDOR_STATUS_LABEL_BN: Record<VendorStatus, string> = {
   ACTIVE: "অ্যাক্টিভ",
@@ -32,6 +32,19 @@ export function productStatusBadgeVariant(status: ProductStatus): "active" | "in
       return "inactive";
   }
 }
+
+export const PRODUCT_ACTIVITY_ACTION_LABEL_BN: Record<ProductActivityActionType, string> = {
+  PRICE_CHANGED: "দাম পরিবর্তন",
+  VENDOR_ADDED: "ভেন্ডর যোগ",
+  VENDOR_REMOVED: "ভেন্ডর বাদ",
+  STATUS_CHANGED: "স্ট্যাটাস পরিবর্তন",
+  APPROVED: "অনুমোদিত",
+  REJECTED: "প্রত্যাখ্যাত",
+  CATEGORY_CHANGED: "ক্যাটাগরি পরিবর্তন",
+  IMAGE_CHANGED: "ছবি পরিবর্তন",
+  NAME_CHANGED: "নাম পরিবর্তন",
+  UNIT_CHANGED: "ইউনিট পরিবর্তন",
+};
 
 export const ORDER_STATUS_LABEL_BN: Record<OrderStatus, string> = {
   IN_TRANSIT: "পেন্ডিং",

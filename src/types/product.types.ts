@@ -76,3 +76,26 @@ export type ApproveProductInput = {
 export type RejectProductInput = {
   reason: string;
 };
+
+export type ProductActivityActionType =
+  | "PRICE_CHANGED"
+  | "VENDOR_ADDED"
+  | "VENDOR_REMOVED"
+  | "STATUS_CHANGED"
+  | "APPROVED"
+  | "REJECTED"
+  | "CATEGORY_CHANGED"
+  | "IMAGE_CHANGED"
+  | "NAME_CHANGED"
+  | "UNIT_CHANGED";
+
+export type ProductActivityLog = {
+  id: string;
+  actionType: ProductActivityActionType;
+  oldValue: Record<string, unknown> | null;
+  newValue: Record<string, unknown> | null;
+  description: string;
+  performedByName: string;
+  performedByRole: string;
+  createdAt: string;
+};

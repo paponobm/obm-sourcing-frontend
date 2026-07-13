@@ -4,6 +4,7 @@ import type {
   PendingProduct,
   ApproveProductInput,
   RejectProductInput,
+  ProductActivityLog,
 } from "@/types/product.types";
 import type { PaginatedResult } from "@/types/common.types";
 import type { ListQuery } from "@/utils/pagination";
@@ -51,5 +52,9 @@ export const productService = {
 
   async setPreferredVendor(id: string, vendorId: string): Promise<void> {
     return apiClient.patch(`/products/${id}/preferred-vendor`, { vendorId }).then(() => undefined);
+  },
+
+  async getActivityLogs(id: string): Promise<ProductActivityLog[]> {
+    return apiClient.get<ProductActivityLog[]>(`/products/${id}/activity-logs`).then((r) => r.data);
   },
 };

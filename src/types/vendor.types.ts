@@ -15,6 +15,13 @@ export type Vendor = {
   createdAt: string;
 };
 
+export type PendingRequisitionSummary = {
+  count: number;
+  totalQty: number;
+  latestDate: string;
+  latestRequestedByName: string;
+};
+
 export type VendorProductPrice = {
   id: string;
   productId: string;
@@ -25,6 +32,11 @@ export type VendorProductPrice = {
   rating: number;
   isLowestForProduct: boolean;
   lastUpdatedAt: string;
+  /** Requisitions have no vendor of their own (only chosen at conversion),
+   * so this reflects pending demand for the PRODUCT — the same figure shows
+   * on every vendor's row selling it. */
+  pendingRequisitionCount: number;
+  pendingRequisitionSummary: PendingRequisitionSummary | null;
 };
 
 export type VendorWithProducts = Vendor & {

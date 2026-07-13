@@ -43,6 +43,9 @@ export function useCreateRequisition() {
     mutationFn: (input: CreateRequisitionInput) => requisitionService.create(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...REQUISITIONS_KEY, "pending"] });
+      // Vendor Details' per-product pending-requisition badge is derived from
+      // this same data, so it needs refreshing too.
+      queryClient.invalidateQueries({ queryKey: ["vendors"] });
       toast.success("রিকুইজিশন তৈরি করা হয়েছে");
     },
     onError: (error) => toast.error(getApiErrorMessage(error, "রিকুইজিশন তৈরি করা যায়নি")),
@@ -57,6 +60,7 @@ export function useConvertRequisition() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...REQUISITIONS_KEY, "pending"] });
       queryClient.invalidateQueries({ queryKey: [...REQUISITIONS_KEY, "completed"] });
+      queryClient.invalidateQueries({ queryKey: ["vendors"] });
     },
     onError: (error) => toast.error(getApiErrorMessage(error, "রিকুইজিশন আপডেট করা যায়নি")),
   });
@@ -68,6 +72,7 @@ export function useCancelRequisition() {
     mutationFn: (id: string) => requisitionService.cancel(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...REQUISITIONS_KEY, "pending"] });
+      queryClient.invalidateQueries({ queryKey: ["vendors"] });
       toast.success("রিকুইজিশন বাতিল করা হয়েছে");
     },
     onError: (error) => toast.error(getApiErrorMessage(error, "রিকুইজিশন বাতিল করা যায়নি")),
