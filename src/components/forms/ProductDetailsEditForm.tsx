@@ -27,7 +27,7 @@ export function ProductDetailsEditForm({
     sku: string;
     name: string;
     unit: string;
-    categoryId: string;
+    categoryIds: string[];
     description?: string;
     thumbnailUrl?: string;
     imageUrls: string[];
@@ -52,7 +52,7 @@ export function ProductDetailsEditForm({
       sku: defaultValues.sku,
       name: defaultValues.name,
       unit: defaultValues.unit,
-      categoryId: defaultValues.categoryId,
+      categoryIds: defaultValues.categoryIds,
       description: defaultValues.description ?? "",
     },
   });

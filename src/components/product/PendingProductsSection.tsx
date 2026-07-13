@@ -77,7 +77,7 @@ export function PendingProductsSection() {
                   </span>
                 </TableCell>
                 <TableCell className="font-mono text-[11px] sm:text-xs lg:text-sm">{p.sku}</TableCell>
-                <TableCell>{p.categoryName}</TableCell>
+                <TableCell>{p.categories.map((c) => c.name).join(", ")}</TableCell>
                 <TableCell className="text-gray">{p.createdByName}</TableCell>
                 <TableCell className="text-gray">{formatBnDate(p.createdAt)}</TableCell>
                 <TableCell>

@@ -91,7 +91,7 @@ export function AllProductsSection() {
       render: (p) => <span className="font-mono text-[11px] sm:text-xs lg:text-sm">{p.sku}</span>,
     },
     { key: "unit", header: "ইউনিট", render: (p) => p.unit },
-    { key: "category", header: "ক্যাটাগরি", render: (p) => p.categoryName },
+    { key: "category", header: "ক্যাটাগরি", render: (p) => p.categories.map((c) => c.name).join(", ") },
     {
       key: "vendorCount",
       header: "ভেন্ডর সংখ্যা",
@@ -256,7 +256,7 @@ export function AllProductsSection() {
                 sku: editingProduct.sku,
                 name: editingProduct.name,
                 unit: editingProduct.unit,
-                categoryId: editingProduct.categoryId,
+                categoryIds: editingProduct.categories.map((c) => c.id),
                 description: editingProduct.description ?? "",
                 thumbnailUrl: editingProduct.thumbnailUrl,
                 imageUrls: editingProduct.imageUrls,

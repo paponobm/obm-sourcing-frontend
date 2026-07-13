@@ -46,20 +46,33 @@ export function InvoicePrintView({ invoice }: { invoice: Invoice }) {
       </div>
 
       <table className="mb-8 w-full border-collapse text-sm text-black">
-        <thead>
+        {/* <thead>
           <tr>
             <th className="border border-black px-2 py-1.5 text-left">প্রোডাক্ট</th>
             <th className="border border-black px-2 py-1.5 text-left">ইউনিট</th>
             <th className="border border-black px-2 py-1.5 text-left">পরিমাণ</th>
             <th className="border border-black px-2 py-1.5 text-left">মন্তব্য</th>
           </tr>
+        </thead> */}
+        <thead>
+          <tr>
+            <th className="border border-black px-2 py-1.5 text-center">ক্রমিক</th>
+            <th className="border border-black px-2 py-1.5 text-left">প্রোডাক্ট</th>
+            <th className="border border-black px-2 py-1.5 text-left">পরিমাণ</th>
+            <th className="border border-black px-2 py-1.5 text-left">ইউনিট</th>
+            <th className="border border-black px-2 py-1.5 text-left">মন্তব্য</th>
+          </tr>
         </thead>
         <tbody>
-          {invoice.items.map((item) => (
+          {invoice.items.map((item, index) => (
             <tr key={item.id}>
+              <td className="border border-black px-2 py-1.5 text-center">
+                {index + 1}
+              </td>
               <td className="border border-black px-2 py-1.5">{item.productName}</td>
+               <td className="border border-black px-2 py-1.5">{item.orderedQty}</td>
               <td className="border border-black px-2 py-1.5">{item.unit}</td>
-              <td className="border border-black px-2 py-1.5">{item.orderedQty}</td>
+             
               <td className="border border-black px-2 py-1.5">{item.remark || "–"}</td>
             </tr>
           ))}

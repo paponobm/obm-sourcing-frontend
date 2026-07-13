@@ -44,7 +44,7 @@ export function ViewPendingProductModal({
               </div>
               <div>
                 <div className="text-xs text-gray">ক্যাটাগরি</div>
-                <div>{product.categoryName}</div>
+                <div>{product.categories.map((c) => c.name).join(", ")}</div>
               </div>
               <div>
                 <div className="text-xs text-gray">তৈরি করেছেন</div>

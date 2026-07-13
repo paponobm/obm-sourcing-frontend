@@ -8,13 +8,17 @@ export type ProductVendorEntry = {
   lastUpdatedAt: string;
 };
 
+export type ProductCategoryRef = {
+  id: string;
+  name: string;
+};
+
 export type Product = {
   id: string;
   sku: string;
   name: string;
   unit: string;
-  categoryId: string;
-  categoryName: string;
+  categories: ProductCategoryRef[];
   description?: string | null;
   thumbnailUrl?: string;
   imageUrls: string[];
@@ -37,8 +41,7 @@ export type PendingProduct = {
   description?: string | null;
   thumbnailUrl?: string;
   imageUrls: string[];
-  categoryId: string;
-  categoryName: string;
+  categories: ProductCategoryRef[];
   createdByName: string;
   createdAt: string;
   status: ProductStatus;
@@ -48,7 +51,7 @@ export type CreateProductInput = {
   sku: string;
   name: string;
   unit: string;
-  categoryId: string;
+  categoryIds: string[];
   description?: string;
   thumbnailUrl?: string;
   imageUrls?: string[];
@@ -66,7 +69,7 @@ export type ApproveProductInput = {
   name?: string;
   sku?: string;
   unit?: string;
-  categoryId?: string;
+  categoryIds?: string[];
   description?: string;
   thumbnailUrl?: string;
   imageUrls?: string[];

@@ -141,7 +141,7 @@ export function PendingInvoiceSection({
 
       <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
         <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleReceiveGoods}>
-          <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> মাল রিসিভ করুন
+          <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />প্রোডাক্ট রিসিভ করুন
         </Button>
         <Button type="button" variant="ghost" onClick={handleDownload}>
           <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> ইনভয়েস ডাউনলোড (PDF)
