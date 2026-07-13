@@ -75,6 +75,7 @@ export function useSetVendorProductPrice() {
       queryClient.invalidateQueries({ queryKey: VENDORS_KEY });
       queryClient.invalidateQueries({ queryKey: [...VENDORS_KEY, variables.vendorId] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success("ভেন্ডরের তথ্য সংরক্ষণ করা হয়েছে");
     },
     onError: () => toast.error("ভেন্ডরের দাম সংরক্ষণ করা যায়নি"),
   });
