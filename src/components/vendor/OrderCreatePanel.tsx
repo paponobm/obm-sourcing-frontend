@@ -6,7 +6,9 @@ import { Card, CardHeader, CardTitle, CardTag } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { PendingRequisitionBadge } from "@/components/vendor/PendingRequisitionBadge";
 import { useCreateInvoice } from "@/hooks/useInvoices";
 import { formatBDT } from "@/utils/currency";
 import type { VendorWithProducts } from "@/types/vendor.types";
@@ -75,7 +77,7 @@ export function OrderCreatePanel({
   }
 
   return (
-    <>
+    <TooltipProvider delayDuration={200}>
       <Card>
         <CardHeader>
           <CardTitle>প্রোডাক্ট বাছাই করুন এই ভেন্ডরের লিস্ট থেকে</CardTitle>
@@ -112,7 +114,12 @@ export function OrderCreatePanel({
                       }
                     />
                   </TableCell>
-                  <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">{p.productName}</TableCell>
+                  <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
+                    <span className="flex flex-wrap items-center gap-1.5">
+                      {p.productName}
+                      <PendingRequisitionBadge product={p} />
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <Input value={formatBDT(p.price)} disabled className="w-24 sm:w-28" />
                   </TableCell>
@@ -174,6 +181,6 @@ export function OrderCreatePanel({
           </Button>
         )}
       </div>
-    </>
+    </TooltipProvider>
   );
 }
