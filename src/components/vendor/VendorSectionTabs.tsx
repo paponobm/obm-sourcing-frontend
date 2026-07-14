@@ -34,17 +34,22 @@ const TABS: { key: VendorSectionKey; label: string }[] = [
 export function VendorSectionTabs({
   active,
   onChange,
+  hideNewOrder,
 }: {
   active: VendorSectionKey;
   onChange: (key: VendorSectionKey) => void;
+  /** An Inactive vendor can't be ordered from — hide the tab entirely rather
+   * than showing a form that would just reject on submit. */
+  hideNewOrder?: boolean;
 }) {
+  const tabs = hideNewOrder ? TABS.filter((tab) => tab.key !== "newOrder") : TABS;
   return (
     <div className="sticky top-0 z-10 mb-4 border-b border-line bg-paper pb-2 pt-1 print:hidden sm:mb-5 sm:pb-2.5">
       <div
         className="flex gap-1.5 overflow-x-auto sm:gap-2 [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: "none" }}
       >
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const isActive = tab.key === active;
           return (
             <button

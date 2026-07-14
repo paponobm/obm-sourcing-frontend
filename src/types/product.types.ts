@@ -118,7 +118,9 @@ export type ProductActivityActionType =
   | "NAME_CHANGED"
   | "UNIT_CHANGED"
   | "RATING_CHANGED"
-  | "VENDOR_STATUS_CHANGED";
+  | "VENDOR_STATUS_CHANGED"
+  | "ORDER_CREATED"
+  | "REQUISITION_RECEIVED";
 
 export type ProductActivityLog = {
   id: string;

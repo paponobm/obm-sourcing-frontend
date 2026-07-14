@@ -46,6 +46,8 @@ export const PRODUCT_ACTIVITY_ACTION_LABEL_BN: Record<ProductActivityActionType,
   UNIT_CHANGED: "ইউনিট পরিবর্তন",
   RATING_CHANGED: "রেটিং পরিবর্তন",
   VENDOR_STATUS_CHANGED: "ভেন্ডরের স্ট্যাটাস পরিবর্তন",
+  ORDER_CREATED: "অর্ডার তৈরি",
+  REQUISITION_RECEIVED: "রিকুইজিশন গৃহীত",
 };
 
 export const ORDER_STATUS_LABEL_BN: Record<OrderStatus, string> = {

@@ -2,17 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, History, Pencil, Ban, CheckCircle2 } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Avatar } from "@/components/shared/Avatar";
 import { SearchBox } from "@/components/shared/SearchBox";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import { VendorPendingRequisitionBadge } from "@/components/vendor/VendorPendingRequisitionBadge";
-import { useVendors } from "@/hooks/useVendors";
+import { VendorEditForm } from "@/components/forms/VendorEditForm";
+import { useVendors, useActivateVendor, useDeactivateVendor } from "@/hooks/useVendors";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useHasRole } from "@/hooks/useHasRole";
 import { ROUTES } from "@/constants/routes";
@@ -25,20 +30,28 @@ import type { SortDirection } from "@/types/common.types";
 const PAGE_SIZE = 10;
 
 export default function VendorListPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "all">("active");
   const [sortColumn, setSortColumn] = useState<VendorSortColumn>("shopName");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [editingId, setEditingId] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search);
   const canManage = useHasRole(MANAGE_CATALOG_ROLES);
+  const activateVendor = useActivateVendor();
+  const deactivateVendor = useDeactivateVendor();
 
   const { data, isLoading } = useVendors({
     page,
     pageSize: PAGE_SIZE,
     search: debouncedSearch,
+    statusFilter,
     sortColumn,
     sortDirection,
   });
+
+  const editingVendor = data?.data.find((v) => v.id === editingId);
 
   const handleSortChange = (column: string) => {
     const col = column as VendorSortColumn;
@@ -59,7 +72,8 @@ export default function VendorListPage() {
       render: (v) => (
         <Link
           href={ROUTES.vendorDetail(v.id)}
-          className="flex items-center text-sm hover:underline md:text-base lg:text-lg xl:text-xl"
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center text-sm md:text-base lg:text-lg xl:text-xl"
         >
           <Avatar initials={v.shopName.slice(0, 2)} imageUrl={v.imageUrl} />
           {v.shopName}
@@ -93,6 +107,56 @@ export default function VendorListPage() {
         </Badge>
       ),
     },
+    {
+      key: "actions",
+      header: "",
+      render: (v) => (
+        <div className="flex justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`${ROUTES.vendorDetail(v.id)}?tab=activityLog`)}
+          >
+            <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+          </Button>
+          {canManage && (
+            <>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(v.id)}>
+                <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+              </Button>
+              {v.status === "ACTIVE" ? (
+                <ConfirmDialog
+                  trigger={
+                    <Button type="button" variant="ghost" size="sm">
+                      <Ban className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                    </Button>
+                  }
+                  title="ভেন্ডর নিষ্ক্রিয় করুন"
+                  description={`আপনি "${v.shopName}"-কে নিষ্ক্রিয় করতে চলেছেন। এই ভেন্ডরের সব অ্যাক্টিভ প্রোডাক্ট (যদি অন্য কোনো অ্যাক্টিভ ভেন্ডর না থাকে) নিষ্ক্রিয় হয়ে যাবে এবং নতুন অর্ডার বা রিকুইজিশনের জন্য উপলব্ধ থাকবে না। ভেন্ডরকে আবার সক্রিয় করলে এই পরিবর্তন ফিরিয়ে আনা যাবে। আপনি কি নিশ্চিত?`}
+                  confirmLabel="নিশ্চিত নিষ্ক্রিয় করুন"
+                  onConfirm={() => deactivateVendor.mutate(v.id)}
+                  isLoading={deactivateVendor.isPending}
+                />
+              ) : (
+                <ConfirmDialog
+                  trigger={
+                    <Button type="button" variant="ghost" size="sm">
+                      <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                    </Button>
+                  }
+                  title="ভেন্ডরটি সক্রিয় করবেন?"
+                  description={`আপনি কি নিশ্চিত "${v.shopName}"-কে সক্রিয় করতে চান? এই ভেন্ডরের কারণে নিষ্ক্রিয় হওয়া প্রোডাক্টগুলো আবার সক্রিয় হয়ে যাবে।`}
+                  confirmLabel="সক্রিয় করুন"
+                  onConfirm={() => activateVendor.mutate(v.id)}
+                  isLoading={activateVendor.isPending}
+                />
+              )}
+            </>
+          )}
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -109,6 +173,22 @@ export default function VendorListPage() {
               }}
               placeholder="ভেন্ডর সার্চ করুন..."
             />
+            <Select
+              value={statusFilter}
+              onValueChange={(v) => {
+                setStatusFilter(v as "active" | "inactive" | "all");
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="sm:w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">অ্যাক্টিভ ভেন্ডর</SelectItem>
+                <SelectItem value="inactive">ইনঅ্যাক্টিভ ভেন্ডর</SelectItem>
+                <SelectItem value="all">সব ভেন্ডর</SelectItem>
+              </SelectContent>
+            </Select>
             {canManage && (
               <Button asChild variant="brass">
                 <Link href={ROUTES.vendorNew}>
@@ -133,10 +213,26 @@ export default function VendorListPage() {
           sortColumn={sortColumn}
           sortDirection={sortDirection}
           onSortChange={handleSortChange}
+          onRowClick={(v) => router.push(ROUTES.vendorDetail(v.id))}
           emptyTitle="কোনো ভেন্ডর পাওয়া যায়নি"
           emptyDescription="অন্য কিছু সার্চ করুন অথবা নতুন ভেন্ডর যোগ করুন।"
         />
       </Card>
+
+      <Dialog open={Boolean(editingVendor)} onOpenChange={(open) => !open && setEditingId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>ভেন্ডর এডিট করুন</DialogTitle>
+          </DialogHeader>
+          {editingVendor && (
+            <VendorEditForm
+              vendor={editingVendor}
+              onSuccess={() => setEditingId(null)}
+              onCancel={() => setEditingId(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
   );
 }

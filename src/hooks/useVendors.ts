@@ -2,14 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { vendorService, type VendorSortColumn } from "@/services/vendor.service";
-import type { ListQuery } from "@/utils/pagination";
+import { vendorService, type VendorListQuery } from "@/services/vendor.service";
 import type { CreateVendorInput, UpdateVendorInput } from "@/types/vendor.types";
 import type { VendorStatus } from "@/types/common.types";
 
 const VENDORS_KEY = ["vendors"] as const;
 
-export function useVendors(query: ListQuery<VendorSortColumn>) {
+export function useVendors(query: VendorListQuery) {
   return useQuery({
     queryKey: [...VENDORS_KEY, "list", query],
     queryFn: () => vendorService.list(query),
@@ -52,6 +51,34 @@ export function useDeleteVendor() {
       toast.success("ভেন্ডর মুছে ফেলা হয়েছে");
     },
     onError: () => toast.error("ভেন্ডর মুছে ফেলা যায়নি"),
+  });
+}
+
+export function useActivateVendor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => vendorService.activate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: VENDORS_KEY });
+      // Reactivating a vendor can restore products it previously cascaded
+      // to Inactive, so the Product List must refetch too.
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success("ভেন্ডর সক্রিয় করা হয়েছে");
+    },
+    onError: () => toast.error("ভেন্ডর সক্রিয় করা যায়নি"),
+  });
+}
+
+export function useDeactivateVendor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => vendorService.deactivate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: VENDORS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success("ভেন্ডর নিষ্ক্রিয় করা হয়েছে");
+    },
+    onError: () => toast.error("ভেন্ডর নিষ্ক্রিয় করা যায়নি"),
   });
 }
 

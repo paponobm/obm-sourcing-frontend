@@ -12,8 +12,12 @@ import { apiClient } from "./api-client";
 
 export type VendorSortColumn = "shopName" | "productCount" | "status";
 
+export type VendorListQuery = ListQuery<VendorSortColumn> & {
+  statusFilter?: "active" | "inactive" | "all";
+};
+
 export const vendorService = {
-  async list(query: ListQuery<VendorSortColumn> = {}): Promise<PaginatedResult<Vendor>> {
+  async list(query: VendorListQuery = {}): Promise<PaginatedResult<Vendor>> {
     return apiClient.get<PaginatedResult<Vendor>>("/vendors", { params: query }).then((r) => r.data);
   },
 
@@ -31,6 +35,14 @@ export const vendorService = {
 
   async remove(id: string): Promise<void> {
     return apiClient.delete(`/vendors/${id}`).then(() => undefined);
+  },
+
+  async activate(id: string): Promise<Vendor> {
+    return apiClient.patch<Vendor>(`/vendors/${id}/activate`).then((r) => r.data);
+  },
+
+  async deactivate(id: string): Promise<Vendor> {
+    return apiClient.patch<Vendor>(`/vendors/${id}/deactivate`).then((r) => r.data);
   },
 
   async setProductPrice(

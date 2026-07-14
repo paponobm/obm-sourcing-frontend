@@ -29,6 +29,7 @@ export function DataTable<T>({
   onSortChange,
   emptyTitle = "কোনো তথ্য পাওয়া যায়নি",
   emptyDescription,
+  onRowClick,
 }: {
   columns: DataTableColumn<T>[];
   data: T[];
@@ -43,6 +44,11 @@ export function DataTable<T>({
   onSortChange?: (column: string) => void;
   emptyTitle?: string;
   emptyDescription?: string;
+  /** Opt-in — when provided, each row gets a sidebar-nav-style hover
+   * highlight + pointer cursor and becomes clickable as a whole. Omitted
+   * entirely by default, so existing tables (Product List, Category List)
+   * are visually/behaviorally unchanged. */
+  onRowClick?: (row: T) => void;
 }) {
   const showEmpty = !isLoading && data.length === 0;
 
@@ -90,7 +96,11 @@ export function DataTable<T>({
             ))}
           {!isLoading &&
             data.map((row) => (
-              <TableRow key={rowKey(row)}>
+              <TableRow
+                key={rowKey(row)}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                className={onRowClick ? "cursor-pointer transition-colors hover:bg-paper-2" : undefined}
+              >
                 {columns.map((col) => (
                   <TableCell key={col.key} className={col.className}>
                     {col.render(row)}

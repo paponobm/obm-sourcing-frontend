@@ -1,5 +1,5 @@
 import type { VendorStatus } from "./common.types";
-import type { ProductActivityActionType } from "./product.types";
+import type { ProductActivityActionType, ProductStatus } from "./product.types";
 
 export type Vendor = {
   id: string;
@@ -43,6 +43,9 @@ export type VendorProductPrice = {
   rating: number;
   isLowestForProduct: boolean;
   lastUpdatedAt: string;
+  /** Lets the frontend exclude Inactive products from New Order/requisition
+   * pickers without changing what this list itself displays. */
+  productStatus: ProductStatus;
   /** Requisitions have no vendor of their own (only chosen at conversion),
    * so this reflects pending demand for the PRODUCT — the same figure shows
    * on every vendor's row selling it. */
@@ -64,9 +67,10 @@ export type CreateVendorInput = {
   imageUrl?: string;
 };
 
-export type UpdateVendorInput = Partial<CreateVendorInput> & {
-  status?: VendorStatus;
-};
+// Deliberately no `status` field — a vendor's status only changes via the
+// dedicated activate/deactivate actions (useActivateVendor/useDeactivateVendor),
+// never through a generic profile edit.
+export type UpdateVendorInput = Partial<CreateVendorInput>;
 
 /** Same shape as ProductActivityLog, but spans every product this vendor
  * supplies, so each entry also names its own product. */

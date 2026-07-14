@@ -84,7 +84,11 @@ export default function VendorDetailPage() {
   return (
     <>
       <VendorHeader vendor={vendor} />
-      <VendorSectionTabs active={activeSection} onChange={(key) => navigate(key)} />
+      <VendorSectionTabs
+        active={activeSection}
+        onChange={(key) => navigate(key)}
+        hideNewOrder={vendor.status === "INACTIVE"}
+      />
 
       <div key={activeSection} className="animate-in fade-in-0 duration-300">
         {activeSection === "profile" && <ProfileSection vendor={vendor} />}

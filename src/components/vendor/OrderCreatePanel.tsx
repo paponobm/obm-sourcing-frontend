@@ -36,7 +36,10 @@ export function OrderCreatePanel({
     prefillProductId ? { [prefillProductId]: { selected: true, qty: prefillQty ?? "1" } } : {},
   );
 
-  const products = vendor.products;
+  // Inactive products (this vendor's own cascade, or manually deactivated)
+  // are never orderable — excluded here rather than just disabled, so they
+  // don't clutter the picker at all.
+  const products = vendor.products.filter((p) => p.productStatus === "ACTIVE");
 
   const getRow = (productId: string): RowState => rows[productId] ?? { selected: false, qty: "" };
 
