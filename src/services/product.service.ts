@@ -51,10 +51,6 @@ export const productService = {
     return apiClient.patch(`/products/${id}/deactivate`).then(() => undefined);
   },
 
-  async setPreferredVendor(id: string, vendorId: string): Promise<void> {
-    return apiClient.patch(`/products/${id}/preferred-vendor`, { vendorId }).then(() => undefined);
-  },
-
   async getActivityLogs(id: string): Promise<ProductActivityLog[]> {
     return apiClient.get<ProductActivityLog[]>(`/products/${id}/activity-logs`).then((r) => r.data);
   },

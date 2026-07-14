@@ -30,6 +30,10 @@ export function useCreateInvoice(vendorId: string) {
     mutationFn: (input: CreateInvoiceInput) => invoiceService.createForVendor(vendorId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...INVOICES_KEY, "vendor", vendorId] });
+      // A new order changes which vendor is "most recently ordered from" for
+      // every product on it — the Product List's recommended-vendor/price
+      // range must refetch so it reflects this immediately, no manual reload.
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("অর্ডার তৈরি করা হয়েছে — ইনভয়েস তৈরি হয়েছে");
     },
     onError: (error) => toast.error(getApiErrorMessage(error, "অর্ডার তৈরি করা যায়নি")),

@@ -10,6 +10,10 @@ export type ProductVendorEntry = {
   /** The vendor's own global active/inactive status — not scoped to this product. */
   status: VendorStatus;
   lastUpdatedAt: string;
+  /** How many times this vendor has been ordered for this product. */
+  totalOrderCount: number;
+  /** Most recent order date for this vendor+product pair, or null if never ordered. */
+  lastOrderedDate: string | null;
 };
 
 export type ProductCategoryRef = {
@@ -28,9 +32,11 @@ export type Product = {
   thumbnailUrl?: string;
   imageUrls: string[];
   status: ProductStatus;
-  preferredVendorId?: string | null;
   vendorCount: number;
   lowestPrice: number;
+  highestPrice: number;
+  /** Last-ordered vendor if this product has order history, else the lowest-priced vendor. */
+  recommendedVendorId: string | null;
   createdAt: string;
   /** Every vendor supplying this product, sorted by price ascending. */
   vendors: ProductVendorEntry[];

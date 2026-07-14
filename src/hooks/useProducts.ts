@@ -120,15 +120,3 @@ export function useDeactivateProduct() {
     onError: (error) => toast.error(getApiErrorMessage(error, "প্রোডাক্ট নিষ্ক্রিয় করা যায়নি")),
   });
 }
-
-export function useSetPreferredVendor() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, vendorId }: { id: string; vendorId: string }) => productService.setPreferredVendor(id, vendorId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PRODUCTS_KEY });
-      toast.success("প্রেফার্ড ভেন্ডর পরিবর্তন করা হয়েছে");
-    },
-    onError: (error) => toast.error(getApiErrorMessage(error, "প্রেফার্ড ভেন্ডর পরিবর্তন করা যায়নি")),
-  });
-}

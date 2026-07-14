@@ -1,74 +1,81 @@
 "use client";
 
-import { useState } from "react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { useSetPreferredVendor } from "@/hooks/useProducts";
-import { PriceCell } from "./PriceCell";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { StarRating } from "./StarRating";
+import { formatBDT } from "@/utils/currency";
+import { formatBnDate } from "@/utils/date";
 import type { ProductVendorEntry } from "@/types/product.types";
 
-/** Inline vendor picker for a product row — selecting a vendor instantly shows
- * their price + rating, but only actually persists as the product's preferred
- * ("Best") vendor after the admin confirms the change. */
+/** Inline vendor viewer for a product row — always shows the vendor this
+ * product was most recently ordered from, or (if it's never been ordered)
+ * the cheapest vendor. This is fully computed from `recommendedVendorId`
+ * (order history / lowest price, resolved server-side) on every render —
+ * there is no locally-remembered or persisted "preferred vendor" override,
+ * so the row always reflects the latest data with no manual refresh needed.
+ * The dropdown itself is just a way to browse every vendor's price/rating/
+ * order-history via hover; it doesn't change what's selected by default. */
 export function ProductVendorPicker({
-  productId,
-  preferredVendorId,
+  recommendedVendorId,
+  lowestPrice,
+  highestPrice,
   vendors,
 }: {
-  productId: string;
-  preferredVendorId?: string | null;
+  recommendedVendorId?: string | null;
+  lowestPrice: number;
+  highestPrice: number;
   vendors: ProductVendorEntry[];
 }) {
-  const setPreferredVendor = useSetPreferredVendor();
-  const [selectedId, setSelectedId] = useState(preferredVendorId ?? vendors[0]?.vendorId);
-  const [pendingVendorId, setPendingVendorId] = useState<string | null>(null);
-
-  const selected = vendors.find((v) => v.vendorId === selectedId) ?? vendors[0];
-  const pendingVendor = vendors.find((v) => v.vendorId === pendingVendorId);
+  const selected = vendors.find((v) => v.vendorId === recommendedVendorId) ?? vendors[0];
 
   if (!selected) {
     return <span className="text-xs text-gray">কোনো ভেন্ডর নেই</span>;
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 lg:gap-3">
-      <Select value={selected.vendorId} onValueChange={(vendorId) => setPendingVendorId(vendorId)}>
-        <SelectTrigger className="h-7 w-[120px] text-[11px] sm:h-8 sm:w-[150px] sm:text-xs lg:h-9 lg:w-[170px] lg:text-sm">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {vendors.map((v) => (
-            <SelectItem key={v.vendorId} value={v.vendorId}>
-              {v.vendorName}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <PriceCell amount={selected.price} lowest={selected.vendorId === vendors[0]?.vendorId} />
-      <StarRating value={selected.rating} />
-
-      {/* Hidden trigger — ConfirmDialog opens programmatically via `open` below,
-          not by user click, since the Select itself is what starts this flow. */}
-      <ConfirmDialog
-        trigger={<span className="hidden" />}
-        title="প্রেফার্ড ভেন্ডর পরিবর্তন করবেন?"
-        description={
-          pendingVendor ? `আপনি কি নিশ্চিত "${pendingVendor.vendorName}"-কে প্রেফার্ড (সেরা) ভেন্ডর হিসেবে নির্ধারণ করতে চান?` : undefined
-        }
-        confirmLabel="নিশ্চিত করুন"
-        open={pendingVendorId !== null}
-        onOpenChange={(open) => !open && setPendingVendorId(null)}
-        onConfirm={() => {
-          if (!pendingVendorId) return;
-          setPreferredVendor.mutate(
-            { id: productId, vendorId: pendingVendorId },
-            { onSuccess: () => setSelectedId(pendingVendorId) },
-          );
-          setPendingVendorId(null);
-        }}
-        isLoading={setPreferredVendor.isPending}
-      />
-    </div>
+    <TooltipProvider delayDuration={200}>
+      <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 lg:gap-3">
+        <Select value={selected.vendorId}>
+          <SelectTrigger className="h-7 w-[120px] text-[11px] sm:h-8 sm:w-[150px] sm:text-xs lg:h-9 lg:w-[170px] lg:text-sm">
+            <SelectValue>{selected.vendorName}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {vendors.map((v) => (
+              <SelectItem key={v.vendorId} value={v.vendorId}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex w-full items-center justify-between gap-2">
+                      <span>{v.vendorName}</span>
+                      <span className="rounded bg-paper-2 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-brass">
+                        {formatBDT(v.price)}
+                      </span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <div className="space-y-1 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray">ভেন্ডর রেটিং:</span>
+                        <StarRating value={v.rating} iconClassName="h-3 w-3" />
+                      </div>
+                      <div>
+                        <span className="text-gray">মোট অর্ডার: </span>
+                        {v.totalOrderCount} টি
+                      </div>
+                      <div>
+                        <span className="text-gray">সর্বশেষ অর্ডার: </span>
+                        {v.lastOrderedDate ? formatBnDate(v.lastOrderedDate) : "কখনো অর্ডার করা হয়নি"}
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <span className="font-mono text-xs font-bold text-brass sm:text-sm lg:text-base">
+          {formatBDT(lowestPrice)} – {formatBDT(highestPrice)}
+        </span>
+      </div>
+    </TooltipProvider>
   );
 }

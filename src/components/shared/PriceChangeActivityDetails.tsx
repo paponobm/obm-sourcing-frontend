@@ -1,3 +1,5 @@
+import { formatBDT } from "@/utils/currency";
+
 /** Rich field layout for a PRICE_CHANGED activity log entry — shared by the
  * per-product activity modal and the per-vendor activity log section, since
  * both render the exact same underlying log rows, just scoped differently. */
@@ -27,18 +29,18 @@ export function PriceChangeActivityDetails({
       )}
       <div>
         <dt className="inline text-gray">পুরাতন দাম: </dt>
-        <dd className="inline text-ink">৳{oldPrice}</dd>
+        <dd className="inline text-ink">{oldPrice !== undefined ? formatBDT(oldPrice) : "—"}</dd>
       </div>
       <div>
         <dt className="inline text-gray">নতুন দাম: </dt>
-        <dd className="inline text-ink">৳{newPrice}</dd>
+        <dd className="inline text-ink">{newPrice !== undefined ? formatBDT(newPrice) : "—"}</dd>
       </div>
       {difference !== undefined && (
         <div>
           <dt className="inline text-gray">পার্থক্য: </dt>
           <dd className={`inline font-medium ${difference > 0 ? "text-red" : "text-teal"}`}>
-            {difference > 0 ? "+" : ""}
-            {difference}
+            {difference > 0 ? "+" : "-"}
+            {formatBDT(Math.abs(difference))}
           </dd>
         </div>
       )}

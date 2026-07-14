@@ -102,7 +102,12 @@ export function AllProductsSection() {
       key: "vendors",
       header: "ভেন্ডর ও দাম",
       render: (p) => (
-        <ProductVendorPicker productId={p.id} preferredVendorId={p.preferredVendorId} vendors={p.vendors} />
+        <ProductVendorPicker
+          recommendedVendorId={p.recommendedVendorId}
+          lowestPrice={p.lowestPrice}
+          highestPrice={p.highestPrice}
+          vendors={p.vendors}
+        />
       ),
     },
     {
