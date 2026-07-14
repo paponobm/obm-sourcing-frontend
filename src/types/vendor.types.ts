@@ -14,6 +14,17 @@ export type Vendor = {
   note?: string;
   imageUrl?: string;
   createdAt: string;
+  /** Number of this vendor's own products that currently have at least one
+   * pending requisition — drives the Vendor List's "পেন্ডিং (N)" badge. */
+  pendingRequisitionCount: number;
+  pendingRequisitions: VendorPendingRequisitionItem[];
+};
+
+export type VendorPendingRequisitionItem = {
+  productId: string;
+  productName: string;
+  unit: string;
+  totalQty: number;
 };
 
 export type PendingRequisitionSummary = {

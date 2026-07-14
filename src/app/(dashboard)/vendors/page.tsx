@@ -7,9 +7,11 @@ import { Topbar } from "@/components/layout/Topbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Avatar } from "@/components/shared/Avatar";
 import { SearchBox } from "@/components/shared/SearchBox";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
+import { VendorPendingRequisitionBadge } from "@/components/vendor/VendorPendingRequisitionBadge";
 import { useVendors } from "@/hooks/useVendors";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useHasRole } from "@/hooks/useHasRole";
@@ -61,6 +63,7 @@ export default function VendorListPage() {
         >
           <Avatar initials={v.shopName.slice(0, 2)} imageUrl={v.imageUrl} />
           {v.shopName}
+          <VendorPendingRequisitionBadge items={v.pendingRequisitions} />
         </Link>
       ),
     },
@@ -93,7 +96,7 @@ export default function VendorListPage() {
   ];
 
   return (
-    <>
+    <TooltipProvider delayDuration={200}>
       <Topbar
         title={`ভেন্ডর তালিকা (${data?.total ?? "..."})`}
         actions={
@@ -134,6 +137,6 @@ export default function VendorListPage() {
           emptyDescription="অন্য কিছু সার্চ করুন অথবা নতুন ভেন্ডর যোগ করুন।"
         />
       </Card>
-    </>
+    </TooltipProvider>
   );
 }
