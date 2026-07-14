@@ -150,12 +150,12 @@ export function NewRequisitionModal({ open, onOpenChange }: { open: boolean; onO
               />
             </FormField>
 
-            <div>
+            {/* <div>
               <Label>অনুরোধ করেছেন</Label>
               <div className="flex h-9 items-center text-sm font-semibold text-ink sm:h-10 sm:text-base">
                 {user?.name ?? "..."}
               </div>
-            </div>
+            </div> */}
 
             <FormField label="নোট (ঐচ্ছিক)" htmlFor="req-notes" full>
               <Textarea id="req-notes" placeholder="অতিরিক্ত কোনো তথ্য থাকলে লিখুন" {...register("notes")} />
