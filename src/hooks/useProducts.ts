@@ -4,7 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { productService, type ProductListQuery } from "@/services/product.service";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { CreateProductInput, ApproveProductInput, RejectProductInput } from "@/types/product.types";
+import type {
+  CreateProductInput,
+  UpdateProductInput,
+  ApproveProductInput,
+  RejectProductInput,
+} from "@/types/product.types";
 
 const PRODUCTS_KEY = ["products"] as const;
 
@@ -57,8 +62,7 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: Partial<CreateProductInput> }) =>
-      productService.update(id, input),
+    mutationFn: ({ id, input }: { id: string; input: UpdateProductInput }) => productService.update(id, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PRODUCTS_KEY });
       queryClient.invalidateQueries({ queryKey: ["vendors"] });

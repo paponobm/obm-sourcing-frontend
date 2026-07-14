@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -9,18 +9,20 @@ import {
 } from "@/lib/validations/product.schema";
 import { useUpdateProduct } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
+import { useUnits } from "@/hooks/useUnits";
 import { useUploadImage } from "@/hooks/useUploadImage";
 import { resolveImageValue, resolveImageValues, type ImageValue } from "@/lib/image-value";
 import { BasicInformationSection } from "./BasicInformationSection";
 import { ImageUploadSection } from "./ImageUploadSection";
-import { VendorInformationEditTable } from "./VendorInformationEditTable";
+import { VendorInformationEditTable, type VendorInformationEditTableHandle } from "./VendorInformationEditTable";
 import { ActionButtons } from "./ActionButtons";
 import type { ProductVendorEntry } from "@/types/product.types";
 
 /** Edits a product's shared fields (SKU/name/unit/category/images) — affects
  * every vendor supplying it — plus, below that, each supplying vendor's own
- * price/rating/status (see VendorInformationEditTable, saved independently
- * per row). */
+ * price/rating/status (see VendorInformationEditTable). Both are saved
+ * together in one request when this form submits, so "Save Changes" is a
+ * single atomic action. */
 export function ProductDetailsEditForm({
   productId,
   defaultValues,
@@ -32,7 +34,7 @@ export function ProductDetailsEditForm({
   defaultValues: {
     sku: string;
     name: string;
-    unit: string;
+    unitId: string;
     categoryIds: string[];
     description?: string;
     thumbnailUrl?: string;
@@ -45,8 +47,10 @@ export function ProductDetailsEditForm({
   const updateProduct = useUpdateProduct();
   const uploadImage = useUploadImage();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: units, isLoading: unitsLoading } = useUnits();
   const [thumbnailValue, setThumbnailValue] = useState<ImageValue>(defaultValues.thumbnailUrl);
   const [imageValues, setImageValues] = useState<(File | string)[]>(defaultValues.imageUrls);
+  const vendorTableRef = useRef<VendorInformationEditTableHandle>(null);
 
   const {
     register,
@@ -58,7 +62,7 @@ export function ProductDetailsEditForm({
     defaultValues: {
       sku: defaultValues.sku,
       name: defaultValues.name,
-      unit: defaultValues.unit,
+      unitId: defaultValues.unitId,
       categoryIds: defaultValues.categoryIds,
       description: defaultValues.description ?? "",
     },
@@ -71,7 +75,12 @@ export function ProductDetailsEditForm({
       resolveImageValues(imageValues, upload),
     ]);
 
-    await updateProduct.mutateAsync({ id: productId, input: { ...values, thumbnailUrl, imageUrls } });
+    const dirtyVendors = vendorTableRef.current?.getDirtyVendors() ?? [];
+
+    await updateProduct.mutateAsync({
+      id: productId,
+      input: { ...values, thumbnailUrl, imageUrls, ...(dirtyVendors.length > 0 ? { vendors: dirtyVendors } : {}) },
+    });
     onSuccess();
   };
 
@@ -85,6 +94,8 @@ export function ProductDetailsEditForm({
         errors={errors}
         categories={categories}
         categoriesLoading={categoriesLoading}
+        units={units}
+        unitsLoading={unitsLoading}
         idPrefix="details-"
       />
 
@@ -95,7 +106,7 @@ export function ProductDetailsEditForm({
         onImageValuesChange={setImageValues}
       />
 
-      <VendorInformationEditTable productId={productId} vendors={vendors} />
+      <VendorInformationEditTable ref={vendorTableRef} productId={productId} vendors={vendors} />
 
       <ActionButtons
         onCancel={onCancel}

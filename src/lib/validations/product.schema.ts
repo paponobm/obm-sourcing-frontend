@@ -14,7 +14,7 @@ export type VendorPriceEntryFormValues = z.infer<typeof vendorPriceEntrySchema>;
 export const productSchema = z.object({
   sku: z.string().min(1, "SKU আবশ্যক"),
   name: z.string().min(2, "প্রোডাক্টের নাম আবশ্যক"),
-  unit: z.string().min(1, "ইউনিট আবশ্যক (যেমন: কেজি)"),
+  unitId: z.string().min(1, "ইউনিট নির্বাচন করা আবশ্যক।"),
   categoryIds: z.array(z.string()).min(1, "কমপক্ষে একটি ক্যাটাগরি নির্বাচন করুন"),
   description: z.string().optional(),
   vendorPrices: z.array(vendorPriceEntrySchema).min(1, "কমপক্ষে একটি ভেন্ডর যোগ করুন"),

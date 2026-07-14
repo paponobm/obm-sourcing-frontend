@@ -22,6 +22,7 @@ export type Product = {
   sku: string;
   name: string;
   unit: string;
+  unitId: string;
   categories: ProductCategoryRef[];
   description?: string | null;
   thumbnailUrl?: string;
@@ -42,6 +43,7 @@ export type PendingProduct = {
   name: string;
   sku: string;
   unit: string;
+  unitId: string;
   description?: string | null;
   thumbnailUrl?: string;
   imageUrls: string[];
@@ -54,7 +56,7 @@ export type PendingProduct = {
 export type CreateProductInput = {
   sku: string;
   name: string;
-  unit: string;
+  unitId: string;
   categoryIds: string[];
   description?: string;
   thumbnailUrl?: string;
@@ -67,12 +69,26 @@ export type VendorPriceInput = {
   rating: number;
 };
 
+/** One dirty row from the Product Edit modal's Vendor Information table —
+ * only vendors the admin actually changed are sent, alongside the product's
+ * own fields, in a single update() call. */
+export type UpdateProductVendorInput = {
+  vendorId: string;
+  price: number;
+  rating: number;
+  status?: VendorStatus;
+};
+
+export type UpdateProductInput = Partial<CreateProductInput> & {
+  vendors?: UpdateProductVendorInput[];
+};
+
 /** Admin can correct the Manager's submitted fields as part of the same
  * approve action — all optional, so approving unchanged still works. */
 export type ApproveProductInput = {
   name?: string;
   sku?: string;
-  unit?: string;
+  unitId?: string;
   categoryIds?: string[];
   description?: string;
   thumbnailUrl?: string;

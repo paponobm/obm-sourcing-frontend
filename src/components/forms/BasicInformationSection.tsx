@@ -6,11 +6,14 @@ import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MultiSelectCombobox } from "@/components/shared/MultiSelectCombobox";
+import { SingleSelectCombobox } from "@/components/shared/SingleSelectCombobox";
 import { FormField } from "./FormField";
 import { QuickCreateCategoryModal } from "./QuickCreateCategoryModal";
+import { QuickCreateUnitModal } from "./QuickCreateUnitModal";
 import type { Category } from "@/types/category.types";
+import type { Unit } from "@/types/unit.types";
 
-type BasicFields = { sku: string; name: string; unit: string; categoryIds: string[]; description?: string };
+type BasicFields = { sku: string; name: string; unitId: string; categoryIds: string[]; description?: string };
 
 /** SKU/Unit on the left, Name/Category on the right — shared by the create and
  * edit product forms, which both carry these four fields identically. */
@@ -20,6 +23,8 @@ export function BasicInformationSection<TFieldValues extends BasicFields>({
   errors,
   categories,
   categoriesLoading,
+  units,
+  unitsLoading,
   idPrefix = "",
 }: {
   register: UseFormRegister<TFieldValues>;
@@ -27,9 +32,12 @@ export function BasicInformationSection<TFieldValues extends BasicFields>({
   errors: FieldErrors<TFieldValues>;
   categories?: Category[];
   categoriesLoading: boolean;
+  units?: Unit[];
+  unitsLoading: boolean;
   idPrefix?: string;
 }) {
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
+  const [quickCreateUnitOpen, setQuickCreateUnitOpen] = useState(false);
 
   return (
     <div className="grid grid-cols-1 gap-x-3.5 gap-y-3 sm:grid-cols-2">
@@ -49,12 +57,36 @@ export function BasicInformationSection<TFieldValues extends BasicFields>({
           {...register("name" as never)}
         />
       </FormField>
-      <FormField label="ইউনিট" htmlFor={`${idPrefix}unit`} error={errors.unit?.message as string | undefined}>
-        <Input
-          id={`${idPrefix}unit`}
-          placeholder="কেজি / প্যাকেট"
-          invalid={Boolean(errors.unit)}
-          {...register("unit" as never)}
+      <FormField label="ইউনিট" htmlFor={`${idPrefix}unitId`} error={errors.unitId?.message as string | undefined}>
+        <Controller
+          control={control}
+          name={"unitId" as never}
+          render={({ field }) => (
+            <>
+              <SingleSelectCombobox
+                id={`${idPrefix}unitId`}
+                options={units?.map((u) => ({ id: u.id, label: u.name })) ?? []}
+                value={field.value ?? ""}
+                onChange={field.onChange}
+                isLoading={unitsLoading}
+                invalid={Boolean(errors.unitId)}
+                placeholder="ইউনিট নির্বাচন করুন"
+              />
+              <button
+                type="button"
+                onClick={() => setQuickCreateUnitOpen(true)}
+                className="mt-1.5 inline-flex items-center gap-1 text-xs text-teal hover:underline sm:text-sm"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                নতুন ইউনিট যোগ করুন
+              </button>
+              <QuickCreateUnitModal
+                open={quickCreateUnitOpen}
+                onOpenChange={setQuickCreateUnitOpen}
+                onCreated={(unit) => field.onChange(unit.id)}
+              />
+            </>
+          )}
         />
       </FormField>
       <FormField

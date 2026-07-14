@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -10,31 +10,24 @@ import { StarRating } from "@/components/product/StarRating";
 import { useSetVendorProductPrice, useVendors } from "@/hooks/useVendors";
 import { formatBnDate } from "@/utils/date";
 import { VENDOR_STATUS_LABEL_BN } from "@/utils/status";
-import type { ProductVendorEntry } from "@/types/product.types";
+import type { ProductVendorEntry, UpdateProductVendorInput } from "@/types/product.types";
 import type { VendorStatus } from "@/types/common.types";
 
-/** One row's price/rating/status are edited independently, in local state,
- * and saved with their own button — never tied to the surrounding product
- * form's own submit, so editing a vendor row can't accidentally submit (or
- * be blocked by) the product-fields form around it. */
-function VendorInformationRow({ productId, vendor }: { productId: string; vendor: ProductVendorEntry }) {
-  const setVendorProductPrice = useSetVendorProductPrice();
-  const [price, setPrice] = useState(String(vendor.price));
-  const [rating, setRating] = useState(vendor.rating);
-  const [status, setStatus] = useState<VendorStatus>(vendor.status);
+type RowState = { price: string; rating: number; status: VendorStatus };
 
-  const dirty = price !== String(vendor.price) || rating !== vendor.rating || status !== vendor.status;
-
-  const handleSave = async () => {
-    await setVendorProductPrice.mutateAsync({
-      vendorId: vendor.vendorId,
-      productId,
-      price: Number(price),
-      rating,
-      status: status !== vendor.status ? status : undefined,
-    });
-  };
-
+/** A single vendor's price/rating/status — purely controlled by the parent
+ * table's state, no local state or save button of its own, so every row's
+ * edits are captured by the single "Save Changes" action for the whole
+ * modal instead of each row saving independently. */
+function VendorInformationRow({
+  vendor,
+  row,
+  onChange,
+}: {
+  vendor: ProductVendorEntry;
+  row: RowState;
+  onChange: (patch: Partial<RowState>) => void;
+}) {
   return (
     <TableRow>
       <TableCell className="text-sm md:text-base">{vendor.vendorName}</TableCell>
@@ -42,16 +35,16 @@ function VendorInformationRow({ productId, vendor }: { productId: string; vendor
         <Input
           type="number"
           min={0}
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          value={row.price}
+          onChange={(e) => onChange({ price: e.target.value })}
           className="w-24 sm:w-28"
         />
       </TableCell>
       <TableCell>
-        <StarRating value={rating} onChange={setRating} iconClassName="h-4 w-4" />
+        <StarRating value={row.rating} onChange={(rating) => onChange({ rating })} iconClassName="h-4 w-4" />
       </TableCell>
       <TableCell>
-        <Select value={status} onValueChange={(v) => setStatus(v as VendorStatus)}>
+        <Select value={row.status} onValueChange={(v) => onChange({ status: v as VendorStatus })}>
           <SelectTrigger className="w-28 sm:w-32">
             <SelectValue />
           </SelectTrigger>
@@ -62,17 +55,6 @@ function VendorInformationRow({ productId, vendor }: { productId: string; vendor
         </Select>
       </TableCell>
       <TableCell className="text-gray">{formatBnDate(vendor.lastUpdatedAt)}</TableCell>
-      <TableCell>
-        <Button
-          type="button"
-          variant="brass"
-          size="sm"
-          disabled={!dirty || setVendorProductPrice.isPending}
-          onClick={handleSave}
-        >
-          {setVendorProductPrice.isPending ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ করুন"}
-        </Button>
-      </TableCell>
     </TableRow>
   );
 }
@@ -159,20 +141,58 @@ function AddVendorRow({
   );
 }
 
+export type VendorInformationEditTableHandle = {
+  /** Only the rows whose price/rating/status actually differ from what was
+   * loaded — called by the surrounding product form at submit time so its
+   * single "Save Changes" action can send both the product's own fields and
+   * these vendor rows together, in one request. */
+  getDirtyVendors: () => UpdateProductVendorInput[];
+};
+
 /** The "ভেন্ডর তথ্য" (Vendor Information) section embedded in the Product
  * Edit modal, below the shared product-fields form — lets an admin change a
  * vendor's price/rating/global-status for this product without leaving the
- * modal. Each vendor row saves independently via the same setVendorProductPrice
- * mutation already used by the vendor's own page, so both surfaces (and the
- * product list's embedded vendor column) refresh automatically on success. */
-export function VendorInformationEditTable({
-  productId,
-  vendors,
-}: {
+ * modal. Row edits live here (not per-row) so the parent form can pull every
+ * changed row at submit time via `getDirtyVendors()` and save them alongside
+ * the product's own fields in a single atomic request. */
+export const VendorInformationEditTable = forwardRef<VendorInformationEditTableHandle, {
   productId: string;
   vendors: ProductVendorEntry[];
-}) {
+}>(function VendorInformationEditTable({ productId, vendors }, ref) {
   const [addingVendor, setAddingVendor] = useState(false);
+  const [rows, setRows] = useState<Record<string, RowState>>(() =>
+    Object.fromEntries(vendors.map((v) => [v.vendorId, { price: String(v.price), rating: v.rating, status: v.status }])),
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      getDirtyVendors: () => {
+        const dirty: UpdateProductVendorInput[] = [];
+        for (const v of vendors) {
+          const row = rows[v.vendorId];
+          if (!row) continue;
+          const priceChanged = Number(row.price) !== v.price;
+          const ratingChanged = row.rating !== v.rating;
+          const statusChanged = row.status !== v.status;
+          if (priceChanged || ratingChanged || statusChanged) {
+            dirty.push({
+              vendorId: v.vendorId,
+              price: Number(row.price),
+              rating: row.rating,
+              status: statusChanged ? row.status : undefined,
+            });
+          }
+        }
+        return dirty;
+      },
+    }),
+    [vendors, rows],
+  );
+
+  const updateRow = (vendorId: string, current: RowState, patch: Partial<RowState>) => {
+    setRows((prev) => ({ ...prev, [vendorId]: { ...(prev[vendorId] ?? current), ...patch } }));
+  };
 
   return (
     <div>
@@ -180,7 +200,7 @@ export function VendorInformationEditTable({
       {vendors.length === 0 ? (
         <p className="text-xs text-gray sm:text-sm">এই প্রোডাক্টের জন্য এখনো কোনো ভেন্ডর যোগ করা হয়নি।</p>
       ) : (
-        <div className="overflow-hidden rounded-md border border-line">
+        <div className="overflow-x-auto rounded-md border border-line">
           <Table>
             <TableHeader>
               <TableRow>
@@ -189,13 +209,20 @@ export function VendorInformationEditTable({
                 <TableHead>রেটিং</TableHead>
                 <TableHead>স্ট্যাটাস</TableHead>
                 <TableHead>সর্বশেষ আপডেট</TableHead>
-                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {vendors.map((v) => (
-                <VendorInformationRow key={v.vendorId} productId={productId} vendor={v} />
-              ))}
+              {vendors.map((v) => {
+                const defaultRow: RowState = { price: String(v.price), rating: v.rating, status: v.status };
+                return (
+                  <VendorInformationRow
+                    key={v.vendorId}
+                    vendor={v}
+                    row={rows[v.vendorId] ?? defaultRow}
+                    onChange={(patch) => updateRow(v.vendorId, defaultRow, patch)}
+                  />
+                );
+              })}
             </TableBody>
           </Table>
         </div>
@@ -215,4 +242,4 @@ export function VendorInformationEditTable({
       )}
     </div>
   );
-}
+});

@@ -10,6 +10,7 @@ import {
 } from "@/lib/validations/product.schema";
 import { useCreateProduct } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
+import { useUnits } from "@/hooks/useUnits";
 import { useVendors, useSetVendorProductPrice } from "@/hooks/useVendors";
 import { useUploadImage } from "@/hooks/useUploadImage";
 import { useHasRole } from "@/hooks/useHasRole";
@@ -27,6 +28,7 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
   const isSuperAdmin = useHasRole(SUPER_ADMIN_ONLY);
   const { data: vendorsPage, isLoading: vendorsLoading } = useVendors({ page: 1, pageSize: 100 });
   const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: units, isLoading: unitsLoading } = useUnits();
   const [thumbnailValue, setThumbnailValue] = useState<ImageValue>();
   const [imageValues, setImageValues] = useState<(File | string)[]>([]);
 
@@ -47,7 +49,7 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
     defaultValues: {
       sku: "",
       name: "",
-      unit: "",
+      unitId: "",
       categoryIds: [],
       description: "",
       vendorPrices: [{ vendorId: "", price: "", rating: 0 }],
@@ -67,7 +69,7 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
     const product = await createProduct.mutateAsync({
       sku: values.sku,
       name: values.name,
-      unit: values.unit,
+      unitId: values.unitId,
       categoryIds: values.categoryIds,
       description: values.description || undefined,
       thumbnailUrl,
@@ -100,6 +102,8 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
         errors={errors}
         categories={categories}
         categoriesLoading={categoriesLoading}
+        units={units}
+        unitsLoading={unitsLoading}
       />
 
       <ImageUploadSection

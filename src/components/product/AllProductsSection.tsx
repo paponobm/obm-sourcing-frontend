@@ -238,7 +238,7 @@ export function AllProductsSection() {
 
       <Dialog open={Boolean(editingProduct)} onOpenChange={(open) => !open && setEditingId(null)}>
         <DialogContent
-          className="sm:max-w-2xl"
+          className="sm:max-w-2xl lg:max-w-[85vw] xl:max-w-6xl"
           onInteractOutside={(e) => e.preventDefault()}
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
@@ -255,7 +255,7 @@ export function AllProductsSection() {
               defaultValues={{
                 sku: editingProduct.sku,
                 name: editingProduct.name,
-                unit: editingProduct.unit,
+                unitId: editingProduct.unitId,
                 categoryIds: editingProduct.categories.map((c) => c.id),
                 description: editingProduct.description ?? "",
                 thumbnailUrl: editingProduct.thumbnailUrl,

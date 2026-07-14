@@ -18,6 +18,7 @@ import { productSchema, type ProductFormValues } from "@/lib/validations/product
 import { useApproveProduct } from "@/hooks/useProducts";
 import { useVendors } from "@/hooks/useVendors";
 import { useCategories } from "@/hooks/useCategories";
+import { useUnits } from "@/hooks/useUnits";
 import { useUploadImage } from "@/hooks/useUploadImage";
 import { resolveImageValue, resolveImageValues, type ImageValue } from "@/lib/image-value";
 import type { PendingProduct } from "@/types/product.types";
@@ -39,6 +40,7 @@ export function ApproveProductModal({
   const uploadImage = useUploadImage();
   const { data: vendorsPage, isLoading: vendorsLoading } = useVendors({ page: 1, pageSize: 100 });
   const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: units, isLoading: unitsLoading } = useUnits();
   const [thumbnailValue, setThumbnailValue] = useState<ImageValue>();
   const [imageValues, setImageValues] = useState<(File | string)[]>([]);
 
@@ -54,7 +56,7 @@ export function ApproveProductModal({
     defaultValues: {
       sku: "",
       name: "",
-      unit: "",
+      unitId: "",
       categoryIds: [],
       description: "",
       vendorPrices: [{ vendorId: "", price: "", rating: 0 }],
@@ -71,7 +73,7 @@ export function ApproveProductModal({
       reset({
         sku: product.sku,
         name: product.name,
-        unit: product.unit,
+        unitId: product.unitId,
         categoryIds: product.categories.map((c) => c.id),
         description: product.description ?? "",
         vendorPrices: [{ vendorId: "", price: "", rating: 0 }],
@@ -94,7 +96,7 @@ export function ApproveProductModal({
       input: {
         name: values.name,
         sku: values.sku,
-        unit: values.unit,
+        unitId: values.unitId,
         categoryIds: values.categoryIds,
         description: values.description || undefined,
         thumbnailUrl,
@@ -134,6 +136,8 @@ export function ApproveProductModal({
             errors={errors}
             categories={categories}
             categoriesLoading={categoriesLoading}
+            units={units}
+            unitsLoading={unitsLoading}
             idPrefix="approve-"
           />
 

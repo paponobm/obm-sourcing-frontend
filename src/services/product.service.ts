@@ -1,6 +1,7 @@
 import type {
   Product,
   CreateProductInput,
+  UpdateProductInput,
   PendingProduct,
   ApproveProductInput,
   RejectProductInput,
@@ -30,7 +31,7 @@ export const productService = {
     return apiClient.post<Product>("/products", input).then((r) => r.data);
   },
 
-  async update(id: string, input: Partial<CreateProductInput>): Promise<Product | undefined> {
+  async update(id: string, input: UpdateProductInput): Promise<Product | undefined> {
     return apiClient.patch<Product>(`/products/${id}`, input).then((r) => r.data);
   },
 
