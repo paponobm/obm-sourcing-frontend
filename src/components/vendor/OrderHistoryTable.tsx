@@ -53,7 +53,7 @@ export function OrderHistoryTable({
       key: "totalAmount",
       header: "গ্র্যান্ড টোটাল",
       sortable: true,
-      render: (inv) => <span className="font-mono font-bold">{formatBDT(inv.totalAmount)}</span>,
+      render: (inv) => <span className="font-mono font-bold text-brass">{formatBDT(inv.totalAmount)}</span>,
     },
     {
       key: "status",

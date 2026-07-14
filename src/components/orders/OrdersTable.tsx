@@ -67,7 +67,7 @@ export function OrdersTable({
     {
       key: "totalAmount",
       header: "গ্র্যান্ড টোটাল",
-      render: (o) => <span className="font-mono font-bold">{formatBDT(o.totalAmount)}</span>,
+      render: (o) => <span className="font-mono font-bold text-brass">{formatBDT(o.totalAmount)}</span>,
     },
     {
       key: "status",

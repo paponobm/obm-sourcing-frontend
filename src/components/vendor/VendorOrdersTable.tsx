@@ -65,7 +65,7 @@ export function VendorOrdersTable({ vendorId }: { vendorId: string }) {
                 <TableCell className="font-mono">{inv.invoiceNumber}</TableCell>
                 <TableCell className="text-gray">{formatBnDate(inv.orderedAt)}</TableCell>
                 <TableCell>{inv.itemCount} টি</TableCell>
-                <TableCell className="font-mono font-bold">{formatBDT(inv.totalAmount)}</TableCell>
+                <TableCell className="font-mono font-bold text-brass">{formatBDT(inv.totalAmount)}</TableCell>
                 <TableCell>
                   <OrderStatusBadge status={inv.status} />
                 </TableCell>

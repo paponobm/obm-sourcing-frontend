@@ -41,7 +41,7 @@ export function RecentPriceUpdatesTable({
               <TableRow key={u.id}>
                 <TableCell>{u.productName}</TableCell>
                 <TableCell>{u.vendorName}</TableCell>
-                <TableCell className="font-mono font-bold">{formatBDT(u.newPrice)}</TableCell>
+                <TableCell className="font-mono font-bold text-brass">{formatBDT(u.newPrice)}</TableCell>
                 <TableCell>
                   <Badge variant={u.status === "LOWEST" ? "low" : "active"}>
                     {u.status === "LOWEST" ? "সর্বনিম্ন" : "আপডেটেড"}

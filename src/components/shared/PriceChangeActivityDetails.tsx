@@ -29,11 +29,11 @@ export function PriceChangeActivityDetails({
       )}
       <div>
         <dt className="inline text-gray">পুরাতন দাম: </dt>
-        <dd className="inline text-ink">{oldPrice !== undefined ? formatBDT(oldPrice) : "—"}</dd>
+        <dd className="inline text-brass">{oldPrice !== undefined ? formatBDT(oldPrice) : "—"}</dd>
       </div>
       <div>
         <dt className="inline text-gray">নতুন দাম: </dt>
-        <dd className="inline text-ink">{newPrice !== undefined ? formatBDT(newPrice) : "—"}</dd>
+        <dd className="inline text-brass">{newPrice !== undefined ? formatBDT(newPrice) : "—"}</dd>
       </div>
       {difference !== undefined && (
         <div>

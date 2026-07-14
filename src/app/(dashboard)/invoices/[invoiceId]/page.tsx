@@ -97,10 +97,10 @@ export default function InvoiceDetailPage() {
                 <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
                   {item.productName}
                 </TableCell>
-                <TableCell className="font-mono">{formatBDT(item.priceAtOrder)}</TableCell>
+                <TableCell className="font-mono text-brass">{formatBDT(item.priceAtOrder)}</TableCell>
                 <TableCell>{item.orderedQty}</TableCell>
                 {showReceivedColumn && <TableCell>{item.receivedQty ?? "–"}</TableCell>}
-                <TableCell className="font-mono font-bold">{formatBDT(item.lineTotal)}</TableCell>
+                <TableCell className="font-mono font-bold text-brass">{formatBDT(item.lineTotal)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -111,7 +111,7 @@ export default function InvoiceDetailPage() {
             <span className="font-serif text-sm text-teal-dark sm:text-base">
               সর্বমোট{isClosed ? " (পরিশোধিত)" : ""}
             </span>
-            <span className="font-mono text-base font-bold text-teal-dark sm:text-lg">
+            <span className="font-mono text-base font-bold text-brass sm:text-lg">
               {formatBDT(invoice.totalAmount)}
             </span>
           </div>

@@ -111,9 +111,9 @@ export function PendingInvoiceSection({
             {invoice.items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">{item.productName}</TableCell>
-                <TableCell className="font-mono">{formatBDT(item.priceAtOrder)}</TableCell>
+                <TableCell className="font-mono text-brass">{formatBDT(item.priceAtOrder)}</TableCell>
                 <TableCell>{item.orderedQty}</TableCell>
-                <TableCell className="font-mono font-bold">{formatBDT(item.lineTotal)}</TableCell>
+                <TableCell className="font-mono font-bold text-brass">{formatBDT(item.lineTotal)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -131,7 +131,7 @@ export function PendingInvoiceSection({
         </div>
         <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
           <span className="font-serif text-sm text-teal-dark sm:text-base">গ্র্যান্ড টোটাল</span>
-          <span className="font-mono text-base font-bold text-teal-dark sm:text-lg">
+          <span className="font-mono text-base font-bold text-brass sm:text-lg">
             {formatBDT(invoice.totalAmount)}
           </span>
         </div>

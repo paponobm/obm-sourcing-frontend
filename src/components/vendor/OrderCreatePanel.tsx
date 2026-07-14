@@ -121,7 +121,7 @@ export function OrderCreatePanel({
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Input value={formatBDT(p.price)} disabled className="w-24 sm:w-28" />
+                    <Input value={formatBDT(p.price)} disabled className="w-24 font-mono text-brass sm:w-28" />
                   </TableCell>
                   <TableCell>
                     <Input
@@ -133,7 +133,7 @@ export function OrderCreatePanel({
                       className="w-20 sm:w-24"
                     />
                   </TableCell>
-                  <TableCell className="font-mono font-bold">
+                  <TableCell className="font-mono font-bold text-brass">
                     {row.selected && qty > 0 ? formatBDT(p.price * qty) : "–"}
                   </TableCell>
                 </TableRow>
@@ -154,7 +154,7 @@ export function OrderCreatePanel({
         </div>
         <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
           <span className="font-serif text-sm text-teal-dark sm:text-base">সর্বমোট</span>
-          <span className="font-mono text-base font-bold text-teal-dark sm:text-lg">{formatBDT(grandTotal)}</span>
+          <span className="font-mono text-base font-bold text-brass sm:text-lg">{formatBDT(grandTotal)}</span>
         </div>
       </div>
 

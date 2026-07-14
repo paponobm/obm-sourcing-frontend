@@ -1,10 +1,7 @@
-import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
 
-export function PriceCell({ amount, lowest }: { amount: number; lowest?: boolean }) {
+export function PriceCell({ amount }: { amount: number; lowest?: boolean }) {
   return (
-    <span className={cn("font-mono text-xs font-bold sm:text-sm lg:text-base", lowest && "text-brass")}>
-      {formatBDT(amount)}
-    </span>
+    <span className="font-mono text-xs font-bold text-brass sm:text-sm lg:text-base">{formatBDT(amount)}</span>
   );
 }
