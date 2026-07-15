@@ -35,7 +35,7 @@ export function NavItem({ item, collapsed = false }: { item: NavItemConfig; coll
       )}
     >
       <span className="relative shrink-0">
-        <Icon className="h-3.5 w-3.5 opacity-85 sm:h-[15px] sm:w-[15px] lg:h-4 lg:w-4" />
+        <Icon className="h-4.5 w-4.5 opacity-85 sm:h-[15px] sm:w-[15px] lg:h-4 lg:w-4" />
         {collapsed && Boolean(count) && (
           <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red" />
         )}
