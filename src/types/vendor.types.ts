@@ -13,6 +13,9 @@ export type Vendor = {
   productCount: number;
   note?: string;
   imageUrl?: string;
+  /** Overall admin-set vendor rating (1-5), distinct from VendorProductPrice.rating
+   * (a per-product price/quality rating) — directly editable on the Profile tab. */
+  rating: number;
   createdAt: string;
   /** Number of this vendor's own products that currently have at least one
    * pending requisition — drives the Vendor List's "পেন্ডিং (N)" badge. */
@@ -38,6 +41,7 @@ export type VendorProductPrice = {
   id: string;
   productId: string;
   productName: string;
+  sku: string;
   unit: string;
   price: number;
   rating: number;
@@ -83,6 +87,8 @@ export type VendorActivityLog = {
   performedByName: string;
   performedByRole: string;
   createdAt: string;
-  productId: string;
-  productName: string;
+  /** Null for vendor-only entries not about any single product (e.g.
+   * VENDOR_RATING_CHANGED). */
+  productId: string | null;
+  productName: string | null;
 };

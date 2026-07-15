@@ -22,7 +22,7 @@ export function formatBnTime(isoDate: string): string {
 
 const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 
-function toBnDigits(n: number): string {
+export function toBnDigits(n: number): string {
   return String(n)
     .split("")
     .map((ch) => (/\d/.test(ch) ? BN_DIGITS[Number(ch)] : ch))

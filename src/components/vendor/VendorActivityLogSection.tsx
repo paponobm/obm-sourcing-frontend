@@ -38,10 +38,11 @@ export function VendorActivityLogSection({ vendorId }: { vendorId: string }) {
             </div>
 
             {log.actionType === "PRICE_CHANGED" ? (
-              <PriceChangeActivityDetails log={log} productName={log.productName} />
+              <PriceChangeActivityDetails log={log} productName={log.productName ?? ""} />
             ) : (
               <p className="mt-1 text-[11px] text-gray sm:text-xs">
-                {log.productName} — {log.description}
+                {log.productName ? `${log.productName} — ` : ""}
+                {log.description}
               </p>
             )}
 

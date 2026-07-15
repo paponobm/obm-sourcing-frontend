@@ -45,6 +45,10 @@ export const vendorService = {
     return apiClient.patch<Vendor>(`/vendors/${id}/deactivate`).then((r) => r.data);
   },
 
+  async updateRating(id: string, rating: number): Promise<Vendor> {
+    return apiClient.patch<Vendor>(`/vendors/${id}/rating`, { rating }).then((r) => r.data);
+  },
+
   async setProductPrice(
     vendorId: string,
     productId: string,

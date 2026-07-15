@@ -82,6 +82,18 @@ export function useDeactivateVendor() {
   });
 }
 
+export function useUpdateVendorRating() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, rating }: { id: string; rating: number }) => vendorService.updateRating(id, rating),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: VENDORS_KEY });
+      toast.success("ভেন্ডর রেটিং আপডেট করা হয়েছে");
+    },
+    onError: () => toast.error("ভেন্ডর রেটিং আপডেট করা যায়নি"),
+  });
+}
+
 export function useSetVendorProductPrice() {
   const queryClient = useQueryClient();
   return useMutation({
