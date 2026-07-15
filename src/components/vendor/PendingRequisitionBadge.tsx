@@ -2,16 +2,19 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { formatBnDate } from "@/utils/date";
+import { formatBDT } from "@/utils/currency";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import type { VendorProductPrice } from "@/types/vendor.types";
 
 /** Shows a small "পেন্ডিং (N)" badge with a details tooltip when a product has
- * open requisitions — only ever rendered on the New Order page, where an
- * admin decides what to order. Deliberately absent from the Vendor Profile
- * product list, which stays a plain catalog. */
+ * open CONFIRMED requisitions (never Pending — not yet reviewed — or
+ * Cancelled) — only ever rendered on the New Order page, where an admin
+ * decides what to order. Deliberately absent from the Vendor Profile product
+ * list, which stays a plain catalog. Each confirmed requisition gets its own
+ * card in the tooltip since more than one can be open on the same product. */
 export function PendingRequisitionBadge({ product }: { product: VendorProductPrice }) {
-  const summary = product.pendingRequisitionSummary;
-  if (!summary) return null;
+  const requisitions = product.confirmedRequisitions;
+  if (requisitions.length === 0) return null;
 
   return (
     <Tooltip>
@@ -20,30 +23,38 @@ export function PendingRequisitionBadge({ product }: { product: VendorProductPri
           পেন্ডিং ({product.pendingRequisitionCount})
         </Badge>
       </TooltipTrigger>
-      <TooltipContent className="w-56">
+      <TooltipContent className="w-64">
         <p className="mb-1.5 font-semibold text-ink">পেন্ডিং রিকুইজিশনের বিবরণ</p>
-        <dl className="space-y-0.5 text-gray">
-          <div>
-            <dt className="inline">পেন্ডিং পরিমাণ: </dt>
-            <dd className="inline text-ink">
-              {summary.totalQty} {product.unit}
-            </dd>
-          </div>
-          {product.pendingRequisitionCount > 1 && (
-            <div>
-              <dt className="inline">ওপেন রিকুইজিশন: </dt>
-              <dd className="inline text-ink">{product.pendingRequisitionCount}</dd>
+        <div className="space-y-1.5">
+          {requisitions.map((r) => (
+            <div key={r.requisitionId} className="rounded-md border border-line/70 p-2">
+              <dl className="space-y-0.5 text-gray">
+                <div>
+                  <dt className="inline">রিকুইজিশন আইডি: </dt>
+                  <dd className="inline font-mono text-ink">{r.requisitionCode}</dd>
+                </div>
+                <div>
+                  <dt className="inline">অনুরোধকৃত পরিমাণ: </dt>
+                  <dd className="inline text-ink">
+                    {toBnDigits(r.requiredQty)} {product.unit}
+                  </dd>
+                </div>
+                {/* <div>
+                  <dt className="inline">প্রয়োজনীয় মূল্য: </dt>
+                  <dd className="inline font-semibold text-brass">{formatBDT(r.requiredQty * product.price)}</dd>
+                </div>
+                <div>
+                  <dt className="inline">তৈরির তারিখ: </dt>
+                  <dd className="inline text-ink">{formatBnDate(r.createdAt)}</dd>
+                </div>
+                <div>
+                  <dt className="inline">অনুরোধকারী: </dt>
+                  <dd className="inline text-ink">{r.requestedByName}</dd>
+                </div> */}
+              </dl>
             </div>
-          )}
-          <div>
-            <dt className="inline">সর্বশেষ রিকুইজিশন: </dt>
-            <dd className="inline text-ink">{formatBnDate(summary.latestDate)}</dd>
-          </div>
-          <div>
-            <dt className="inline">অনুরোধকারী: </dt>
-            <dd className="inline text-ink">{summary.latestRequestedByName}</dd>
-          </div>
-        </dl>
+          ))}
+        </div>
       </TooltipContent>
     </Tooltip>
   );

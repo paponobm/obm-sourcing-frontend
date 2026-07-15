@@ -18,7 +18,8 @@ export type Vendor = {
   rating: number;
   createdAt: string;
   /** Number of this vendor's own products that currently have at least one
-   * pending requisition — drives the Vendor List's "পেন্ডিং (N)" badge. */
+   * still-unfulfilled CONFIRMED requisition (never Pending or Cancelled) —
+   * drives the Vendor List's "পেন্ডিং (N)" badge. */
   pendingRequisitionCount: number;
   pendingRequisitions: VendorPendingRequisitionItem[];
 };
@@ -30,11 +31,17 @@ export type VendorPendingRequisitionItem = {
   totalQty: number;
 };
 
-export type PendingRequisitionSummary = {
-  count: number;
-  totalQty: number;
-  latestDate: string;
-  latestRequestedByName: string;
+/** One still-unfulfilled CONFIRMED requisition (never Pending — not yet
+ * reviewed, so not real demand — and never Cancelled) that wants this
+ * product. `requiredQty × the vendor row's own current price` is computed
+ * client-side (in the tooltip) for "Required Amount", so it always reflects
+ * whatever price is currently loaded rather than a stale stored figure. */
+export type ConfirmedRequisitionEntry = {
+  requisitionId: string;
+  requisitionCode: string;
+  requiredQty: number;
+  createdAt: string;
+  requestedByName: string;
 };
 
 export type VendorProductPrice = {
@@ -51,10 +58,11 @@ export type VendorProductPrice = {
    * pickers without changing what this list itself displays. */
   productStatus: ProductStatus;
   /** Requisitions have no vendor of their own (only chosen at conversion),
-   * so this reflects pending demand for the PRODUCT — the same figure shows
-   * on every vendor's row selling it. */
+   * so this reflects pending demand for the PRODUCT — the same figures show
+   * on every vendor's row selling it. Count/list only ever include CONFIRMED
+   * requisitions — see ConfirmedRequisitionEntry. */
   pendingRequisitionCount: number;
-  pendingRequisitionSummary: PendingRequisitionSummary | null;
+  confirmedRequisitions: ConfirmedRequisitionEntry[];
 };
 
 export type VendorWithProducts = Vendor & {
