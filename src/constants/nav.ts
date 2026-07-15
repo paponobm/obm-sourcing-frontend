@@ -57,12 +57,12 @@ export const NAV_ITEMS: NavItemConfig[] = [
     isActive: (p) => p.startsWith(ROUTES.requisitions),
     badge: "pendingRequisitions",
   },
-  {
-    label: "প্রাইস কম্পেয়ার",
-    href: ROUTES.productsCompareAll,
-    icon: Scale,
-    isActive: (p) => p.startsWith(ROUTES.productsCompareAll),
-  },
+  // {
+  //   label: "প্রাইস কম্পেয়ার",
+  //   href: ROUTES.productsCompareAll,
+  //   icon: Scale,
+  //   isActive: (p) => p.startsWith(ROUTES.productsCompareAll),
+  // },
   {
     label: "প্রোডাক্ট ক্যাটাগরি",
     href: ROUTES.categories,

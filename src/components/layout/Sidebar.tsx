@@ -31,7 +31,7 @@ export function SidebarContent({
     <div className="flex h-full flex-col text-[#CFE1E2]">
       <div
         className={cn(
-          "mb-3 flex items-center border-b border-white/10 pb-3 sm:mb-3.5 sm:pb-4",
+          "mb-3 pt-3 flex items-center border-b border-white/10 pb-3 sm:mb-3.5 sm:pb-4",
           collapsed ? "justify-center" : "justify-between gap-2",
         )}
       >
@@ -56,7 +56,8 @@ export function SidebarContent({
         )}
       </div>
 
-      <nav className="flex-1">
+      {/* <nav className="flex-1"> */}
+        <nav className="flex-1 pt-3">
         {NAV_ITEMS.map((item) => (
           <NavItem key={item.href + item.label} item={item} collapsed={collapsed} />
         ))}

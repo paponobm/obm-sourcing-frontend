@@ -21,8 +21,15 @@ export function NavItem({ item, collapsed = false }: { item: NavItemConfig; coll
   return (
     <Link
       href={item.href}
+      // className={cn(
+
+      //   "group relative mb-[2px] flex items-center rounded-[5px] py-2 text-xs font-medium text-[#B9CDCE] transition-colors sm:py-[9px] sm:text-[0.8125rem] lg:text-sm",
+      //   collapsed ? "justify-center px-2" : "gap-2 px-2 sm:gap-[9px] sm:px-[10px]",
+      //   active ? "bg-white/[0.08] text-white" : "hover:bg-white/[0.05] hover:text-white",
+      // )}
       className={cn(
-        "group relative mb-[2px] flex items-center rounded-[5px] py-2 text-xs font-medium text-[#B9CDCE] transition-colors sm:py-[9px] sm:text-[0.8125rem] lg:text-sm",
+
+        "group relative mb-[12px] flex items-center rounded-[5px] py-2 text-xs font-medium text-[#B9CDCE] transition-colors sm:py-[9px] sm:text-[0.8125rem] lg:text-sm",
         collapsed ? "justify-center px-2" : "gap-2 px-2 sm:gap-[9px] sm:px-[10px]",
         active ? "bg-white/[0.08] text-white" : "hover:bg-white/[0.05] hover:text-white",
       )}
