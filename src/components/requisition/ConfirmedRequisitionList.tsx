@@ -1,27 +1,21 @@
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { RequisitionCard } from "./RequisitionCard";
+import { ConfirmedRequisitionCard } from "./ConfirmedRequisitionCard";
 import type { Requisition } from "@/types/requisition.types";
 
-/** Sorted newest-first by the caller (already ordered that way by the
- * backend's listPending()) — one full-width horizontal row card per
- * requisition, stacked vertically. */
-export function PendingRequisitionList({
+export function ConfirmedRequisitionList({
   requisitions,
   isLoading,
   onViewDetails,
-  onEdit,
 }: {
   requisitions: Requisition[];
   isLoading: boolean;
   onViewDetails: (id: string) => void;
-  onEdit: (requisition: Requisition) => void;
 }) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-3">
-        <Skeleton className="h-32 w-full" />
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-32 w-full" />
       </div>
@@ -32,8 +26,8 @@ export function PendingRequisitionList({
     return (
       <Card>
         <EmptyState
-          title="কোনো পেন্ডিং রিকুইজিশন নেই"
-          description="নতুন রিকুইজিশন তৈরি করলে সেটি এখানে দেখাবে।"
+          title="কোনো কনফার্মড রিকুইজিশন নেই"
+          description="পেন্ডিং রিকুইজিশন কনফার্ম করলে সেটি এখানে দেখাবে।"
         />
       </Card>
     );
@@ -42,12 +36,7 @@ export function PendingRequisitionList({
   return (
     <div className="flex flex-col gap-3">
       {requisitions.map((r) => (
-        <RequisitionCard
-          key={r.id}
-          requisition={r}
-          onViewDetails={() => onViewDetails(r.id)}
-          onEdit={() => onEdit(r)}
-        />
+        <ConfirmedRequisitionCard key={r.id} requisition={r} onViewDetails={() => onViewDetails(r.id)} />
       ))}
     </div>
   );

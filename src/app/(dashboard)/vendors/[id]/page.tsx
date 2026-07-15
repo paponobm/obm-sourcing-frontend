@@ -38,8 +38,8 @@ export default function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const { data: vendor, isLoading } = useVendor(id);
-  // Deep-linked from a Requisition's suggested-vendor chip (?tab=newOrder&...)
-  // or the global Order Management table's "View" action
+  // Deep-linked from a Confirmed requisition's vendor chip (?tab=newOrder&
+  // requisitionId=...) or the global Order Management table's "View" action
   // (?tab=invoicePending&invoiceId=...) — read once on mount so the right
   // section/invoice opens pre-selected instead of defaulting to Profile.
   const tabParam = searchParams.get("tab");
@@ -50,8 +50,6 @@ export default function VendorDetailPage() {
     () => searchParams.get("invoiceId") ?? undefined,
   );
   const requisitionId = searchParams.get("requisitionId") ?? undefined;
-  const prefillProductId = searchParams.get("productId") ?? undefined;
-  const prefillQty = searchParams.get("qty") ?? undefined;
 
   const navigate: NavigateToSection = (section, invoiceId) => {
     setSelectedInvoiceId(invoiceId);
@@ -93,13 +91,7 @@ export default function VendorDetailPage() {
       <div key={activeSection} className="animate-in fade-in-0 duration-300">
         {activeSection === "profile" && <ProfileSection vendor={vendor} />}
         {activeSection === "newOrder" && (
-          <NewOrderSection
-            vendor={vendor}
-            onNavigateSection={navigate}
-            requisitionId={requisitionId}
-            prefillProductId={prefillProductId}
-            prefillQty={prefillQty}
-          />
+          <NewOrderSection vendor={vendor} onNavigateSection={navigate} requisitionId={requisitionId} />
         )}
         {activeSection === "invoicePending" && (
           <PendingInvoiceSection vendorId={vendor.id} invoiceId={selectedInvoiceId} onNavigateSection={navigate} />

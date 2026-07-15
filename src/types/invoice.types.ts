@@ -34,6 +34,7 @@ export type Invoice = {
   vendorPhone: string;
   orderedByName: string;
   orderedAt: string;
+  receivedAt?: string | null;
   closedAt?: string | null;
   totalAmount: number;
   items: InvoiceItem[];
@@ -44,7 +45,7 @@ export type Invoice = {
 };
 
 export type CreateInvoiceInput = {
-  items: { productId: string; orderedQty: number }[];
+  items: { productId: string; orderedQty: number; requisitionItemId?: string }[];
 };
 
 export type ReceiveCheckInput = {

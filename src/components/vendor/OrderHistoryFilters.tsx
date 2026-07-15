@@ -17,6 +17,7 @@ export function OrderHistoryFilters({
   onDateFromChange,
   dateTo,
   onDateToChange,
+  searchPlaceholder = "ইনভয়েস নম্বর সার্চ করুন...",
 }: {
   search: string;
   onSearchChange: (value: string) => void;
@@ -26,10 +27,11 @@ export function OrderHistoryFilters({
   onDateFromChange: (value: string) => void;
   dateTo: string;
   onDateToChange: (value: string) => void;
+  searchPlaceholder?: string;
 }) {
   return (
     <div className="mb-3.5 flex flex-col gap-2.5 sm:mb-4 sm:flex-row sm:flex-wrap sm:items-center">
-      <SearchBox value={search} onChange={onSearchChange} placeholder="ইনভয়েস নম্বর সার্চ করুন..." />
+      <SearchBox value={search} onChange={onSearchChange} placeholder={searchPlaceholder} />
       <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange(v as OrderStatus | "all")}>
         <SelectTrigger className="sm:w-44">
           <SelectValue />

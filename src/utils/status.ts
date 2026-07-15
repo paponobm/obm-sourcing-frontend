@@ -49,6 +49,11 @@ export const PRODUCT_ACTIVITY_ACTION_LABEL_BN: Record<ProductActivityActionType,
   ORDER_CREATED: "অর্ডার তৈরি",
   REQUISITION_RECEIVED: "রিকুইজিশন গৃহীত",
   VENDOR_RATING_CHANGED: "ভেন্ডর রেটিং পরিবর্তন",
+  REQUISITION_ITEM_ADDED: "রিকুইজিশনে প্রোডাক্ট যোগ",
+  REQUISITION_ITEM_REMOVED: "রিকুইজিশন থেকে প্রোডাক্ট বাদ",
+  REQUISITION_ITEM_QTY_CHANGED: "পরিমাণ পরিবর্তন",
+  REQUISITION_CONFIRMED: "রিকুইজিশন কনফার্ম",
+  REQUISITION_CANCELLED: "রিকুইজিশন বাতিল",
 };
 
 export const ORDER_STATUS_LABEL_BN: Record<OrderStatus, string> = {
@@ -98,6 +103,7 @@ export function requisitionPriorityBadgeVariant(
 
 export const REQUISITION_STATUS_LABEL_BN: Record<RequisitionStatus, string> = {
   PENDING: "পেন্ডিং",
+  CONFIRMED: "কনফার্মড",
   ORDERED: "অর্ডার করা হয়েছে",
   CANCELLED: "বাতিল",
 };

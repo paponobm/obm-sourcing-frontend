@@ -2,28 +2,29 @@
 
 import { OrderCreatePanel } from "@/components/vendor/OrderCreatePanel";
 import type { NavigateToSection } from "@/components/vendor/VendorSectionTabs";
-import { useConvertRequisition } from "@/hooks/useRequisitions";
+import { useRequisitionVendorItems } from "@/hooks/useRequisitions";
 import type { VendorWithProducts } from "@/types/vendor.types";
 
 export function NewOrderSection({
   vendor,
   onNavigateSection,
   requisitionId,
-  prefillProductId,
-  prefillQty,
 }: {
   vendor: VendorWithProducts;
   onNavigateSection: NavigateToSection;
   requisitionId?: string;
-  prefillProductId?: string;
-  prefillQty?: string;
 }) {
-  const convertRequisition = useConvertRequisition();
+  // Only this requisition's still-unordered items which this vendor sells —
+  // linking/fulfillment itself happens server-side inside invoice creation
+  // (InvoicesService.createForVendor), not via a separate "convert" call.
+  const { data: vendorItems } = useRequisitionVendorItems(requisitionId, vendor.id);
+  const prefillItems = vendorItems?.map((i) => ({
+    productId: i.productId,
+    qty: i.requiredQty,
+    requisitionItemId: i.requisitionItemId,
+  }));
 
-  const handleCreated = async (invoiceId: string) => {
-    if (requisitionId) {
-      await convertRequisition.mutateAsync({ id: requisitionId, input: { invoiceId } });
-    }
+  const handleCreated = (invoiceId: string) => {
     onNavigateSection("invoicePending", invoiceId);
   };
 
@@ -32,8 +33,7 @@ export function NewOrderSection({
       vendor={vendor}
       onCreated={handleCreated}
       onCancel={() => onNavigateSection("profile")}
-      prefillProductId={prefillProductId}
-      prefillQty={prefillQty}
+      prefillItems={prefillItems}
     />
   );
 }

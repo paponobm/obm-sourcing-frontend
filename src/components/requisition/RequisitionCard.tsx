@@ -1,76 +1,105 @@
-import Link from "next/link";
+"use client";
+
+import { Pencil, Ban, CheckCircle2, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ROUTES } from "@/constants/routes";
-import { formatBnDate } from "@/utils/date";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CancelRequisitionDialog } from "@/components/requisition/CancelRequisitionDialog";
+import { SuggestedVendorBadge } from "@/components/requisition/SuggestedVendorBadge";
+import { useConfirmRequisition, useCancelRequisition } from "@/hooks/useRequisitions";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import {
   REQUISITION_PRIORITY_LABEL_BN,
   REQUISITION_STATUS_LABEL_BN,
   requisitionPriorityBadgeVariant,
 } from "@/utils/status";
-import type { PendingRequisition } from "@/types/requisition.types";
+import type { Requisition } from "@/types/requisition.types";
 
-/** Vendor chips are derived at read time from the Product↔Vendor relationship
- * (every vendor currently supplying this product) — never chosen or stored on
- * the requisition itself. Each chip deep-links straight into that vendor's New
- * Order tab with this requisition's product + quantity pre-filled — clicking
- * it is the entire "convert to purchase order" action from the admin's
- * perspective. */
-export function RequisitionCard({ requisition }: { requisition: PendingRequisition }) {
-  const vendorLinkParams = new URLSearchParams({
-    tab: "newOrder",
-    requisitionId: requisition.id,
-    productId: requisition.productId,
-    qty: String(requisition.requiredQty),
-  }).toString();
+/** Pending Requisitions' horizontal row card — one requisition per row, its
+ * item list summarized (not shown in full — see RequisitionDetailModal for
+ * that). Only View Details / Confirm / Cancel here; vendor selection only
+ * becomes available once Confirmed (ConfirmedRequisitionCard). */
+export function RequisitionCard({
+  requisition,
+  onViewDetails,
+  onEdit,
+}: {
+  requisition: Requisition;
+  onViewDetails: () => void;
+  onEdit: () => void;
+}) {
+  const confirmRequisition = useConfirmRequisition();
+  const cancelRequisition = useCancelRequisition();
+  const totalQty = requisition.items.reduce((sum, i) => sum + i.requiredQty, 0);
 
   return (
     <Card className="p-3.5 sm:p-4">
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <div className="font-serif text-sm text-teal-dark sm:text-base lg:text-lg">{requisition.productName}</div>
-        <Badge variant={requisitionPriorityBadgeVariant(requisition.priority)}>
-          {REQUISITION_PRIORITY_LABEL_BN[requisition.priority]}
-        </Badge>
-      </div>
-
-      <div className="space-y-1 text-xs text-gray sm:text-sm">
-        <div className="flex justify-between gap-2">
-          <span>প্রয়োজনীয় পরিমাণ</span>
-          <span className="font-semibold text-ink">
-            {requisition.requiredQty} {requisition.unit}
-          </span>
-        </div>
-        <div className="flex justify-between gap-2">
-          <span>অনুরোধ করেছেন</span>
-          <span className="font-semibold text-ink">{requisition.requestedByName}</span>
-        </div>
-        <div className="flex justify-between gap-2">
-          <span>তৈরির তারিখ</span>
-          <span className="font-semibold text-ink">{formatBnDate(requisition.createdAt)}</span>
-        </div>
-        <div className="flex justify-between gap-2">
-          <span>স্ট্যাটাস</span>
-          <Badge variant="low">{REQUISITION_STATUS_LABEL_BN[requisition.status]}</Badge>
-        </div>
-      </div>
-
-      <div className="mt-3 border-t border-line pt-2.5">
-        <div className="mb-1.5 text-[11px] font-semibold text-gray sm:text-xs">সরবরাহকারী</div>
-        {requisition.suggestedVendors.length === 0 ? (
-          <span className="text-xs text-gray">এই প্রোডাক্টের কোনো ভেন্ডর সেট করা নেই</span>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {requisition.suggestedVendors.map((v) => (
-              <Link
-                key={v.vendorId}
-                href={`${ROUTES.vendorDetail(v.vendorId)}?${vendorLinkParams}`}
-                className="rounded-full border border-line bg-paper-2 px-2.5 py-1 text-[11px] font-semibold text-teal-dark transition-colors hover:bg-line sm:text-xs"
-              >
-                {v.vendorName}
-              </Link>
-            ))}
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-mono text-sm font-semibold text-teal-dark sm:text-base">
+              {requisition.requisitionCode}
+            </span>
+            <Badge variant={requisitionPriorityBadgeVariant(requisition.priority)}>
+              {REQUISITION_PRIORITY_LABEL_BN[requisition.priority]}
+            </Badge>
           </div>
-        )}
+          <div className="mt-1 text-[11px] text-gray sm:text-xs">
+            {formatBnDate(requisition.createdAt)} · অনুরোধ করেছেন: {requisition.requestedByName}
+          </div>
+        </div>
+        <Badge variant="low">{REQUISITION_STATUS_LABEL_BN[requisition.status]}</Badge>
+      </div>
+
+      <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-xs text-gray sm:text-sm">
+        <span>
+          মোট প্রোডাক্ট: <strong className="text-ink">{toBnDigits(requisition.items.length)}</strong>
+        </span>
+        <span>
+          মোট পরিমাণ: <strong className="text-ink">{toBnDigits(totalQty)}</strong>
+        </span>
+      </div>
+
+      <div className="mt-2.5 space-y-1">
+        {requisition.items.map((item) => (
+          <div key={item.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs sm:text-sm">
+            <span className="text-ink">
+              {item.productName} — {toBnDigits(item.requiredQty)} {item.unit}
+            </span>
+            {/* <SuggestedVendorBadge vendor={item.suggestedVendor} /> */}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-line pt-2.5">
+        <Button type="button" variant="ghost" size="sm" onClick={onViewDetails}>
+          <History className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> বিস্তারিত দেখুন
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onEdit}>
+          <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> এডিট
+        </Button>
+        <ConfirmDialog
+          trigger={
+            <Button type="button" variant="ghost" size="sm">
+              <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5" /> কনফার্ম
+            </Button>
+          }
+          title="রিকুইজিশন কনফার্ম করবেন?"
+          description="আপনি কি নিশ্চিত এই রিকুইজিশনটি কনফার্ম করতে চান? কনফার্ম করার পর এটি কনফার্মড রিকুইজিশন সেকশনে চলে যাবে এবং অর্ডার তৈরির জন্য উপলব্ধ হবে।"
+          confirmLabel="কনফার্ম করুন"
+          onConfirm={() => confirmRequisition.mutate(requisition.id)}
+          isLoading={confirmRequisition.isPending}
+        />
+        <CancelRequisitionDialog
+          trigger={
+            <Button type="button" variant="ghost" size="sm">
+              <Ban className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5" /> বাতিল
+            </Button>
+          }
+          onConfirm={(reason) => cancelRequisition.mutate({ id: requisition.id, reason })}
+          isLoading={cancelRequisition.isPending}
+        />
       </div>
     </Card>
   );

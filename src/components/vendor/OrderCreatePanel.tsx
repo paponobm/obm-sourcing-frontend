@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Lightbulb, Pencil, Ban, CheckCircle2, History } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardTag } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -20,24 +20,24 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { formatBDT } from "@/utils/currency";
 import type { VendorProductPrice, VendorWithProducts } from "@/types/vendor.types";
 
-type RowState = { selected: boolean; qty: string };
+type RowState = { selected: boolean; qty: string; requisitionItemId?: string };
 type StatusFilter = "active" | "inactive" | "all";
+export type PrefillItem = { productId: string; qty: number; requisitionItemId: string };
 
 /** The "প্রোডাক্ট বাছাই করুন..." order-creation picker — shared by the standalone /orders/new page and the vendor profile tab. */
 export function OrderCreatePanel({
   vendor,
   onCreated,
   onCancel,
-  prefillProductId,
-  prefillQty,
+  prefillItems,
 }: {
   vendor: VendorWithProducts;
   onCreated: (invoiceId: string) => void;
   onCancel?: () => void;
-  /** Pre-selects and pre-fills one row (e.g. arriving from a Requisition's
-   * suggested-vendor chip) — the admin still reviews/edits qty before confirming. */
-  prefillProductId?: string;
-  prefillQty?: string;
+  /** Pre-selects and pre-fills one or more rows (e.g. arriving from a
+   * Confirmed requisition's vendor chip, one per still-unordered item that
+   * vendor sells) — the admin still reviews/edits qty before confirming. */
+  prefillItems?: PrefillItem[];
 }) {
   const createInvoice = useCreateInvoice(vendor.id);
   const setVendorProductPrice = useSetVendorProductPrice();
@@ -45,8 +45,31 @@ export function OrderCreatePanel({
   const deactivateProduct = useDeactivateProduct();
 
   const [rows, setRows] = useState<Record<string, RowState>>(() =>
-    prefillProductId ? { [prefillProductId]: { selected: true, qty: prefillQty ?? "1" } } : {},
+    (prefillItems ?? []).reduce<Record<string, RowState>>((acc, item) => {
+      acc[item.productId] = { selected: true, qty: String(item.qty), requisitionItemId: item.requisitionItemId };
+      return acc;
+    }, {}),
   );
+
+  // `prefillItems` (from a requisition's vendor-fulfillable-items query) can
+  // still be loading on first render, arriving only after this component has
+  // already mounted with empty rows — the lazy useState initializer above
+  // only ever runs once, so it alone would miss items that show up late.
+  // The `!prev[...]` guard makes this idempotent against re-renders/refetches
+  // without ever clobbering a row the admin already unchecked or edited.
+  useEffect(() => {
+    if (!prefillItems || prefillItems.length === 0) return;
+    setRows((prev) => {
+      const next = { ...prev };
+      for (const item of prefillItems) {
+        if (!next[item.productId]) {
+          next[item.productId] = { selected: true, qty: String(item.qty), requisitionItemId: item.requisitionItemId };
+        }
+      }
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefillItems]);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
@@ -91,6 +114,7 @@ export function OrderCreatePanel({
       items: selectedRows.map(({ product, row }) => ({
         productId: product.productId,
         orderedQty: Number(row.qty),
+        requisitionItemId: row.requisitionItemId,
       })),
     });
     setRows({});

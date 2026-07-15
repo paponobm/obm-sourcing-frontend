@@ -34,6 +34,10 @@ export function useCreateInvoice(vendorId: string) {
       // every product on it — the Product List's recommended-vendor/price
       // range must refetch so it reflects this immediately, no manual reload.
       queryClient.invalidateQueries({ queryKey: ["products"] });
+      // An order created from a requisition's vendor chip links/fulfills
+      // that requisition's items server-side — refresh Confirmed/Order
+      // History regardless (cheap no-op if none was involved).
+      queryClient.invalidateQueries({ queryKey: ["requisitions"] });
       toast.success("অর্ডার তৈরি করা হয়েছে — ইনভয়েস তৈরি হয়েছে");
     },
     onError: (error) => toast.error(getApiErrorMessage(error, "অর্ডার তৈরি করা যায়নি")),
