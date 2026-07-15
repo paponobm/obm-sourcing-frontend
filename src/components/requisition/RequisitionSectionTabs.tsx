@@ -21,7 +21,7 @@ export function RequisitionSectionTabs({
     { key: "pending", label: `পেন্ডিং (${toBnDigits(counts.pending)})` },
     { key: "confirmed", label: `কনফার্মড (${toBnDigits(counts.confirmed)})` },
     { key: "cancelled", label: `বাতিল (${toBnDigits(counts.cancelled)})` },
-    { key: "orderHistory", label: `অর্ডার হিস্টরি (${toBnDigits(counts.orderHistory)})` },
+    { key: "orderHistory", label: `সব অর্ডার(${toBnDigits(counts.orderHistory)})` },
   ];
 
   return (
