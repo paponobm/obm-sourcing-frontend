@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { authService } from "@/services/auth.service";
 import { authStorage } from "@/lib/auth-storage";
 import { ROUTES } from "@/constants/routes";
+import { transientErrorRetryConfig } from "@/lib/retry";
 import type { AuthTokens, LoginInput, VerifyOtpInput } from "@/types/auth.types";
 
 export function useCurrentUser() {
@@ -40,6 +41,13 @@ export function useLogin() {
     onError: (error: Error) => {
       toast.error(error.message || "লগইন ব্যর্থ হয়েছে");
     },
+    // A Render free-tier cold start makes the very first login attempt(s)
+    // fail with a connection error, not a real "wrong password" — retrying
+    // those specifically (see transientErrorRetryConfig) turns that into a
+    // brief automatic wait instead of the user having to click Login 4-5
+    // times themselves. `onError` above still only fires once every retry
+    // is exhausted, so a genuine bad-credentials error surfaces immediately.
+    ...transientErrorRetryConfig,
   });
 }
 

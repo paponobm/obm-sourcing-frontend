@@ -127,8 +127,18 @@ export function LoginForm() {
         {errors.password && <p className="mt-1 text-xs text-red">{errors.password.message}</p>}
       </div>
 
+      {login.isPending && login.failureCount > 0 && (
+        <p className="mb-2 text-center text-xs text-brass">
+          সার্ভার প্রস্তুত হচ্ছে... আবার চেষ্টা করা হচ্ছে ({login.failureCount}/5)
+        </p>
+      )}
+
       <Button type="submit" fullWidth className="mt-1.5" disabled={login.isPending}>
-        {login.isPending ? "সাইন ইন হচ্ছে..." : "সাইন ইন করুন"}
+        {login.isPending
+          ? login.failureCount > 0
+            ? "অপেক্ষা করুন..."
+            : "সাইন ইন হচ্ছে..."
+          : "সাইন ইন করুন"}
       </Button>
     </form>
   );
