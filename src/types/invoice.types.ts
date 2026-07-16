@@ -6,6 +6,7 @@ export type InvoiceListItem = {
   orderedAt: string;
   itemCount: number;
   totalAmount: number;
+  procurementCost: number | null;
   status: OrderStatus;
   orderedByName: string;
   updatedAt: string;
@@ -41,6 +42,9 @@ export type Invoice = {
   receivedAt?: string | null;
   closedAt?: string | null;
   totalAmount: number;
+  laborCost: number;
+  courierCost: number;
+  procurementCost: number | null;
   items: InvoiceItem[];
   // Not yet populated by the backend (no verifier/notes tracking on Invoice
   // yet) — declared here so ClosedInvoiceSection can render them once it is.
@@ -56,4 +60,7 @@ export type CreateInvoiceInput = {
 export type ReceiveCheckInput = {
   mode: "draft" | "final";
   items: { itemId: string; receivedQty: number; remark?: string }[];
+  courierId: string;
+  laborCost?: number;
+  courierCost?: number;
 };

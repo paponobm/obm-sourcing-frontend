@@ -46,6 +46,9 @@ export default function ReceiveCheckPage() {
         const row = getRow(it.id, it.orderedQty, it.receivedQty);
         return { itemId: it.id, receivedQty: Number(row.receivedQty || 0), remark: row.remark || undefined };
       }),
+      courierId: invoice.courierId,
+      laborCost: invoice.laborCost,
+      courierCost: invoice.courierCost,
     });
     router.push(ROUTES.invoiceDetail(invoiceId));
   };

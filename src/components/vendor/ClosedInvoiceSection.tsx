@@ -142,6 +142,20 @@ export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string
             {formatBDT(invoice.totalAmount)}
           </span>
         </div>
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">লেবার কস্ট</span>
+          <span className="font-semibold">{formatBDT(invoice.laborCost)}</span>
+        </div>
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">কুরিয়ার কস্ট</span>
+          <span className="font-semibold">{formatBDT(invoice.courierCost)}</span>
+        </div>
+        <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
+          <span className="font-serif text-sm text-teal-dark sm:text-base">ফাইনাল প্রোকিউরমেন্ট কস্ট</span>
+          <span className="font-mono text-base font-bold text-brass sm:text-lg">
+            {formatBDT(invoice.procurementCost ?? invoice.totalAmount)}
+          </span>
+        </div>
       </div>
 
       <InvoicePrintView invoice={invoice} />

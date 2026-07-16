@@ -1,20 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowUp, Check, Info, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { StatRow } from "@/components/dashboard/StatRow";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import type { NavigateToSection } from "@/components/vendor/VendorSectionTabs";
 import { useReceiveCheck } from "@/hooks/useInvoices";
 import { useSectionInvoice } from "@/hooks/useSectionInvoice";
+import { useCouriers } from "@/hooks/useCouriers";
+import { formatBDT } from "@/utils/currency";
 
 const WAREHOUSE_STATUSES = ["RECEIVED", "DISCREPANCY"] as const;
 
@@ -53,8 +57,26 @@ export function WarehouseReceiveCheckSection({
 }) {
   const { invoice, isLoading, hasTarget } = useSectionInvoice(vendorId, WAREHOUSE_STATUSES, invoiceId);
   const receiveCheck = useReceiveCheck(invoice?.id ?? "");
+  const { data: couriers, isLoading: couriersLoading } = useCouriers();
+  const activeCouriers = (couriers ?? []).filter((c) => c.status === "ACTIVE");
 
   const [rows, setRows] = useState<Record<string, RowState>>({});
+  const [courierId, setCourierId] = useState("");
+  const [courierTouched, setCourierTouched] = useState(false);
+  const [laborCost, setLaborCost] = useState("");
+  const [courierCost, setCourierCost] = useState("");
+
+  // Pre-fill from the invoice's own current values (its order-time courier,
+  // or whatever was already saved by an earlier draft) each time a different
+  // invoice is loaded — never stomps on it afterward while the admin is
+  // actively editing, since this only re-runs when the invoice id changes.
+  useEffect(() => {
+    setCourierId(invoice?.courierId ?? "");
+    setCourierTouched(false);
+    setLaborCost(invoice?.laborCost ? String(invoice.laborCost) : "");
+    setCourierCost(invoice?.courierCost ? String(invoice.courierCost) : "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoice?.id]);
 
   const items = invoice?.items ?? [];
 
@@ -83,8 +105,14 @@ export function WarehouseReceiveCheckSection({
   const hasMismatch = shortCount > 0 || overCount > 0;
   const hasPending = pendingCount > 0;
 
+  const finalProcurementCost = (invoice?.totalAmount ?? 0) + (Number(laborCost) || 0) + (Number(courierCost) || 0);
+
   const submit = async (mode: "draft" | "final") => {
     if (!invoice) return;
+    if (mode === "final" && !courierId) {
+      setCourierTouched(true);
+      return;
+    }
     const updated = await receiveCheck.mutateAsync({
       mode,
       items: rowsWithStatus.map(({ item, row, receivedQtyNum }) => ({
@@ -92,6 +120,9 @@ export function WarehouseReceiveCheckSection({
         receivedQty: receivedQtyNum,
         remark: row.remark || undefined,
       })),
+      courierId,
+      laborCost: Math.max(0, Number(laborCost) || 0),
+      courierCost: Math.max(0, Number(courierCost) || 0),
     });
     setRows({});
     if (mode === "final" && updated.status === "CLOSED") {
@@ -142,6 +173,69 @@ export function WarehouseReceiveCheckSection({
               স্ট্যাটাস: <OrderStatusBadge status={invoice.status} />
             </div>
             <div className="mt-1">পর্যায়: গুডস রিসিভিং</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 border-b border-line px-4 py-3.5 sm:grid-cols-3 sm:px-5 sm:py-4">
+          <div>
+            <Label htmlFor="receive-courier">কুরিয়ার *</Label>
+            <SearchableProductSelect
+              id="receive-courier"
+              products={activeCouriers.map((c) => ({ id: c.id, name: c.name }))}
+              value={courierId}
+              onChange={(id) => {
+                setCourierId(id);
+                if (id) setCourierTouched(false);
+              }}
+              placeholder="কুরিয়ার নির্বাচন করুন..."
+              isLoading={couriersLoading}
+              invalid={courierTouched && !courierId}
+              emptyMessage="কোনো অ্যাক্টিভ কুরিয়ার পাওয়া যায়নি।"
+            />
+            {courierTouched && !courierId && (
+              <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ একটি কুরিয়ার নির্বাচন করুন।</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="receive-labor-cost">লেবার কস্ট</Label>
+            <Input
+              id="receive-labor-cost"
+              type="number"
+              min={0}
+              placeholder="০"
+              value={laborCost}
+              onChange={(e) => setLaborCost(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="receive-courier-cost">কুরিয়ার কস্ট</Label>
+            <Input
+              id="receive-courier-cost"
+              type="number"
+              min={0}
+              placeholder="০"
+              value={courierCost}
+              onChange={(e) => setCourierCost(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1 border-b border-line px-4 py-3.5 text-xs sm:px-5 sm:py-4 sm:text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray">প্রোডাক্ট টোটাল</span>
+            <span className="font-mono">{formatBDT(invoice.totalAmount)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray">লেবার কস্ট</span>
+            <span className="font-mono">{formatBDT(Number(laborCost) || 0)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray">কুরিয়ার কস্ট</span>
+            <span className="font-mono">{formatBDT(Number(courierCost) || 0)}</span>
+          </div>
+          <div className="flex justify-between border-t border-line pt-1.5">
+            <span className="font-serif text-teal-dark">সর্বমোট প্রোকিউরমেন্ট কস্ট</span>
+            <span className="font-mono font-bold text-brass">{formatBDT(finalProcurementCost)}</span>
           </div>
         </div>
 

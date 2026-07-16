@@ -9,6 +9,7 @@ export type OrderListItem = {
   orderedAt: string;
   itemCount: number;
   totalAmount: number;
+  procurementCost: number | null;
   status: OrderStatus;
   orderedByName: string;
   updatedAt: string;

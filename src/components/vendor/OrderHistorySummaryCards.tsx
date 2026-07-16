@@ -43,10 +43,16 @@ function SummaryCard({
  * are created and move through the pipeline. */
 export function OrderHistorySummaryCards({ invoices }: { invoices: InvoiceListItem[] }) {
   const totalOrders = invoices.length;
-  const closedOrders = invoices.filter((inv) => inv.status === "CLOSED").length;
+  const closedInvoices = invoices.filter((inv) => inv.status === "CLOSED");
+  const closedOrders = closedInvoices.length;
   const pendingInvoices = invoices.filter((inv) => inv.status === "IN_TRANSIT").length;
   const discrepancyOrders = invoices.filter((inv) => inv.status === "DISCREPANCY").length;
-  const totalProcurementCost = invoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
+  // Only Closed orders contribute — a Pending/Ordered/Received/Verified
+  // invoice hasn't finished procurement yet, so it shouldn't count toward cost.
+  const totalProcurementCost = closedInvoices.reduce(
+    (sum, inv) => sum + (inv.procurementCost ?? inv.totalAmount),
+    0,
+  );
 
   return (
     <div className="mb-3.5 grid grid-cols-1 gap-3 sm:mb-4 sm:grid-cols-2 sm:gap-3.5 md:grid-cols-3 lg:grid-cols-5">
