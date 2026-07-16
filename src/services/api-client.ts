@@ -14,9 +14,21 @@ export const apiClient = axios.create({
   timeout: 15_000,
 });
 
+// Public/unauthenticated auth endpoints — a leftover token from a previous
+// session (expired, or belonging to whoever last used this browser) must
+// never be sent here. These calls aren't authenticated by a Bearer token in
+// the first place (login/verify-otp authenticate via body credentials or an
+// OTP code; refresh authenticates via its own refresh-token body field), so
+// attaching one is never correct, even though the backend currently ignores
+// it on these specific routes (Passport's LocalStrategy reads only the
+// request body — see local.strategy.ts). "/auth/request-otp" doesn't exist
+// as a route yet, but is listed for forward compatibility.
+const PUBLIC_AUTH_ENDPOINTS = ["/auth/login", "/auth/request-otp", "/auth/verify-otp", "/auth/refresh"];
+
 apiClient.interceptors.request.use((config) => {
+  const isPublicAuthEndpoint = PUBLIC_AUTH_ENDPOINTS.some((path) => config.url?.includes(path));
   const token = authStorage.getToken();
-  if (token) {
+  if (token && !isPublicAuthEndpoint) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
@@ -27,7 +39,7 @@ apiClient.interceptors.request.use((config) => {
 // retry-after-refresh flow below exists for. Retrying these through a
 // refresh would be meaningless (login/verify-otp aren't even authenticated
 // calls) or would recurse into refreshAccessToken itself (refresh/logout).
-const AUTH_ENDPOINTS_EXCLUDED_FROM_REFRESH = ["/auth/login", "/auth/verify-otp", "/auth/refresh", "/auth/logout"];
+const AUTH_ENDPOINTS_EXCLUDED_FROM_REFRESH = [...PUBLIC_AUTH_ENDPOINTS, "/auth/logout"];
 
 /** De-duped across concurrent 401s: the first one to land triggers the
  * refresh call, every other concurrent 401 just awaits the same promise
