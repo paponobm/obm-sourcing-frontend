@@ -1,4 +1,5 @@
 import axios, { type AxiosRequestConfig } from "axios";
+import { toast } from "sonner";
 import { authStorage } from "@/lib/auth-storage";
 import type { RefreshTokenResult } from "@/types/auth.types";
 
@@ -28,6 +29,25 @@ apiClient.interceptors.request.use((config) => {
 // calls) or would recurse into refreshAccessToken itself (refresh/logout).
 const AUTH_ENDPOINTS_EXCLUDED_FROM_REFRESH = ["/auth/login", "/auth/verify-otp", "/auth/refresh", "/auth/logout"];
 
+// The production backend (Render free tier) spins down after ~15 minutes
+// idle and takes up to ~40s to wake back up — the very first request(s)
+// after a spin-down get a closed/refused connection (no `error.response` at
+// all, since the server never actually responded) rather than a normal HTTP
+// error. Transparently retrying those specifically (never a real 4xx/5xx,
+// which always has a `response`) turns that into a brief loading toast
+// instead of a hard failure the user has to manually retry 4-5 times.
+const COLD_START_RETRY_LIMIT = 8;
+const COLD_START_RETRY_DELAY_MS = 5_000;
+const COLD_START_TOAST_ID = "cold-start-retry";
+
+function isConnectionError(error: unknown): boolean {
+  return axios.isAxiosError(error) && !error.response && error.code !== "ERR_CANCELED";
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /** De-duped across concurrent 401s: the first one to land triggers the
  * refresh call, every other concurrent 401 just awaits the same promise
  * instead of each firing its own /auth/refresh request. */
@@ -53,7 +73,28 @@ async function refreshAccessToken(): Promise<string | null> {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const config = error.config as (AxiosRequestConfig & { _retried?: boolean }) | undefined;
+    const config = error.config as
+      | (AxiosRequestConfig & { _retried?: boolean; _coldStartRetries?: number })
+      | undefined;
+
+    if (config && isConnectionError(error)) {
+      const attempt = (config._coldStartRetries ?? 0) + 1;
+      config._coldStartRetries = attempt;
+
+      if (attempt <= COLD_START_RETRY_LIMIT) {
+        toast.loading("সার্ভার প্রস্তুত হচ্ছে, একটু অপেক্ষা করুন...", { id: COLD_START_TOAST_ID });
+        await wait(COLD_START_RETRY_DELAY_MS);
+        try {
+          const response = await apiClient.request(config);
+          toast.dismiss(COLD_START_TOAST_ID);
+          return response;
+        } catch (retryError) {
+          return Promise.reject(retryError);
+        }
+      }
+      toast.dismiss(COLD_START_TOAST_ID);
+    }
+
     const status = error.response?.status;
     const isExcluded = AUTH_ENDPOINTS_EXCLUDED_FROM_REFRESH.some((path) => config?.url?.includes(path));
 
