@@ -36,12 +36,23 @@ export function InvoicePrintView({ invoice }: { invoice: Invoice }) {
         </div>
       </div>
 
-      <div className="mb-6">
-        <div className="mb-1 text-xs font-bold uppercase tracking-wide text-black">ভেন্ডর তথ্য</div>
-        <div className="text-sm text-black">
-          <div className="font-serif text-base font-bold">{invoice.vendorName}</div>
-          {/* <div>{invoice.vendorAddress}</div>
-          <div>ফোন: {invoice.vendorPhone}</div> */}
+      <div className="mb-6 flex items-start justify-between gap-6">
+        <div>
+          <div className="mb-1 text-xs font-bold uppercase tracking-wide text-black">ভেন্ডর তথ্য</div>
+          <div className="text-sm text-black">
+            <div className="font-serif text-base font-bold">{invoice.vendorName}</div>
+            {/* <div>{invoice.vendorAddress}</div>
+            <div>ফোন: {invoice.vendorPhone}</div> */}
+          </div>
+        </div>
+
+        <div className="text-right">
+          <div className="mb-1 text-xs font-bold uppercase tracking-wide text-black">কুরিয়ার তথ্য</div>
+          <div className="text-sm text-black">
+            <div className="font-serif text-base font-bold">{invoice.courierName}</div>
+            <div>মোবাইল: {invoice.courierPrimaryMobile}</div>
+            <div>লোকেশন: {invoice.courierLocation}</div>
+          </div>
         </div>
       </div>
 

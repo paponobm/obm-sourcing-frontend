@@ -16,6 +16,7 @@ const TARGET_LABEL_BN: Record<string, string> = {
   VENDOR: "ভেন্ডর",
   PRODUCT: "প্রোডাক্ট",
   USER: "ইউজার",
+  COURIER: "কুরিয়ার",
 };
 
 export default function ActivityLogsPage() {

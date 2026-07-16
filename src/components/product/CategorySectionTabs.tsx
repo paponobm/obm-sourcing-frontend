@@ -2,11 +2,11 @@
 
 import { cn } from "@/lib/utils";
 
-export type CategorySectionKey = "category" | "unit";
+export type CategorySectionKey = "category" | "unit" | "courier";
 
 /** Fixed top navigation for the Product Category page — mirrors
  * VendorSectionTabs'/ProductSectionTabs' exact pill markup/classes, just
- * with "ক্যাটাগরি"/"ইউনিট" instead of a vendor workspace's several. */
+ * with "ক্যাটাগরি"/"ইউনিট"/"কুরিয়ার" instead of a vendor workspace's several. */
 export function CategorySectionTabs({
   active,
   onChange,
@@ -39,6 +39,16 @@ export function CategorySectionTabs({
           )}
         >
           ইউনিট
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange("courier")}
+          className={cn(
+            "shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out sm:px-4 sm:text-sm",
+            active === "courier" ? "bg-teal text-white shadow-md" : "bg-paper-2 text-ink hover:bg-line",
+          )}
+        >
+          কুরিয়ার
         </button>
       </div>
     </div>
