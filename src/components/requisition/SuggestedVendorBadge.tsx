@@ -10,15 +10,25 @@ import type { RequisitionTopSuggestedVendor } from "@/types/requisition.types";
  * whichever vendor it was most recently ordered from, or the cheapest
  * active vendor if it's never been ordered. Same Badge+Tooltip pattern as
  * PendingRequisitionBadge (this app's existing hover-detail convention),
- * requires an ancestor TooltipProvider (added once at RequisitionDashboard). */
-export function SuggestedVendorBadge({ vendor }: { vendor: RequisitionTopSuggestedVendor | null }) {
+ * requires an ancestor TooltipProvider (added once at RequisitionDashboard).
+ * Reused as-is (via `plain`) for the "আরও দেখুন" expanded list of every
+ * other vendor selling the product — same badge/tooltip design, just
+ * without the "সাজেস্টেড:" prefix, since only one vendor is ever THE
+ * suggested one. */
+export function SuggestedVendorBadge({
+  vendor,
+  plain = false,
+}: {
+  vendor: RequisitionTopSuggestedVendor | null;
+  plain?: boolean;
+}) {
   if (!vendor) return null;
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Badge variant="active" className="cursor-help">
-          সাজেস্টেড: {vendor.vendorName}
+          {plain ? vendor.vendorName : `সাজেস্টেড: ${vendor.vendorName}`}
         </Badge>
       </TooltipTrigger>
       <TooltipContent className="w-56">

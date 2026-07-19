@@ -3,22 +3,25 @@ import type { OrderStatus } from "./invoice.types";
 export type RequisitionPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 export type RequisitionStatus = "PENDING" | "CONFIRMED" | "ORDERED" | "CANCELLED";
 
+/** Every active vendor selling this product, each with the same
+ * price/orderCount/lastOrderedAt detail the tooltip shows — not just the
+ * single highlighted "Suggested Vendor" (see RequisitionTopSuggestedVendor,
+ * which is just one of these). */
 export type RequisitionSuggestedVendor = {
-  vendorId: string;
-  vendorName: string;
-};
-
-/** The single vendor highlighted as "Suggested Vendor" for one product —
- * whichever vendor it was most recently ordered from, or (if never ordered)
- * the cheapest active vendor. Null only when no active vendor sells the
- * product at all. */
-export type RequisitionTopSuggestedVendor = {
   vendorId: string;
   vendorName: string;
   price: number;
   orderCount: number;
   lastOrderedAt: string | null;
 };
+
+/** The single vendor highlighted as "Suggested Vendor" for one product —
+ * whichever vendor it was most recently ordered from, or (if never ordered)
+ * the cheapest active vendor. Null only when no active vendor sells the
+ * product at all. Structurally identical to RequisitionSuggestedVendor —
+ * kept as its own name since it means something distinct ("the one pick"
+ * vs. "any candidate in the full list"). */
+export type RequisitionTopSuggestedVendor = RequisitionSuggestedVendor;
 
 export type RequisitionItem = {
   id: string;

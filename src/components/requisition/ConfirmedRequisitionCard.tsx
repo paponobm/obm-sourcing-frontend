@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SuggestedVendorBadge } from "@/components/requisition/SuggestedVendorBadge";
+import { AdditionalSuppliers } from "@/components/requisition/AdditionalSuppliers";
 import { ROUTES } from "@/constants/routes";
 import { formatBnDate, toBnDigits } from "@/utils/date";
 import { REQUISITION_PRIORITY_LABEL_BN, requisitionPriorityBadgeVariant } from "@/utils/status";
@@ -58,9 +59,12 @@ export function ConfirmedRequisitionCard({
       <div className="mt-2.5 space-y-1">
         {requisition.items.map((item) => (
           <div key={item.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs sm:text-sm">
-            <span className="flex flex-wrap items-center gap-1.5 text-ink">
+            <span className=" flex flex-wrap items-center gap-1.5 text-ink">
               {item.productName} — {toBnDigits(item.requiredQty)} {item.unit}
               <SuggestedVendorBadge vendor={item.suggestedVendor} />
+            
+              <AdditionalSuppliers item={item} />
+            
             </span>
             <Badge variant={item.fulfilled ? "active" : "low"}>
               {item.fulfilled ? "অর্ডার করা হয়েছে" : "বাকি আছে"}
