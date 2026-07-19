@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ProductSectionTabs, type ProductSectionKey } from "@/components/product/ProductSectionTabs";
 import { AllProductsSection } from "@/components/product/AllProductsSection";
@@ -7,7 +8,17 @@ import { PendingProductsSection } from "@/components/product/PendingProductsSect
 
 const VALID_SECTIONS: ProductSectionKey[] = ["all", "pending"];
 
+// useSearchParams() (used below to read the active tab) requires a Suspense
+// boundary so this statically prerenderable route can still build.
 export default function ProductsPage() {
+  return (
+    <Suspense>
+      <ProductsPageContent />
+    </Suspense>
+  );
+}
+
+function ProductsPageContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CategorySectionTabs, type CategorySectionKey } from "@/components/product/CategorySectionTabs";
 import { CategorySection } from "@/components/product/CategorySection";
@@ -8,7 +9,17 @@ import { CourierSection } from "@/components/courier/CourierSection";
 
 const VALID_SECTIONS: CategorySectionKey[] = ["category", "unit", "courier"];
 
+// useSearchParams() (used below to read the active tab) requires a Suspense
+// boundary so this statically prerenderable route can still build.
 export default function CategoriesPage() {
+  return (
+    <Suspense>
+      <CategoriesPageContent />
+    </Suspense>
+  );
+}
+
+function CategoriesPageContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
