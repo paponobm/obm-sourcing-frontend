@@ -66,6 +66,14 @@ export default function VendorListPage() {
 
   const columns: DataTableColumn<Vendor>[] = [
     {
+      key: "serial",
+      header: "ক্রমিক",
+      render: (v) => {
+        const index = (data?.data ?? []).findIndex((row) => row.id === v.id);
+        return <span className="text-gray">{(page - 1) * PAGE_SIZE + index + 1}</span>;
+      },
+    },
+    {
       key: "shopName",
       header: "দোকানের নাম",
       sortable: true,

@@ -53,7 +53,14 @@ export function OrderHistoryTable({
       key: "totalAmount",
       header: "গ্র্যান্ড টোটাল",
       sortable: true,
-      render: (inv) => <span className="font-mono font-bold text-brass">{formatBDT(inv.totalAmount)}</span>,
+      // Once an order is Closed, the Final Procurement Cost (product total +
+      // labor + courier, computed once at receive-check time — see
+      // InvoicesService.receiveCheck) is the real payable amount, matching
+      // what the Invoice Details page shows. Before that, procurementCost is
+      // still null, so the product total is the only figure that exists yet.
+      render: (inv) => (
+        <span className="font-mono font-bold text-brass">{formatBDT(inv.procurementCost ?? inv.totalAmount)}</span>
+      ),
     },
     {
       key: "status",

@@ -112,7 +112,7 @@ export default function InvoiceDetailPage() {
               সর্বমোট{isClosed ? " (পরিশোধিত)" : ""}
             </span>
             <span className="font-mono text-base font-bold text-brass sm:text-lg">
-              {formatBDT(invoice.totalAmount)}
+              {formatBDT(invoice.procurementCost ?? invoice.totalAmount)}
             </span>
           </div>
         </div>
