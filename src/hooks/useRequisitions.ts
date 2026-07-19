@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { requisitionService } from "@/services/requisition.service";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { CreateRequisitionInput } from "@/types/requisition.types";
+import type { CreateRequisitionInput, RequisitionSummaryQuery } from "@/types/requisition.types";
 
 const REQUISITIONS_KEY = ["requisitions"] as const;
 
@@ -48,6 +48,16 @@ export function useRequisitionOrderHistory() {
   return useQuery({
     queryKey: [...REQUISITIONS_KEY, "order-history"],
     queryFn: () => requisitionService.listOrderHistory(),
+  });
+}
+
+/** Dashboard-only — real per-status counts, independently filterable by
+ * date range/status/requester, distinct from the fixed status-view lists
+ * above (usePendingRequisitions etc.) which the main Requisitions page uses. */
+export function useRequisitionSummary(query: RequisitionSummaryQuery = {}) {
+  return useQuery({
+    queryKey: [...REQUISITIONS_KEY, "summary", query],
+    queryFn: () => requisitionService.getSummary(query),
   });
 }
 

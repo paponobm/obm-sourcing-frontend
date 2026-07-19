@@ -59,7 +59,7 @@ export function OrderAdvancedFilters({
 
   return (
     <div className="mb-3.5 flex flex-col gap-2.5 sm:mb-4 sm:flex-row sm:flex-wrap sm:items-center">
-      <Select value={status || "all"} onValueChange={(v) => onStatusChange(v === "all" ? "" : v)}>
+      {/* <Select value={status || "all"} onValueChange={(v) => onStatusChange(v === "all" ? "" : v)}>
         <SelectTrigger className="sm:w-40">
           <SelectValue />
         </SelectTrigger>
@@ -71,7 +71,7 @@ export function OrderAdvancedFilters({
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select> */}
 
       <Select value={vendorId || "all"} onValueChange={(v) => onVendorIdChange(v === "all" ? "" : v)}>
         <SelectTrigger className="sm:w-48">

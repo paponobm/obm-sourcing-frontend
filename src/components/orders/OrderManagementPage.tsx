@@ -49,9 +49,9 @@ export function OrderManagementPage() {
     <>
       <Topbar title={statusFilter === "IN_TRANSIT" ? `পেন্ডিং অর্ডার (${pendingCount})` : "অর্ডার ম্যানেজমেন্ট"} />
 
-      <OrderSummaryCards summary={summary} />
+      {/* <OrderSummaryCards summary={summary} /> */}
 
-      <OrderQuickFilters active={statusFilter} onChange={handleStatusChange} />
+      {/* <OrderQuickFilters active={statusFilter} onChange={handleStatusChange} />
 
       <div className="mb-3.5 sm:mb-4">
         <OrderSearchBar
@@ -61,6 +61,25 @@ export function OrderManagementPage() {
             setPage(1);
           }}
         />
+      </div> */}
+      <div className="mb-3.5 sm:mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        {/* Left Side */}
+        <OrderQuickFilters
+          active={statusFilter}
+          onChange={handleStatusChange}
+        />
+
+        {/* Right Side */}
+        <div className="w-full md:w-80 lg:w-96">
+          <OrderSearchBar
+        
+            value={search}
+            onChange={(v) => {
+              setSearch(v);
+              setPage(1);
+            }}
+          />
+        </div>
       </div>
 
       <OrderAdvancedFilters

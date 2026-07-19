@@ -3,6 +3,8 @@ import type {
   RequisitionOrderHistoryRow,
   VendorFulfillableItem,
   CreateRequisitionInput,
+  RequisitionSummaryQuery,
+  RequisitionStats,
 } from "@/types/requisition.types";
 import type { VendorActivityLog } from "@/types/vendor.types";
 import { apiClient } from "./api-client";
@@ -22,6 +24,10 @@ export const requisitionService = {
 
   async listOrderHistory(): Promise<RequisitionOrderHistoryRow[]> {
     return apiClient.get<RequisitionOrderHistoryRow[]>("/requisitions/order-history").then((r) => r.data);
+  },
+
+  async getSummary(query: RequisitionSummaryQuery = {}): Promise<RequisitionStats> {
+    return apiClient.get<RequisitionStats>("/requisitions/summary", { params: query }).then((r) => r.data);
   },
 
   async getById(id: string): Promise<Requisition> {

@@ -36,7 +36,7 @@ export function RequisitionDetailModal({
                 <span className="flex flex-wrap items-center gap-1.5 text-ink">
                   {item.productName} — {toBnDigits(item.requiredQty)} {item.unit}
                   {item.notes ? ` (${item.notes})` : ""}
-                  <SuggestedVendorBadge vendor={item.suggestedVendor} />
+                  {/* <SuggestedVendorBadge vendor={item.suggestedVendor} /> */}
                 </span>
                 <Badge variant={item.fulfilled ? "active" : "low"}>
                   {item.fulfilled ? "অর্ডার করা হয়েছে" : "বাকি আছে"}

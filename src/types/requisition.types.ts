@@ -96,3 +96,18 @@ export type CreateRequisitionInput = {
   requiredDate?: string;
   priority: RequisitionPriority;
 };
+
+export type RequisitionSummaryQuery = {
+  dateFrom?: string;
+  dateTo?: string;
+  status?: RequisitionStatus;
+  createdById?: string;
+};
+
+export type RequisitionStats = {
+  totalRequisitions: number;
+  pendingCount: number;
+  confirmedCount: number;
+  completedCount: number;
+  cancelledCount: number;
+};
