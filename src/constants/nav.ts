@@ -64,7 +64,7 @@ export const NAV_ITEMS: NavItemConfig[] = [
   //   isActive: (p) => p.startsWith(ROUTES.productsCompareAll),
   // },
   {
-    label: "প্রোডাক্ট ক্যাটাগরি",
+    label: "প্রয়োজনীয় তথ্য",
     href: ROUTES.categories,
     icon: Tags,
     isActive: (p) => p.startsWith(ROUTES.categories),

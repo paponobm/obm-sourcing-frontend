@@ -8,10 +8,14 @@ import type { VendorWithProducts } from "@/types/vendor.types";
 export function NewOrderSection({
   vendor,
   onNavigateSection,
+  onBack,
   requisitionId,
 }: {
   vendor: VendorWithProducts;
   onNavigateSection: NavigateToSection;
+  /** Cancel — undoes the last in-app navigation via the browser history
+   * stack, rather than always redirecting to a fixed "profile" section. */
+  onBack: () => void;
   requisitionId?: string;
 }) {
   // Only this requisition's still-unordered items which this vendor sells —
@@ -32,7 +36,7 @@ export function NewOrderSection({
     <OrderCreatePanel
       vendor={vendor}
       onCreated={handleCreated}
-      onCancel={() => onNavigateSection("profile")}
+      onCancel={onBack}
       prefillItems={prefillItems}
     />
   );

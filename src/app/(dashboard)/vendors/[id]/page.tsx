@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -22,6 +21,7 @@ import { OrderHistorySection } from "@/components/vendor/OrderHistorySection";
 import { VendorActivityLogSection } from "@/components/vendor/VendorActivityLogSection";
 import { useVendor } from "@/hooks/useVendor";
 import { ROUTES } from "@/constants/routes";
+import { goBackOrFallback } from "@/lib/utils";
 
 const VALID_SECTIONS: VendorSectionKey[] = [
   "profile",
@@ -36,25 +36,40 @@ const VALID_SECTIONS: VendorSectionKey[] = [
 
 export default function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { data: vendor, isLoading } = useVendor(id);
-  // Deep-linked from a Confirmed requisition's vendor chip (?tab=newOrder&
-  // requisitionId=...) or the global Order Management table's "View" action
-  // (?tab=invoicePending&invoiceId=...) — read once on mount so the right
-  // section/invoice opens pre-selected instead of defaulting to Profile.
+
+  // The current section/invoice live entirely in the URL (not local state) —
+  // deep-linked from a Confirmed requisition's vendor chip (?tab=newOrder&
+  // requisitionId=...), the global Order Management table's "View" action
+  // (?tab=invoicePending&invoiceId=...), or just whichever tab was last
+  // pushed below. Reading straight from searchParams on every render (rather
+  // than snapshotting into useState once on mount) means a browser refresh
+  // always lands back on the same section instead of reverting to Profile.
   const tabParam = searchParams.get("tab");
-  const [activeSection, setActiveSection] = useState<VendorSectionKey>(() =>
-    VALID_SECTIONS.includes(tabParam as VendorSectionKey) ? (tabParam as VendorSectionKey) : "profile",
-  );
-  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | undefined>(
-    () => searchParams.get("invoiceId") ?? undefined,
-  );
+  const activeSection: VendorSectionKey = VALID_SECTIONS.includes(tabParam as VendorSectionKey)
+    ? (tabParam as VendorSectionKey)
+    : "profile";
+  const selectedInvoiceId = searchParams.get("invoiceId") ?? undefined;
   const requisitionId = searchParams.get("requisitionId") ?? undefined;
 
+  // Every section switch pushes a real history entry (?tab=...) instead of
+  // silently mutating local state, so the browser Back/Forward stack steps
+  // through tabs one at a time — New Order -> Profile -> Vendor List -
+  // instead of skipping straight past Profile to the Vendor List.
   const navigate: NavigateToSection = (section, invoiceId) => {
-    setSelectedInvoiceId(invoiceId);
-    setActiveSection(section);
+    const params = new URLSearchParams();
+    params.set("tab", section);
+    if (invoiceId) params.set("invoiceId", invoiceId);
+    router.push(`${pathname}?${params.toString()}`);
   };
+
+  // For genuine "Cancel"/"go back" actions (not lateral tab switches) —
+  // undoes the last in-app navigation via the browser history stack rather
+  // than force-redirecting to a fixed "profile" URL.
+  const goBack = () => goBackOrFallback(router, `${pathname}?tab=profile`);
 
   if (isLoading) {
     return (
@@ -91,7 +106,12 @@ export default function VendorDetailPage() {
       <div key={activeSection} className="animate-in fade-in-0 duration-300">
         {activeSection === "profile" && <ProfileSection vendor={vendor} />}
         {activeSection === "newOrder" && (
-          <NewOrderSection vendor={vendor} onNavigateSection={navigate} requisitionId={requisitionId} />
+          <NewOrderSection
+            vendor={vendor}
+            onNavigateSection={navigate}
+            onBack={goBack}
+            requisitionId={requisitionId}
+          />
         )}
         {activeSection === "invoicePending" && (
           <PendingInvoiceSection vendorId={vendor.id} invoiceId={selectedInvoiceId} onNavigateSection={navigate} />

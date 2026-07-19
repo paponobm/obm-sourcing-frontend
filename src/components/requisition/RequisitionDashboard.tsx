@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { Button } from "@/components/ui/button";
@@ -22,10 +23,27 @@ import { useHasRole } from "@/hooks/useHasRole";
 import { MANAGE_CATALOG_ROLES } from "@/constants/roles";
 import type { Requisition } from "@/types/requisition.types";
 
+const VALID_SECTIONS: RequisitionSectionKey[] = ["pending", "confirmed", "cancelled", "orderHistory"];
+
 /** Page header (title + "নতুন রিকুইজিশন") stays fixed above the tabs at all
  * times, per the requested layout — only the tab content below changes. */
 export function RequisitionDashboard() {
-  const [activeSection, setActiveSection] = useState<RequisitionSectionKey>("pending");
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Same URL-synced-tabs fix as /products, /categories, and the Vendor
+  // workspace — read the active tab from the URL every render (refresh-safe)
+  // and push a real history entry per tab switch (Back steps through tabs
+  // instead of skipping past all of them straight to the previous page).
+  const tabParam = searchParams.get("tab");
+  const activeSection: RequisitionSectionKey = VALID_SECTIONS.includes(tabParam as RequisitionSectionKey)
+    ? (tabParam as RequisitionSectionKey)
+    : "pending";
+  const handleSectionChange = (section: RequisitionSectionKey) => {
+    router.push(`${pathname}?tab=${section}`);
+  };
+
   const [createOpen, setCreateOpen] = useState(false);
   const [editingRequisition, setEditingRequisition] = useState<Requisition | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -51,7 +69,7 @@ export function RequisitionDashboard() {
 
       <RequisitionSectionTabs
         active={activeSection}
-        onChange={setActiveSection}
+        onChange={handleSectionChange}
         counts={{
           pending: pending?.length ?? 0,
           confirmed: confirmed?.length ?? 0,

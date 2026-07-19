@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { OrderCreatePanel } from "@/components/vendor/OrderCreatePanel";
 import { useVendor } from "@/hooks/useVendor";
 import { ROUTES } from "@/constants/routes";
+import { goBackOrFallback } from "@/lib/utils";
 
 export default function NewVendorOrderPage() {
   const { id } = useParams<{ id: string }>();
@@ -41,7 +42,7 @@ export default function NewVendorOrderPage() {
       <OrderCreatePanel
         vendor={vendor}
         onCreated={(invoiceId) => router.push(ROUTES.invoiceDetail(invoiceId))}
-        onCancel={() => router.push(ROUTES.vendorDetail(vendor.id))}
+        onCancel={() => goBackOrFallback(router, ROUTES.vendorDetail(vendor.id))}
       />
     </>
   );

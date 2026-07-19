@@ -17,6 +17,7 @@ import { ImageUploadField } from "@/components/shared/ImageUploadField";
 import { FormField } from "./FormField";
 import { FormGrid } from "./FormGrid";
 import { ROUTES } from "@/constants/routes";
+import { goBackOrFallback } from "@/lib/utils";
 
 export function VendorForm() {
   const router = useRouter();
@@ -113,7 +114,12 @@ export function VendorForm() {
           <Button type="submit" variant="brass" disabled={isPending}>
             {isPending ? "সংরক্ষণ হচ্ছে..." : "ভেন্ডর সংরক্ষণ করুন"}
           </Button>
-          <Button type="button" variant="ghost" disabled={isPending} onClick={() => router.push(ROUTES.vendors)}>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={isPending}
+            onClick={() => goBackOrFallback(router, ROUTES.vendors)}
+          >
             বাতিল
           </Button>
         </div>

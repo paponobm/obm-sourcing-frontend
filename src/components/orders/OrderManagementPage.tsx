@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Topbar } from "@/components/layout/Topbar";
 import { OrderSummaryCards } from "./OrderSummaryCards";
 import { OrderQuickFilters } from "./OrderQuickFilters";
@@ -14,10 +15,22 @@ import type { OrderSortMode } from "@/types/order.types";
 const PAGE_SIZE = 10;
 
 export function OrderManagementPage() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search);
-  // Defaults to Pending per spec ("show only Pending orders by default").
-  const [statusFilter, setStatusFilter] = useState("IN_TRANSIT");
+  // Same URL-synced-tabs fix as /products, /categories, /requisitions, and
+  // the Vendor workspace — OrderQuickFilters is functionally a tab bar (it
+  // swaps the entire table's content), so its active value lives in the URL
+  // rather than local state: refresh preserves it, and each switch pushes a
+  // real history entry instead of just skipping past it on Back. Defaults to
+  // Pending per spec ("show only Pending orders by default"). "ALL" is the
+  // URL's explicit marker for the "সব" tab (value "") — distinct from no
+  // `status` param at all, which means "freshly loaded, default to Pending".
+  const statusParam = searchParams.get("status");
+  const statusFilter = statusParam === null ? "IN_TRANSIT" : statusParam === "ALL" ? "" : statusParam;
   const [vendorId, setVendorId] = useState("");
   const [createdById, setCreatedById] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -39,7 +52,9 @@ export function OrderManagementPage() {
   });
 
   const handleStatusChange = (value: string) => {
-    setStatusFilter(value);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("status", value === "" ? "ALL" : value);
+    router.push(`${pathname}?${params.toString()}`);
     setPage(1);
   };
 
