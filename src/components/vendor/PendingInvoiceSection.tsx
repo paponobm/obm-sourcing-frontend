@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, Package, CheckCircle2 } from "lucide-react";
+import { Download, Package, CheckCircle2, Truck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
@@ -143,7 +145,7 @@ export function PendingInvoiceSection({
   return (
     <>
       {sectionTitle}
-      <div className="border-b border-line px-4 py-4 sm:px-5 pb-10">
+      <div className="print:hidden border-b border-line px-4 py-4 sm:px-5 pb-10">
         <OrderStepper status={invoice.status} />
       </div>
       <Card className="print:hidden">
@@ -306,6 +308,36 @@ export function PendingInvoiceSection({
       </div>
 
       <InvoicePrintView invoice={invoice} />
+
+      {/* Set via "Order Confirm করুন" — shown read-only here once confirmed;
+       * editable again on the Warehouse Receive page if it ever needs
+       * correcting. */}
+      {invoice.courierName && (
+        <div className="mt-3.5 flex flex-wrap items-center gap-2 print:hidden sm:mt-4">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex cursor-default items-center gap-1.5 rounded-md border border-line bg-paper-2 px-2.5 py-1.5 text-xs text-ink sm:text-sm">
+                  <span className="font-medium">কুরিয়ার নাম:</span>
+                  <span>{invoice.courierName}</span>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div>মোবাইল: {invoice.courierPrimaryMobile}</div>
+                <div>লোকেশন: {invoice.courierLocation}</div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+           <span className="font-medium">পেমেন্ট স্ট্যাটাস:</span>
+          {invoice.paymentStatus && (
+            
+            <Badge variant={invoice.paymentStatus === "PAID" ? "active" : "low"}>
+
+            {PAYMENT_STATUS_LABEL_BN[invoice.paymentStatus]}
+            </Badge>
+          )}
+        </div>
+      )}
 
       <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
         {/* Receiving only makes sense once the order's been confirmed — while
