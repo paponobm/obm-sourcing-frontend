@@ -17,7 +17,7 @@ import { ORDER_STATUS_LABEL_BN } from "@/utils/status";
 import { getQuickDateRange } from "@/utils/quick-date-range";
 import type { OrderStatus } from "@/types/invoice.types";
 
-const ORDER_STATUSES: OrderStatus[] = ["IN_TRANSIT", "RECEIVED", "DISCREPANCY", "VERIFIED", "CLOSED"];
+const ORDER_STATUSES: OrderStatus[] = ["IN_TRANSIT", "CONFIRMED", "RECEIVED", "DISCREPANCY", "VERIFIED", "CLOSED"];
 
 /** Fully self-contained — its own date/status/vendor filter state, its own
  * `useOrderStats` query, independent of every other section. Unlike the real

@@ -26,11 +26,13 @@ export function OrderManagementPage() {
   // swaps the entire table's content), so its active value lives in the URL
   // rather than local state: refresh preserves it, and each switch pushes a
   // real history entry instead of just skipping past it on Back. Defaults to
-  // Pending per spec ("show only Pending orders by default"). "ALL" is the
+  // Pending per spec ("show only Pending orders by default") — bundling
+  // IN_TRANSIT+CONFIRMED, since a Confirmed order still hasn't reached the
+  // warehouse, matching OrderQuickFilters' own "পেন্ডিং" tab. "ALL" is the
   // URL's explicit marker for the "সব" tab (value "") — distinct from no
   // `status` param at all, which means "freshly loaded, default to Pending".
   const statusParam = searchParams.get("status");
-  const statusFilter = statusParam === null ? "IN_TRANSIT" : statusParam === "ALL" ? "" : statusParam;
+  const statusFilter = statusParam === null ? "IN_TRANSIT,CONFIRMED" : statusParam === "ALL" ? "" : statusParam;
   const [vendorId, setVendorId] = useState("");
   const [createdById, setCreatedById] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -62,7 +64,7 @@ export function OrderManagementPage() {
 
   return (
     <>
-      <Topbar title={statusFilter === "IN_TRANSIT" ? `পেন্ডিং অর্ডার (${pendingCount})` : "অর্ডার ম্যানেজমেন্ট"} />
+      <Topbar title={statusFilter === "IN_TRANSIT,CONFIRMED" ? `পেন্ডিং অর্ডার (${pendingCount})` : "অর্ডার ম্যানেজমেন্ট"} />
 
       {/* <OrderSummaryCards summary={summary} /> */}
 

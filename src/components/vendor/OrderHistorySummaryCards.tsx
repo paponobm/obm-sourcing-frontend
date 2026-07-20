@@ -45,7 +45,8 @@ export function OrderHistorySummaryCards({ invoices }: { invoices: InvoiceListIt
   const totalOrders = invoices.length;
   const closedInvoices = invoices.filter((inv) => inv.status === "CLOSED");
   const closedOrders = closedInvoices.length;
-  const pendingInvoices = invoices.filter((inv) => inv.status === "IN_TRANSIT").length;
+  // Confirmed is still pre-warehouse, same bucket as Pending elsewhere in the app.
+  const pendingInvoices = invoices.filter((inv) => inv.status === "IN_TRANSIT" || inv.status === "CONFIRMED").length;
   const discrepancyOrders = invoices.filter((inv) => inv.status === "DISCREPANCY").length;
   // Only Closed orders contribute — a Pending/Ordered/Received/Verified
   // invoice hasn't finished procurement yet, so it shouldn't count toward cost.

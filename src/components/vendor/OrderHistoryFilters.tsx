@@ -7,7 +7,7 @@ import { QuickDateRangeSelect } from "@/components/shared/QuickDateRangeSelect";
 import { ORDER_STATUS_LABEL_BN } from "@/utils/status";
 import type { OrderStatus } from "@/types/invoice.types";
 
-const ORDER_STATUSES: OrderStatus[] = ["IN_TRANSIT", "RECEIVED", "DISCREPANCY", "VERIFIED", "CLOSED"];
+const ORDER_STATUSES: OrderStatus[] = ["IN_TRANSIT", "CONFIRMED", "RECEIVED", "DISCREPANCY", "VERIFIED", "CLOSED"];
 
 export function OrderHistoryFilters({
   search,

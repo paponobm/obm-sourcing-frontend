@@ -8,9 +8,11 @@ import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
@@ -113,6 +115,10 @@ export default function InvoiceDetailPage() {
         ]}
       />
 
+      <div className="print:hidden border-b border-line px-4 py-4 sm:px-5 pb-10">
+        <OrderStepper status={invoice.status} />
+      </div>
+
       <Card className="print:hidden">
         <div className="flex flex-col gap-3 border-b border-line px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between sm:px-5 sm:py-4">
           <div>
@@ -131,10 +137,6 @@ export default function InvoiceDetailPage() {
               স্ট্যাটাস: <OrderStatusBadge status={invoice.status} />
             </div>
           </div>
-        </div>
-
-        <div className="border-b border-line px-4 py-4 sm:px-5">
-          <OrderStepper status={invoice.status} />
         </div>
 
         {/* Step 2 fields — all mandatory to confirm (see missingProcurementInfo).
@@ -260,33 +262,77 @@ export default function InvoiceDetailPage() {
             ))}
           </TableBody>
         </Table>
-
-        <div className="flex justify-end border-t border-line px-4 py-3.5 sm:px-5 sm:py-4">
-          <div className="flex items-center gap-3">
-            <span className="font-serif text-sm text-teal-dark sm:text-base">
-              সর্বমোট{isClosed ? " (পরিশোধিত)" : ""}
-            </span>
-            <span className="font-mono text-base font-bold text-brass sm:text-lg">
-              {formatBDT(grandTotal)}
-            </span>
-          </div>
-        </div>
       </Card>
+
+      <div className="mt-3.5 flex flex-col items-end gap-1 text-xs print:hidden sm:mt-4 sm:text-sm">
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">মোট প্রোডাক্ট</span>
+          <span className="font-mono">{invoice.items.length} টি</span>
+        </div>
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">মোট কোয়ান্টিটি</span>
+          <span className="font-mono">
+            {invoice.items.reduce((sum, item) => sum + item.orderedQty, 0)} পিস
+          </span>
+        </div>
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">প্রোডাক্ট টোটাল</span>
+          <span className="font-mono">{formatBDT(invoice.totalAmount)}</span>
+        </div>
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">লেবার কস্ট</span>
+          <span className="font-mono">{formatBDT(Number(laborCost) || 0)}</span>
+        </div>
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">কুরিয়ার কস্ট</span>
+          <span className="font-mono">{formatBDT(Number(courierCost) || 0)}</span>
+        </div>
+        <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
+          <span className="font-serif text-sm text-teal-dark sm:text-base">
+            সর্বমোট{isClosed ? " (পরিশোধিত)" : ""}
+          </span>
+          <span className="font-mono text-base font-bold text-brass sm:text-lg">{formatBDT(grandTotal)}</span>
+        </div>
+      </div>
 
       <InvoicePrintView invoice={invoice} />
 
+      {invoice.courierName && (
+        <div className="mt-3.5 flex flex-wrap items-center gap-2 print:hidden sm:mt-4">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex cursor-default items-center gap-1.5 rounded-md border border-line bg-paper-2 px-2.5 py-1.5 text-xs text-ink sm:text-sm">
+                  <span className="font-medium">কুরিয়ার নাম:</span>
+                  <span>{invoice.courierName}</span>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div>মোবাইল: {invoice.courierPrimaryMobile}</div>
+                <div>লোকেশন: {invoice.courierLocation}</div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          {invoice.paymentStatus && (
+            <>
+              <span className="font-medium">পেমেন্ট স্ট্যাটাস:</span>
+              <Badge variant={invoice.paymentStatus === "PAID" ? "active" : "low"}>
+                {PAYMENT_STATUS_LABEL_BN[invoice.paymentStatus]}
+              </Badge>
+            </>
+          )}
+        </div>
+      )}
+
       <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
-        {isPreWarehouse && (
+        {/* {isPreWarehouse && (
           <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleStartReceiveCheck}>
             <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> মাল রিসিভড — চেক শুরু করুন
           </Button>
-        )}
-        {/* Step 2 — a plain, optional status change (Pending -> Confirmed).
-         * No fields required; courier/costs/payment status can still be
-         * filled in now, later, or on the Warehouse Receive page instead. */}
+        )} */}
         {invoice.status === "IN_TRANSIT" && (
-          <Button type="button" variant="ghost" disabled={confirmOrder.isPending} onClick={handleConfirmOrder}>
-            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Order Confirm করুন
+          <Button type="button" variant="brass" disabled={confirmOrder.isPending} onClick={handleConfirmOrder}>
+            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />ভেন্ডর Order Confirm করেছেন
           </Button>
         )}
         {(invoice.status === "RECEIVED" || invoice.status === "DISCREPANCY") && (
