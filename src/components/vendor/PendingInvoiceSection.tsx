@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
+import { OrderStepper } from "@/components/vendor/OrderStepper";
 import { InvoicePrintView } from "@/components/invoice/InvoicePrintView";
 import type { NavigateToSection } from "@/components/vendor/VendorSectionTabs";
 import { useConfirmOrder, useMarkReceived } from "@/hooks/useInvoices";
@@ -142,7 +143,11 @@ export function PendingInvoiceSection({
   return (
     <>
       {sectionTitle}
+      <div className="border-b border-line px-4 py-4 sm:px-5 pb-10">
+        <OrderStepper status={invoice.status} />
+      </div>
       <Card className="print:hidden">
+
         <div className="flex flex-col gap-3 border-b border-line px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between sm:px-5 sm:py-4">
           <div>
             <div className="font-mono text-xs text-gray sm:text-sm">INVOICE #{invoice.invoiceNumber}</div>
@@ -156,6 +161,10 @@ export function PendingInvoiceSection({
             </div>
           </div>
         </div>
+
+        {/* <div className="border-b border-line px-4 py-4 sm:px-5">
+          <OrderStepper status={invoice.status} />
+        </div> */}
 
         {/* Step 2 fields — all mandatory to confirm (see missingProcurementInfo).
          * Only editable while still Pending; once confirmed, edit them on

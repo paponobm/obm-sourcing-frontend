@@ -4,30 +4,43 @@ import type { OrderStatus } from "@/types/invoice.types";
 
 type StageState = "done" | "current" | "pending" | "warning";
 
-const STAGE_LABELS = ["অর্ডার করা হয়েছে", "পথে আছে", "রিসিভড", "ভেরিফায়েড", "ক্লোজড"] as const;
+const STAGE_LABELS = ["অর্ডার তৈরি", "ভেন্ডর নিশ্চিত করেছে", "পথে আছে", "ভেরিফাইড", "ক্লোজ"] as const;
 const STAGE_DIGITS = ["১", "২", "৩", "৪", "৫"] as const;
 
+/** Maps the real OrderStatus (IN_TRANSIT -> CONFIRMED -> RECEIVED/DISCREPANCY
+ * -> VERIFIED -> CLOSED) onto the 5 procurement-workflow stages — nothing
+ * here is a fixed/hardcoded "current step"; it's fully derived from whatever
+ * status the backend reports for this invoice. */
 function getStageStates(status: OrderStatus): StageState[] {
-  // Confirmed is still pre-warehouse — a plain optional status flag on top
-  // of Pending, not a distinct visual stage — so it reads the same as
-  // IN_TRANSIT here.
-  const isPreWarehouse = status === "IN_TRANSIT" || status === "CONFIRMED";
-  const stage2: StageState = isPreWarehouse ? "current" : "done";
+  // Stage 1 — অর্ডার তৈরি: the invoice existing at all means this is done.
+  const stage1: StageState = "done";
 
+  // Stage 2 — ভেন্ডর নিশ্চিত করেছে: done once confirmed (or further along);
+  // current while still freshly created and unconfirmed.
+  const stage2: StageState = status === "IN_TRANSIT" ? "current" : "done";
+
+  // Stage 3 — পথে আছে: active once Confirmed (now moving toward the
+  // warehouse), done once it's physically arrived (Received onward).
   let stage3: StageState;
-  if (isPreWarehouse) stage3 = "pending";
-  else if (status === "RECEIVED") stage3 = "current";
-  else if (status === "DISCREPANCY") stage3 = "warning";
-  else stage3 = "done"; // VERIFIED | CLOSED
+  if (status === "IN_TRANSIT") stage3 = "pending";
+  else if (status === "CONFIRMED") stage3 = "current";
+  else stage3 = "done"; // RECEIVED | DISCREPANCY | VERIFIED | CLOSED
 
+  // Stage 4 — ভেরিফাইড: active while the warehouse check is in progress;
+  // flags a mismatch as a warning; done once that check has succeeded.
   let stage4: StageState;
-  if (status === "VERIFIED") stage4 = "current";
-  else if (status === "CLOSED") stage4 = "done";
-  else stage4 = "pending";
+  if (status === "IN_TRANSIT" || status === "CONFIRMED") stage4 = "pending";
+  else if (status === "RECEIVED") stage4 = "current";
+  else if (status === "DISCREPANCY") stage4 = "warning";
+  else stage4 = "done"; // VERIFIED | CLOSED
 
-  const stage5: StageState = status === "CLOSED" ? "done" : "pending";
+  // Stage 5 — ক্লোজ: done only once actually closed.
+  let stage5: StageState;
+  if (status === "CLOSED") stage5 = "done";
+  else if (status === "VERIFIED") stage5 = "current";
+  else stage5 = "pending";
 
-  return ["done", stage2, stage3, stage4, stage5];
+  return [stage1, stage2, stage3, stage4, stage5];
 }
 
 export function OrderStepper({ status }: { status: OrderStatus }) {

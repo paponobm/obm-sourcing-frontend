@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
 import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
 import type { PaymentStatus } from "@/types/invoice.types";
+import { OrderStepper } from "./OrderStepper";
 
 const PAYMENT_STATUSES: PaymentStatus[] = ["PAID", "UNPAID"];
 
@@ -188,6 +189,9 @@ export function WarehouseReceiveCheckSection({
   return (
     <>
       {sectionTitle}
+       <div className="border-b border-line px-4 py-4 sm:px-5 pb-10">
+              <OrderStepper status={invoice.status} />
+            </div>
       <Card>
         <div className="flex flex-col gap-3 border-b border-line px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between sm:px-5 sm:py-4">
           <div>
