@@ -21,6 +21,7 @@ import type { InvoiceListItem, OrderStatus } from "@/types/invoice.types";
  * the same warehouse check screen as DISCREPANCY (which resolves it). */
 const STATUS_SECTION: Record<OrderStatus, VendorSectionKey> = {
   IN_TRANSIT: "invoicePending",
+  CONFIRMED: "invoicePending",
   RECEIVED: "warehouseReceive",
   DISCREPANCY: "warehouseReceive",
   VERIFIED: "invoiceClosed",
@@ -98,8 +99,19 @@ export function OrderHistorySection({
     onNavigateSection(STATUS_SECTION[inv.status], inv.id);
   };
 
+  // An Inactive vendor can't be ordered from (InvoicesService.createForVendor
+  // rejects it server-side) — disable this button rather than letting it lead
+  // to a New Order form that's guaranteed to fail on submit. Matches
+  // VendorSectionTabs' own "newOrder" tab, which disables for the same reason.
+  const vendorInactive = vendor?.status === "INACTIVE";
   const newOrderButton = (
-    <Button type="button" variant="brass" onClick={() => onNavigateSection("newOrder")}>
+    <Button
+      type="button"
+      variant="brass"
+      disabled={vendorInactive}
+      title={vendorInactive ? "ইনঅ্যাক্টিভ ভেন্ডরের জন্য নতুন অর্ডার তৈরি করা যাবে না" : undefined}
+      onClick={() => onNavigateSection("newOrder")}
+    >
       <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> নতুন অর্ডার
     </Button>
   );
@@ -124,7 +136,14 @@ export function OrderHistorySection({
             title="কোনো পারচেজ অর্ডার পাওয়া যায়নি"
             description="এই ভেন্ডরের জন্য এখনো কোনো পারচেজ অর্ডার তৈরি করা হয়নি।"
             action={
-              <Button type="button" variant="brass" className="mt-2" onClick={() => onNavigateSection("newOrder")}>
+              <Button
+                type="button"
+                variant="brass"
+                className="mt-2"
+                disabled={vendorInactive}
+                title={vendorInactive ? "ইনঅ্যাক্টিভ ভেন্ডরের জন্য নতুন অর্ডার তৈরি করা যাবে না" : undefined}
+                onClick={() => onNavigateSection("newOrder")}
+              >
                 <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> নতুন অর্ডার তৈরি করুন
               </Button>
             }

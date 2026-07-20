@@ -7,6 +7,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -18,7 +19,12 @@ import type { NavigateToSection } from "@/components/vendor/VendorSectionTabs";
 import { useReceiveCheck } from "@/hooks/useInvoices";
 import { useSectionInvoice } from "@/hooks/useSectionInvoice";
 import { useCouriers } from "@/hooks/useCouriers";
+import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
+import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
+import type { PaymentStatus } from "@/types/invoice.types";
+
+const PAYMENT_STATUSES: PaymentStatus[] = ["PAID", "UNPAID"];
 
 const WAREHOUSE_STATUSES = ["RECEIVED", "DISCREPANCY"] as const;
 
@@ -63,18 +69,28 @@ export function WarehouseReceiveCheckSection({
   const [rows, setRows] = useState<Record<string, RowState>>({});
   const [courierId, setCourierId] = useState("");
   const [courierTouched, setCourierTouched] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | "">("");
+  const [paymentStatusTouched, setPaymentStatusTouched] = useState(false);
   const [laborCost, setLaborCost] = useState("");
+  const [laborCostTouched, setLaborCostTouched] = useState(false);
   const [courierCost, setCourierCost] = useState("");
+  const [courierCostTouched, setCourierCostTouched] = useState(false);
 
-  // Pre-fill from the invoice's own current values (its order-time courier,
-  // or whatever was already saved by an earlier draft) each time a different
-  // invoice is loaded — never stomps on it afterward while the admin is
-  // actively editing, since this only re-runs when the invoice id changes.
+  // Pre-fill from the invoice's own current values (already set via the
+  // optional Order Confirm step, or an earlier draft save on this same page)
+  // each time a different invoice is loaded — never stomps on it afterward
+  // while the admin is actively editing, since this only re-runs when the
+  // invoice id changes. `!= null` (not a truthy check) so an already-saved
+  // 0 cost shows as "0", not blank.
   useEffect(() => {
     setCourierId(invoice?.courierId ?? "");
     setCourierTouched(false);
-    setLaborCost(invoice?.laborCost ? String(invoice.laborCost) : "");
-    setCourierCost(invoice?.courierCost ? String(invoice.courierCost) : "");
+    setPaymentStatus(invoice?.paymentStatus ?? "");
+    setPaymentStatusTouched(false);
+    setLaborCost(invoice?.laborCost != null ? String(invoice.laborCost) : "");
+    setLaborCostTouched(false);
+    setCourierCost(invoice?.courierCost != null ? String(invoice.courierCost) : "");
+    setCourierCostTouched(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoice?.id]);
 
@@ -107,10 +123,19 @@ export function WarehouseReceiveCheckSection({
 
   const finalProcurementCost = (invoice?.totalAmount ?? 0) + (Number(laborCost) || 0) + (Number(courierCost) || 0);
 
+  // If Step 2 (Order Confirm) was skipped, courier/labor cost/courier cost/
+  // payment status are all still blank here — the invoice cannot be closed
+  // or discrepancy-marked until they're provided, one way or another.
+  const missingProcurementInfo =
+    !courierId || laborCost.trim() === "" || courierCost.trim() === "" || !paymentStatus;
+
   const submit = async (mode: "draft" | "final") => {
     if (!invoice) return;
-    if (mode === "final" && !courierId) {
+    if (mode === "final" && missingProcurementInfo) {
       setCourierTouched(true);
+      setLaborCostTouched(true);
+      setCourierCostTouched(true);
+      setPaymentStatusTouched(true);
       return;
     }
     const updated = await receiveCheck.mutateAsync({
@@ -123,6 +148,7 @@ export function WarehouseReceiveCheckSection({
       courierId,
       laborCost: Math.max(0, Number(laborCost) || 0),
       courierCost: Math.max(0, Number(courierCost) || 0),
+      paymentStatus: paymentStatus || undefined,
     });
     setRows({});
     if (mode === "final" && updated.status === "CLOSED") {
@@ -176,7 +202,7 @@ export function WarehouseReceiveCheckSection({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 border-b border-line px-4 py-3.5 sm:grid-cols-3 sm:px-5 sm:py-4">
+        <div className="grid grid-cols-1 gap-3 border-b border-line px-4 py-3.5 sm:grid-cols-2 sm:px-5 sm:py-4 lg:grid-cols-4">
           <div>
             <Label htmlFor="receive-courier">কুরিয়ার *</Label>
             <SearchableProductSelect
@@ -197,26 +223,67 @@ export function WarehouseReceiveCheckSection({
             )}
           </div>
           <div>
-            <Label htmlFor="receive-labor-cost">লেবার কস্ট</Label>
+            <Label htmlFor="receive-payment-status">পেমেন্ট স্ট্যাটাস *</Label>
+            <Select
+              value={paymentStatus}
+              onValueChange={(v) => {
+                setPaymentStatus(v as PaymentStatus);
+                setPaymentStatusTouched(false);
+              }}
+            >
+              <SelectTrigger
+                id="receive-payment-status"
+                className={cn(paymentStatusTouched && !paymentStatus && "border-red")}
+              >
+                <SelectValue placeholder="নির্বাচন করুন" />
+              </SelectTrigger>
+              <SelectContent>
+                {PAYMENT_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {PAYMENT_STATUS_LABEL_BN[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {paymentStatusTouched && !paymentStatus && (
+              <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ পেমেন্ট স্ট্যাটাস নির্বাচন করুন।</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="receive-labor-cost">লেবার কস্ট *</Label>
             <Input
               id="receive-labor-cost"
               type="number"
               min={0}
               placeholder="০"
               value={laborCost}
-              onChange={(e) => setLaborCost(e.target.value)}
+              invalid={laborCostTouched && laborCost.trim() === ""}
+              onChange={(e) => {
+                setLaborCost(e.target.value);
+                if (e.target.value.trim() !== "") setLaborCostTouched(false);
+              }}
             />
+            {laborCostTouched && laborCost.trim() === "" && (
+              <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ লেবার কস্ট লিখুন (না থাকলে ০)।</p>
+            )}
           </div>
           <div>
-            <Label htmlFor="receive-courier-cost">কুরিয়ার কস্ট</Label>
+            <Label htmlFor="receive-courier-cost">কুরিয়ার কস্ট *</Label>
             <Input
               id="receive-courier-cost"
               type="number"
               min={0}
               placeholder="০"
               value={courierCost}
-              onChange={(e) => setCourierCost(e.target.value)}
+              invalid={courierCostTouched && courierCost.trim() === ""}
+              onChange={(e) => {
+                setCourierCost(e.target.value);
+                if (e.target.value.trim() !== "") setCourierCostTouched(false);
+              }}
             />
+            {courierCostTouched && courierCost.trim() === "" && (
+              <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ কুরিয়ার কস্ট লিখুন (না থাকলে ০)।</p>
+            )}
           </div>
         </div>
 

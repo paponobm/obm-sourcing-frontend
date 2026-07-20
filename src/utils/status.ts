@@ -1,11 +1,16 @@
 import type { VendorStatus } from "@/types/common.types";
-import type { OrderStatus } from "@/types/invoice.types";
+import type { OrderStatus, PaymentStatus } from "@/types/invoice.types";
 import type { RequisitionPriority, RequisitionStatus } from "@/types/requisition.types";
 import type { ProductActivityActionType, ProductStatus } from "@/types/product.types";
 
 export const VENDOR_STATUS_LABEL_BN: Record<VendorStatus, string> = {
   ACTIVE: "অ্যাক্টিভ",
   INACTIVE: "ইনঅ্যাক্টিভ",
+};
+
+export const PAYMENT_STATUS_LABEL_BN: Record<PaymentStatus, string> = {
+  PAID: "পরিশোধিত",
+  UNPAID: "অপরিশোধিত",
 };
 
 export function vendorStatusBadgeVariant(status: VendorStatus): "active" | "inactive" {
@@ -58,6 +63,7 @@ export const PRODUCT_ACTIVITY_ACTION_LABEL_BN: Record<ProductActivityActionType,
 
 export const ORDER_STATUS_LABEL_BN: Record<OrderStatus, string> = {
   IN_TRANSIT: "পেন্ডিং",
+  CONFIRMED: "কনফার্মড",
   RECEIVED: "রিসিভড",
   DISCREPANCY: "ডিসক্রেপান্সি",
   VERIFIED: "ভেরিফায়েড",
@@ -72,6 +78,7 @@ export function orderStatusBadgeVariant(status: OrderStatus): "active" | "inacti
     case "DISCREPANCY":
       return "destructive";
     case "IN_TRANSIT":
+    case "CONFIRMED":
     case "RECEIVED":
     default:
       return "low";

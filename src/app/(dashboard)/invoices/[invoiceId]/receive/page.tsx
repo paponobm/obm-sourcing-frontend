@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertTriangle, Check, X } from "lucide-react";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
@@ -8,21 +8,54 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { useInvoice, useReceiveCheck } from "@/hooks/useInvoices";
+import { useCouriers } from "@/hooks/useCouriers";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
+import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
+import type { PaymentStatus } from "@/types/invoice.types";
 
 type RowState = { receivedQty: string; remark: string };
+
+const PAYMENT_STATUSES: PaymentStatus[] = ["PAID", "UNPAID"];
 
 export default function ReceiveCheckPage() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
   const router = useRouter();
   const { data: invoice, isLoading } = useInvoice(invoiceId);
   const receiveCheck = useReceiveCheck(invoiceId);
+  const { data: couriers, isLoading: couriersLoading } = useCouriers();
+  const activeCouriers = (couriers ?? []).filter((c) => c.status === "ACTIVE");
 
   const [rows, setRows] = useState<Record<string, RowState>>({});
+  const [courierId, setCourierId] = useState("");
+  const [courierTouched, setCourierTouched] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | "">("");
+  const [paymentStatusTouched, setPaymentStatusTouched] = useState(false);
+  const [laborCost, setLaborCost] = useState("");
+  const [laborCostTouched, setLaborCostTouched] = useState(false);
+  const [courierCost, setCourierCost] = useState("");
+  const [courierCostTouched, setCourierCostTouched] = useState(false);
+
+  // Pre-fill from the invoice's own current values (already set via the
+  // optional Order Confirm step, or an earlier draft save) — `!= null` (not
+  // a truthy check) so an already-saved 0 cost shows as "0", not blank.
+  useEffect(() => {
+    setCourierId(invoice?.courierId ?? "");
+    setCourierTouched(false);
+    setPaymentStatus(invoice?.paymentStatus ?? "");
+    setPaymentStatusTouched(false);
+    setLaborCost(invoice?.laborCost != null ? String(invoice.laborCost) : "");
+    setLaborCostTouched(false);
+    setCourierCost(invoice?.courierCost != null ? String(invoice.courierCost) : "");
+    setCourierCostTouched(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoice?.id]);
 
   const getRow = (itemId: string, orderedQty: number, receivedQty: number | null): RowState =>
     rows[itemId] ?? { receivedQty: String(receivedQty ?? orderedQty), remark: "" };
@@ -38,17 +71,31 @@ export default function ReceiveCheckPage() {
     return Number(row.receivedQty || 0) !== it.orderedQty;
   });
 
+  // If Step 2 (Order Confirm) was skipped, courier/labor cost/courier cost/
+  // payment status are all still blank here — the invoice cannot be closed
+  // or discrepancy-marked until they're provided, one way or another.
+  const missingProcurementInfo =
+    !courierId || laborCost.trim() === "" || courierCost.trim() === "" || !paymentStatus;
+
   const submit = async (mode: "draft" | "final") => {
     if (!invoice) return;
+    if (mode === "final" && missingProcurementInfo) {
+      setCourierTouched(true);
+      setLaborCostTouched(true);
+      setCourierCostTouched(true);
+      setPaymentStatusTouched(true);
+      return;
+    }
     await receiveCheck.mutateAsync({
       mode,
       items: items.map((it) => {
         const row = getRow(it.id, it.orderedQty, it.receivedQty);
         return { itemId: it.id, receivedQty: Number(row.receivedQty || 0), remark: row.remark || undefined };
       }),
-      courierId: invoice.courierId,
-      laborCost: invoice.laborCost,
-      courierCost: invoice.courierCost,
+      courierId,
+      laborCost: Math.max(0, Number(laborCost) || 0),
+      courierCost: Math.max(0, Number(courierCost) || 0),
+      paymentStatus: paymentStatus || undefined,
     });
     router.push(ROUTES.invoiceDetail(invoiceId));
   };
@@ -79,6 +126,96 @@ export default function ReceiveCheckPage() {
           {invoice.status === "DISCREPANCY" ? "ডিসক্রেপান্সি — পুনরায় চেক করুন" : "রিসিভড — চেকিং চলছে"}
         </span>
       </div>
+
+      <Card className="mb-3.5 sm:mb-4">
+        <CardHeader>
+          <CardTitle>প্রোকিউরমেন্ট তথ্য</CardTitle>
+        </CardHeader>
+        <div className="grid grid-cols-1 gap-3 px-4 py-3.5 sm:grid-cols-2 sm:px-5 sm:py-4 lg:grid-cols-4">
+          <div>
+            <Label htmlFor="receive-courier">কুরিয়ার *</Label>
+            <SearchableProductSelect
+              id="receive-courier"
+              products={activeCouriers.map((c) => ({ id: c.id, name: c.name }))}
+              value={courierId}
+              onChange={(id) => {
+                setCourierId(id);
+                if (id) setCourierTouched(false);
+              }}
+              placeholder="কুরিয়ার নির্বাচন করুন..."
+              isLoading={couriersLoading}
+              invalid={courierTouched && !courierId}
+              emptyMessage="কোনো অ্যাক্টিভ কুরিয়ার পাওয়া যায়নি।"
+            />
+            {courierTouched && !courierId && (
+              <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ একটি কুরিয়ার নির্বাচন করুন।</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="receive-payment-status">পেমেন্ট স্ট্যাটাস *</Label>
+            <Select
+              value={paymentStatus}
+              onValueChange={(v) => {
+                setPaymentStatus(v as PaymentStatus);
+                setPaymentStatusTouched(false);
+              }}
+            >
+              <SelectTrigger
+                id="receive-payment-status"
+                className={cn(paymentStatusTouched && !paymentStatus && "border-red")}
+              >
+                <SelectValue placeholder="নির্বাচন করুন" />
+              </SelectTrigger>
+              <SelectContent>
+                {PAYMENT_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {PAYMENT_STATUS_LABEL_BN[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {paymentStatusTouched && !paymentStatus && (
+              <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ পেমেন্ট স্ট্যাটাস নির্বাচন করুন।</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="receive-labor-cost">লেবার কস্ট *</Label>
+            <Input
+              id="receive-labor-cost"
+              type="number"
+              min={0}
+              placeholder="০"
+              value={laborCost}
+              invalid={laborCostTouched && laborCost.trim() === ""}
+              onChange={(e) => {
+                setLaborCost(e.target.value);
+                if (e.target.value.trim() !== "") setLaborCostTouched(false);
+              }}
+            />
+            {laborCostTouched && laborCost.trim() === "" && (
+              <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ লেবার কস্ট লিখুন (না থাকলে ০)।</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="receive-courier-cost">কুরিয়ার কস্ট *</Label>
+            <Input
+              id="receive-courier-cost"
+              type="number"
+              min={0}
+              placeholder="০"
+              value={courierCost}
+              invalid={courierCostTouched && courierCost.trim() === ""}
+              onChange={(e) => {
+                setCourierCost(e.target.value);
+                if (e.target.value.trim() !== "") setCourierCostTouched(false);
+              }}
+            />
+            {courierCostTouched && courierCost.trim() === "" && (
+              <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ কুরিয়ার কস্ট লিখুন (না থাকলে ০)।</p>
+            )}
+          </div>
+        </div>
+      </Card>
 
       <Card>
         <CardHeader>

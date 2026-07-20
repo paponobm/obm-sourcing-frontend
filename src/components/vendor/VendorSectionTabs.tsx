@@ -34,31 +34,36 @@ const TABS: { key: VendorSectionKey; label: string }[] = [
 export function VendorSectionTabs({
   active,
   onChange,
-  hideNewOrder,
+  newOrderDisabled,
 }: {
   active: VendorSectionKey;
   onChange: (key: VendorSectionKey) => void;
-  /** An Inactive vendor can't be ordered from — hide the tab entirely rather
-   * than showing a form that would just reject on submit. */
-  hideNewOrder?: boolean;
+  /** An Inactive vendor can't be ordered from — show the tab but disabled
+   * (with an explanatory tooltip) instead of hiding it outright, so the
+   * backend's real constraint is visible rather than the option just
+   * silently disappearing with no explanation. */
+  newOrderDisabled?: boolean;
 }) {
-  const tabs = hideNewOrder ? TABS.filter((tab) => tab.key !== "newOrder") : TABS;
   return (
     <div className="sticky top-0 z-10 mb-4 border-b border-line bg-paper pb-2 pt-1 print:hidden sm:mb-5 sm:pb-2.5">
       <div
         className="flex gap-1.5 overflow-x-auto sm:gap-2 [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: "none" }}
       >
-        {tabs.map((tab) => {
+        {TABS.map((tab) => {
           const isActive = tab.key === active;
+          const isDisabled = tab.key === "newOrder" && newOrderDisabled;
           return (
             <button
               key={tab.key}
               type="button"
+              disabled={isDisabled}
+              title={isDisabled ? "ইনঅ্যাক্টিভ ভেন্ডরের জন্য নতুন অর্ডার তৈরি করা যাবে না" : undefined}
               onClick={() => onChange(tab.key)}
               className={cn(
                 "shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out sm:px-4 sm:text-sm",
                 isActive ? "bg-teal text-white shadow-md" : "bg-paper-2 text-ink hover:bg-line",
+                isDisabled && "cursor-not-allowed opacity-50 hover:bg-paper-2",
               )}
             >
               {tab.label}

@@ -1,29 +1,85 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Package, Printer } from "lucide-react";
+import { CheckCircle2, Package, Printer } from "lucide-react";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import { OrderStepper } from "@/components/vendor/OrderStepper";
 import { InvoicePrintView } from "@/components/invoice/InvoicePrintView";
-import { useInvoice, useMarkReceived } from "@/hooks/useInvoices";
+import { useConfirmOrder, useInvoice, useMarkReceived } from "@/hooks/useInvoices";
+import { useCouriers } from "@/hooks/useCouriers";
+import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
 import { formatBnDate } from "@/utils/date";
+import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
 import { ROUTES } from "@/constants/routes";
+import type { PaymentStatus } from "@/types/invoice.types";
+
+const PAYMENT_STATUSES: PaymentStatus[] = ["PAID", "UNPAID"];
 
 export default function InvoiceDetailPage() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
   const router = useRouter();
   const { data: invoice, isLoading } = useInvoice(invoiceId);
+  const confirmOrder = useConfirmOrder(invoiceId);
   const markReceived = useMarkReceived();
+  const { data: couriers, isLoading: couriersLoading } = useCouriers();
+  const activeCouriers = (couriers ?? []).filter((c) => c.status === "ACTIVE");
+
+  const [courierId, setCourierId] = useState("");
+  const [courierTouched, setCourierTouched] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | "">("");
+  const [paymentStatusTouched, setPaymentStatusTouched] = useState(false);
+  const [laborCost, setLaborCost] = useState("");
+  const [laborCostTouched, setLaborCostTouched] = useState(false);
+  const [courierCost, setCourierCost] = useState("");
+  const [courierCostTouched, setCourierCostTouched] = useState(false);
+
+  // Pre-fill from the invoice's own current values — `!= null` (not a
+  // truthy check) so an already-saved 0 cost shows as "0", not blank.
+  useEffect(() => {
+    setCourierId(invoice?.courierId ?? "");
+    setCourierTouched(false);
+    setPaymentStatus(invoice?.paymentStatus ?? "");
+    setPaymentStatusTouched(false);
+    setLaborCost(invoice?.laborCost != null ? String(invoice.laborCost) : "");
+    setLaborCostTouched(false);
+    setCourierCost(invoice?.courierCost != null ? String(invoice.courierCost) : "");
+    setCourierCostTouched(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoice?.id]);
+
+  const missingProcurementInfo =
+    !courierId || !paymentStatus || laborCost.trim() === "" || courierCost.trim() === "";
+
+  const handleConfirmOrder = () => {
+    if (missingProcurementInfo) {
+      setCourierTouched(true);
+      setPaymentStatusTouched(true);
+      setLaborCostTouched(true);
+      setCourierCostTouched(true);
+      return;
+    }
+    confirmOrder.mutate({
+      courierId,
+      paymentStatus: paymentStatus as PaymentStatus,
+      laborCost: Math.max(0, Number(laborCost) || 0),
+      courierCost: Math.max(0, Number(courierCost) || 0),
+    });
+  };
 
   const handleStartReceiveCheck = async () => {
-    if (invoice?.status === "IN_TRANSIT") {
+    if (invoice?.status === "IN_TRANSIT" || invoice?.status === "CONFIRMED") {
       await markReceived.mutateAsync(invoiceId);
     }
     router.push(ROUTES.invoiceReceive(invoiceId));
@@ -38,7 +94,14 @@ export default function InvoiceDetailPage() {
   }
 
   const isClosed = invoice.status === "CLOSED";
-  const showReceivedColumn = invoice.status !== "IN_TRANSIT";
+  const isPreWarehouse = invoice.status === "IN_TRANSIT" || invoice.status === "CONFIRMED";
+  const showReceivedColumn = !isPreWarehouse;
+  // Pre-warehouse, reflect the (possibly still-editable) labor/courier cost
+  // inputs live; from Warehouse Receive onward, the stored procurementCost
+  // (or totalAmount before that's finalized) is the source of truth as before.
+  const grandTotal = isPreWarehouse
+    ? invoice.totalAmount + (Number(laborCost) || 0) + (Number(courierCost) || 0)
+    : (invoice.procurementCost ?? invoice.totalAmount);
 
   return (
     <>
@@ -73,6 +136,96 @@ export default function InvoiceDetailPage() {
         <div className="border-b border-line px-4 py-4 sm:px-5">
           <OrderStepper status={invoice.status} />
         </div>
+
+        {/* Step 2 fields — all mandatory to confirm (see missingProcurementInfo).
+         * Only editable while still Pending; once confirmed, edit them on
+         * the Warehouse Receive page instead. */}
+        {invoice.status === "IN_TRANSIT" && (
+          <div className="grid grid-cols-1 gap-3 border-b border-line px-4 py-3.5 sm:grid-cols-2 sm:px-5 sm:py-4 lg:grid-cols-4">
+            <div>
+              <Label htmlFor="invoice-courier">কুরিয়ার *</Label>
+              <SearchableProductSelect
+                id="invoice-courier"
+                products={activeCouriers.map((c) => ({ id: c.id, name: c.name }))}
+                value={courierId}
+                onChange={(id) => {
+                  setCourierId(id);
+                  if (id) setCourierTouched(false);
+                }}
+                placeholder="কুরিয়ার নির্বাচন করুন..."
+                isLoading={couriersLoading}
+                invalid={courierTouched && !courierId}
+                emptyMessage="কোনো অ্যাক্টিভ কুরিয়ার পাওয়া যায়নি।"
+              />
+              {courierTouched && !courierId && (
+                <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ একটি কুরিয়ার নির্বাচন করুন।</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="invoice-payment-status">পেমেন্ট স্ট্যাটাস *</Label>
+              <Select
+                value={paymentStatus}
+                onValueChange={(v) => {
+                  setPaymentStatus(v as PaymentStatus);
+                  setPaymentStatusTouched(false);
+                }}
+              >
+                <SelectTrigger
+                  id="invoice-payment-status"
+                  className={cn(paymentStatusTouched && !paymentStatus && "border-red")}
+                >
+                  <SelectValue placeholder="নির্বাচন করুন" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {PAYMENT_STATUS_LABEL_BN[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {paymentStatusTouched && !paymentStatus && (
+                <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ পেমেন্ট স্ট্যাটাস নির্বাচন করুন।</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="invoice-labor-cost">লেবার কস্ট *</Label>
+              <Input
+                id="invoice-labor-cost"
+                type="number"
+                min={0}
+                placeholder="০"
+                value={laborCost}
+                invalid={laborCostTouched && laborCost.trim() === ""}
+                onChange={(e) => {
+                  setLaborCost(e.target.value);
+                  if (e.target.value.trim() !== "") setLaborCostTouched(false);
+                }}
+              />
+              {laborCostTouched && laborCost.trim() === "" && (
+                <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ লেবার কস্ট লিখুন (না থাকলে ০)।</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="invoice-courier-cost">কুরিয়ার কস্ট *</Label>
+              <Input
+                id="invoice-courier-cost"
+                type="number"
+                min={0}
+                placeholder="০"
+                value={courierCost}
+                invalid={courierCostTouched && courierCost.trim() === ""}
+                onChange={(e) => {
+                  setCourierCost(e.target.value);
+                  if (e.target.value.trim() !== "") setCourierCostTouched(false);
+                }}
+              />
+              {courierCostTouched && courierCost.trim() === "" && (
+                <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ কুরিয়ার কস্ট লিখুন (না থাকলে ০)।</p>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="flex items-center justify-between px-4 pt-3.5 sm:px-5 sm:pt-4">
           <h3 className="m-0 font-serif text-sm text-teal-dark sm:text-base">
@@ -112,7 +265,7 @@ export default function InvoiceDetailPage() {
               সর্বমোট{isClosed ? " (পরিশোধিত)" : ""}
             </span>
             <span className="font-mono text-base font-bold text-brass sm:text-lg">
-              {formatBDT(invoice.procurementCost ?? invoice.totalAmount)}
+              {formatBDT(grandTotal)}
             </span>
           </div>
         </div>
@@ -121,9 +274,17 @@ export default function InvoiceDetailPage() {
       <InvoicePrintView invoice={invoice} />
 
       <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
-        {invoice.status === "IN_TRANSIT" && (
+        {isPreWarehouse && (
           <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleStartReceiveCheck}>
             <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> মাল রিসিভড — চেক শুরু করুন
+          </Button>
+        )}
+        {/* Step 2 — a plain, optional status change (Pending -> Confirmed).
+         * No fields required; courier/costs/payment status can still be
+         * filled in now, later, or on the Warehouse Receive page instead. */}
+        {invoice.status === "IN_TRANSIT" && (
+          <Button type="button" variant="ghost" disabled={confirmOrder.isPending} onClick={handleConfirmOrder}>
+            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Order Confirm করুন
           </Button>
         )}
         {(invoice.status === "RECEIVED" || invoice.status === "DISCREPANCY") && (

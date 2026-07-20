@@ -6,19 +6,16 @@ import { Card, CardHeader, CardTitle, CardTag } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SearchBox } from "@/components/shared/SearchBox";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { PendingRequisitionBadge } from "@/components/vendor/PendingRequisitionBadge";
 import { ProductActivityLogModal } from "@/components/product/ProductActivityLogModal";
 import { useCreateInvoice } from "@/hooks/useInvoices";
 import { useSetVendorProductPrice } from "@/hooks/useVendors";
 import { useActivateProduct, useDeactivateProduct } from "@/hooks/useProducts";
-import { useCouriers } from "@/hooks/useCouriers";
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatBDT } from "@/utils/currency";
 import type { VendorProductPrice, VendorWithProducts } from "@/types/vendor.types";
@@ -46,10 +43,6 @@ export function OrderCreatePanel({
   const setVendorProductPrice = useSetVendorProductPrice();
   const activateProduct = useActivateProduct();
   const deactivateProduct = useDeactivateProduct();
-  const { data: couriers, isLoading: couriersLoading } = useCouriers();
-  const activeCouriers = (couriers ?? []).filter((c) => c.status === "ACTIVE");
-  const [courierId, setCourierId] = useState("");
-  const [courierTouched, setCourierTouched] = useState(false);
 
   const [rows, setRows] = useState<Record<string, RowState>>(() =>
     (prefillItems ?? []).reduce<Record<string, RowState>>((acc, item) => {
@@ -117,17 +110,12 @@ export function OrderCreatePanel({
 
   const handleSubmit = async () => {
     if (selectedRows.length === 0) return;
-    if (!courierId) {
-      setCourierTouched(true);
-      return;
-    }
     const invoice = await createInvoice.mutateAsync({
       items: selectedRows.map(({ product, row }) => ({
         productId: product.productId,
         orderedQty: Number(row.qty),
         requisitionItemId: row.requisitionItemId,
       })),
-      courierId,
     });
     setRows({});
     onCreated(invoice.id);
@@ -327,28 +315,6 @@ export function OrderCreatePanel({
         </div>
       </div>
 
-      <div className="mt-3.5 max-w-xs sm:mt-4 sm:max-w-sm">
-        <Label htmlFor="order-courier">কুরিয়ার *</Label>
-        <SearchableProductSelect
-          id="order-courier"
-          products={activeCouriers.map((c) => ({ id: c.id, name: c.name }))}
-          value={courierId}
-          onChange={(id) => {
-            setCourierId(id);
-            if (id) setCourierTouched(false);
-          }}
-          placeholder="কুরিয়ার নির্বাচন করুন..."
-          isLoading={couriersLoading}
-          invalid={courierTouched && !courierId}
-          emptyMessage="কোনো অ্যাক্টিভ কুরিয়ার পাওয়া যায়নি।"
-        />
-        {courierTouched && !courierId && (
-          <p className="mt-1 text-[11px] text-red sm:text-xs">
-            ⚠ অর্ডার তৈরির আগে একটি কুরিয়ার নির্বাচন করুন।
-          </p>
-        )}
-      </div>
-
       <div className="mt-3.5 flex gap-2 rounded-md bg-brass-soft px-3 py-2.5 text-xs text-brass sm:mt-4 sm:text-sm">
         <Lightbulb className="h-4 w-4 shrink-0" />
         <p className="m-0">
@@ -364,7 +330,7 @@ export function OrderCreatePanel({
           disabled={selectedRows.length === 0 || createInvoice.isPending}
           onClick={handleSubmit}
         >
-          {createInvoice.isPending ? "তৈরি হচ্ছে..." : "✓ অর্ডার কনফার্ম করুন — ইনভয়েস তৈরি হবে"}
+          {createInvoice.isPending ? "তৈরি হচ্ছে..." : "✓ Order তৈরি করুন"}
         </Button>
         {onCancel && (
           <Button type="button" variant="ghost" onClick={onCancel}>

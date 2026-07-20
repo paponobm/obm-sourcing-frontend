@@ -49,9 +49,15 @@ export function InvoicePrintView({ invoice }: { invoice: Invoice }) {
         <div className="text-right">
           <div className="mb-1 text-xs font-bold uppercase tracking-wide text-black">কুরিয়ার তথ্য</div>
           <div className="text-sm text-black">
-            <div className="font-serif text-base font-bold">{invoice.courierName}</div>
-            <div>মোবাইল: {invoice.courierPrimaryMobile}</div>
-            <div>লোকেশন: {invoice.courierLocation}</div>
+            {invoice.courierName ? (
+              <>
+                <div className="font-serif text-base font-bold">{invoice.courierName}</div>
+                <div>মোবাইল: {invoice.courierPrimaryMobile}</div>
+                <div>লোকেশন: {invoice.courierLocation}</div>
+              </>
+            ) : (
+              <div>—</div>
+            )}
           </div>
         </div>
       </div>

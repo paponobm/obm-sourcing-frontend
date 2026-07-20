@@ -17,6 +17,7 @@ import type { OrderStatus } from "@/types/invoice.types";
  * check screen; VERIFIED/CLOSED both land on the closed-invoice summary. */
 const STATUS_SECTION: Record<OrderStatus, VendorSectionKey> = {
   IN_TRANSIT: "invoicePending",
+  CONFIRMED: "invoicePending",
   RECEIVED: "warehouseReceive",
   DISCREPANCY: "warehouseReceive",
   VERIFIED: "invoiceClosed",

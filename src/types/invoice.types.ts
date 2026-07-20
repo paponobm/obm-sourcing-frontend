@@ -1,4 +1,6 @@
-export type OrderStatus = "IN_TRANSIT" | "RECEIVED" | "DISCREPANCY" | "VERIFIED" | "CLOSED";
+export type OrderStatus = "IN_TRANSIT" | "CONFIRMED" | "RECEIVED" | "DISCREPANCY" | "VERIFIED" | "CLOSED";
+
+export type PaymentStatus = "PAID" | "UNPAID";
 
 export type InvoiceListItem = {
   id: string;
@@ -33,17 +35,21 @@ export type Invoice = {
   vendorCode: string;
   vendorAddress: string;
   vendorPhone: string;
-  courierId: string;
-  courierName: string;
-  courierPrimaryMobile: string;
-  courierLocation: string;
+  // Null until set — optionally via "Order Confirm করুন" (a plain status
+  // change, Pending -> Confirmed) or directly on the Warehouse Receive page,
+  // the only place any of this is ever mandatory.
+  courierId: string | null;
+  courierName: string | null;
+  courierPrimaryMobile: string | null;
+  courierLocation: string | null;
   orderedByName: string;
   orderedAt: string;
   receivedAt?: string | null;
   closedAt?: string | null;
   totalAmount: number;
-  laborCost: number;
-  courierCost: number;
+  laborCost: number | null;
+  courierCost: number | null;
+  paymentStatus: PaymentStatus | null;
   procurementCost: number | null;
   items: InvoiceItem[];
   // Not yet populated by the backend (no verifier/notes tracking on Invoice
@@ -52,9 +58,18 @@ export type Invoice = {
   notes?: string | null;
 };
 
+// Step 1 — creates a Pending order with no procurement info at all.
 export type CreateInvoiceInput = {
   items: { productId: string; orderedQty: number; requisitionItemId?: string }[];
+};
+
+// Step 2 — Pending -> Confirmed. All four fields are mandatory to confirm —
+// confirming locks in the procurement info right then.
+export type ConfirmOrderInput = {
   courierId: string;
+  paymentStatus: PaymentStatus;
+  laborCost: number;
+  courierCost: number;
 };
 
 export type ReceiveCheckInput = {
@@ -63,4 +78,5 @@ export type ReceiveCheckInput = {
   courierId: string;
   laborCost?: number;
   courierCost?: number;
+  paymentStatus?: PaymentStatus;
 };

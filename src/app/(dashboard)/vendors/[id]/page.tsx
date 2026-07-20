@@ -100,19 +100,25 @@ export default function VendorDetailPage() {
       <VendorSectionTabs
         active={activeSection}
         onChange={(key) => navigate(key)}
-        hideNewOrder={vendor.status === "INACTIVE"}
+        newOrderDisabled={vendor.status === "INACTIVE"}
       />
 
       <div key={activeSection} className="animate-in fade-in-0 duration-300">
         {activeSection === "profile" && <ProfileSection vendor={vendor} />}
-        {activeSection === "newOrder" && (
-          <NewOrderSection
-            vendor={vendor}
-            onNavigateSection={navigate}
-            onBack={goBack}
-            requisitionId={requisitionId}
-          />
-        )}
+        {activeSection === "newOrder" &&
+          (vendor.status === "INACTIVE" ? (
+            <EmptyState
+              title="ইনঅ্যাক্টিভ ভেন্ডরের জন্য নতুন অর্ডার তৈরি করা যাবে না"
+              description="নতুন অর্ডার তৈরি করতে হলে আগে এই ভেন্ডরকে সক্রিয় করুন।"
+            />
+          ) : (
+            <NewOrderSection
+              vendor={vendor}
+              onNavigateSection={navigate}
+              onBack={goBack}
+              requisitionId={requisitionId}
+            />
+          ))}
         {activeSection === "invoicePending" && (
           <PendingInvoiceSection vendorId={vendor.id} invoiceId={selectedInvoiceId} onNavigateSection={navigate} />
         )}

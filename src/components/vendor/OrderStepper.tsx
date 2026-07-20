@@ -8,10 +8,14 @@ const STAGE_LABELS = ["অর্ডার করা হয়েছে", "পথ
 const STAGE_DIGITS = ["১", "২", "৩", "৪", "৫"] as const;
 
 function getStageStates(status: OrderStatus): StageState[] {
-  const stage2: StageState = status === "IN_TRANSIT" ? "current" : "done";
+  // Confirmed is still pre-warehouse — a plain optional status flag on top
+  // of Pending, not a distinct visual stage — so it reads the same as
+  // IN_TRANSIT here.
+  const isPreWarehouse = status === "IN_TRANSIT" || status === "CONFIRMED";
+  const stage2: StageState = isPreWarehouse ? "current" : "done";
 
   let stage3: StageState;
-  if (status === "IN_TRANSIT") stage3 = "pending";
+  if (isPreWarehouse) stage3 = "pending";
   else if (status === "RECEIVED") stage3 = "current";
   else if (status === "DISCREPANCY") stage3 = "warning";
   else stage3 = "done"; // VERIFIED | CLOSED

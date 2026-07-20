@@ -1,26 +1,40 @@
 "use client";
 
-import { Download, Package } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Download, Package, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
-import { OrderStepper } from "@/components/vendor/OrderStepper";
 import { InvoicePrintView } from "@/components/invoice/InvoicePrintView";
 import type { NavigateToSection } from "@/components/vendor/VendorSectionTabs";
-import { useMarkReceived } from "@/hooks/useInvoices";
+import { useConfirmOrder, useMarkReceived } from "@/hooks/useInvoices";
 import { useSectionInvoice } from "@/hooks/useSectionInvoice";
+import { useCouriers } from "@/hooks/useCouriers";
+import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
 import { formatBnDate } from "@/utils/date";
+import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
+import type { PaymentStatus } from "@/types/invoice.types";
 
-const PENDING_STATUSES = ["IN_TRANSIT"] as const;
+// Confirmed is still pre-warehouse — same "Pending Invoice" view handles
+// both, exactly like the existing invoice page always has for its one
+// Pending status; Confirmed is just an additional sub-state of it.
+const PENDING_STATUSES = ["IN_TRANSIT", "CONFIRMED"] as const;
+const PAYMENT_STATUSES: PaymentStatus[] = ["PAID", "UNPAID"];
 
-/** Shows a vendor order that's confirmed but not yet in the warehouse (status
- * IN_TRANSIT) — either a specific `invoiceId` (navigated to from Order History)
- * or, by default, the vendor's most recent pending one. Backed by the real
- * invoices API. */
+/** Shows a vendor order that hasn't reached the warehouse yet — either a
+ * specific `invoiceId` (navigated to from Order History) or, by default, the
+ * vendor's most recent Pending/Confirmed one. Backed by the real invoices
+ * API. Courier/labor cost/courier cost/payment status are all mandatory to
+ * fill in here before "Order Confirm করুন" will move the status to
+ * Confirmed — confirming locks in the procurement info right then. */
 export function PendingInvoiceSection({
   vendorId,
   invoiceId,
@@ -31,7 +45,56 @@ export function PendingInvoiceSection({
   onNavigateSection: NavigateToSection;
 }) {
   const { invoice, isLoading, hasTarget } = useSectionInvoice(vendorId, PENDING_STATUSES, invoiceId);
+  const confirmOrder = useConfirmOrder(invoice?.id ?? "");
   const markReceived = useMarkReceived();
+  const { data: couriers, isLoading: couriersLoading } = useCouriers();
+  const activeCouriers = (couriers ?? []).filter((c) => c.status === "ACTIVE");
+
+  const [courierId, setCourierId] = useState("");
+  const [courierTouched, setCourierTouched] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | "">("");
+  const [paymentStatusTouched, setPaymentStatusTouched] = useState(false);
+  const [laborCost, setLaborCost] = useState("");
+  const [laborCostTouched, setLaborCostTouched] = useState(false);
+  const [courierCost, setCourierCost] = useState("");
+  const [courierCostTouched, setCourierCostTouched] = useState(false);
+
+  // Pre-fill from the invoice's own current values each time a different
+  // invoice is loaded — `!= null` (not a truthy check) so an already-saved
+  // 0 cost shows as "0", not blank.
+  useEffect(() => {
+    setCourierId(invoice?.courierId ?? "");
+    setCourierTouched(false);
+    setPaymentStatus(invoice?.paymentStatus ?? "");
+    setPaymentStatusTouched(false);
+    setLaborCost(invoice?.laborCost != null ? String(invoice.laborCost) : "");
+    setLaborCostTouched(false);
+    setCourierCost(invoice?.courierCost != null ? String(invoice.courierCost) : "");
+    setCourierCostTouched(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoice?.id]);
+
+  const grandTotal = (invoice?.totalAmount ?? 0) + (Number(laborCost) || 0) + (Number(courierCost) || 0);
+
+  const missingProcurementInfo =
+    !courierId || !paymentStatus || laborCost.trim() === "" || courierCost.trim() === "";
+
+  const handleConfirmOrder = () => {
+    if (!invoice) return;
+    if (missingProcurementInfo) {
+      setCourierTouched(true);
+      setPaymentStatusTouched(true);
+      setLaborCostTouched(true);
+      setCourierCostTouched(true);
+      return;
+    }
+    confirmOrder.mutate({
+      courierId,
+      paymentStatus: paymentStatus as PaymentStatus,
+      laborCost: Math.max(0, Number(laborCost) || 0),
+      courierCost: Math.max(0, Number(courierCost) || 0),
+    });
+  };
 
   const handleReceiveGoods = async () => {
     if (!invoice) return;
@@ -94,9 +157,95 @@ export function PendingInvoiceSection({
           </div>
         </div>
 
-        <div className="border-b border-line px-4 py-4 sm:px-5">
-          <OrderStepper status={invoice.status} />
-        </div>
+        {/* Step 2 fields — all mandatory to confirm (see missingProcurementInfo).
+         * Only editable while still Pending; once confirmed, edit them on
+         * the Warehouse Receive page instead. */}
+        {invoice.status === "IN_TRANSIT" && (
+          <div className="grid grid-cols-1 gap-3 border-b border-line px-4 py-3.5 sm:grid-cols-2 sm:px-5 sm:py-4 lg:grid-cols-4">
+            <div>
+              <Label htmlFor="pending-courier">কুরিয়ার *</Label>
+              <SearchableProductSelect
+                id="pending-courier"
+                products={activeCouriers.map((c) => ({ id: c.id, name: c.name }))}
+                value={courierId}
+                onChange={(id) => {
+                  setCourierId(id);
+                  if (id) setCourierTouched(false);
+                }}
+                placeholder="কুরিয়ার নির্বাচন করুন..."
+                isLoading={couriersLoading}
+                invalid={courierTouched && !courierId}
+                emptyMessage="কোনো অ্যাক্টিভ কুরিয়ার পাওয়া যায়নি।"
+              />
+              {courierTouched && !courierId && (
+                <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ একটি কুরিয়ার নির্বাচন করুন।</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="pending-payment-status">পেমেন্ট স্ট্যাটাস *</Label>
+              <Select
+                value={paymentStatus}
+                onValueChange={(v) => {
+                  setPaymentStatus(v as PaymentStatus);
+                  setPaymentStatusTouched(false);
+                }}
+              >
+                <SelectTrigger
+                  id="pending-payment-status"
+                  className={cn(paymentStatusTouched && !paymentStatus && "border-red")}
+                >
+                  <SelectValue placeholder="নির্বাচন করুন" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {PAYMENT_STATUS_LABEL_BN[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {paymentStatusTouched && !paymentStatus && (
+                <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ পেমেন্ট স্ট্যাটাস নির্বাচন করুন।</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="pending-labor-cost">লেবার কস্ট *</Label>
+              <Input
+                id="pending-labor-cost"
+                type="number"
+                min={0}
+                placeholder="০"
+                value={laborCost}
+                invalid={laborCostTouched && laborCost.trim() === ""}
+                onChange={(e) => {
+                  setLaborCost(e.target.value);
+                  if (e.target.value.trim() !== "") setLaborCostTouched(false);
+                }}
+              />
+              {laborCostTouched && laborCost.trim() === "" && (
+                <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ লেবার কস্ট লিখুন (না থাকলে ০)।</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="pending-courier-cost">কুরিয়ার কস্ট *</Label>
+              <Input
+                id="pending-courier-cost"
+                type="number"
+                min={0}
+                placeholder="০"
+                value={courierCost}
+                invalid={courierCostTouched && courierCost.trim() === ""}
+                onChange={(e) => {
+                  setCourierCost(e.target.value);
+                  if (e.target.value.trim() !== "") setCourierCostTouched(false);
+                }}
+              />
+              {courierCostTouched && courierCost.trim() === "" && (
+                <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ কুরিয়ার কস্ট লিখুন (না থাকলে ০)।</p>
+              )}
+            </div>
+          </div>
+        )}
 
         <Table>
           <TableHeader>
@@ -129,20 +278,41 @@ export function PendingInvoiceSection({
           <span className="text-gray">মোট কোয়ান্টিটি</span>
           <span className="font-semibold">{totalQuantity} পিস</span>
         </div>
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">প্রোডাক্ট টোটাল</span>
+          <span className="font-semibold">{formatBDT(invoice.totalAmount)}</span>
+        </div>
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">লেবার কস্ট</span>
+          <span className="font-semibold">{formatBDT(Number(laborCost) || 0)}</span>
+        </div>
+        <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
+          <span className="text-gray">কুরিয়ার কস্ট</span>
+          <span className="font-semibold">{formatBDT(Number(courierCost) || 0)}</span>
+        </div>
         <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
           <span className="font-serif text-sm text-teal-dark sm:text-base">গ্র্যান্ড টোটাল</span>
-          <span className="font-mono text-base font-bold text-brass sm:text-lg">
-            {formatBDT(invoice.totalAmount)}
-          </span>
+          <span className="font-mono text-base font-bold text-brass sm:text-lg">{formatBDT(grandTotal)}</span>
         </div>
       </div>
 
       <InvoicePrintView invoice={invoice} />
 
       <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
-        <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleReceiveGoods}>
-          <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />প্রোডাক্ট রিসিভ করুন
-        </Button>
+        {/* Receiving only makes sense once the order's been confirmed — while
+         * still Pending, confirm it first. */}
+        {invoice.status === "CONFIRMED" && (
+          <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleReceiveGoods}>
+            <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />প্রোডাক্ট রিসিভ করুন
+          </Button>
+        )}
+        {/* Step 2 — courier/costs/payment status above are all mandatory;
+         * clicking this while any are missing just marks them invalid. */}
+        {invoice.status === "IN_TRANSIT" && (
+          <Button type="button" variant="brass" disabled={confirmOrder.isPending} onClick={handleConfirmOrder}>
+            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />ভেন্ডর Order Confirm করেছেন
+          </Button>
+        )}
         <Button type="button" variant="ghost" onClick={handleDownload}>
           <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> ইনভয়েস ডাউনলোড (PDF)
         </Button>

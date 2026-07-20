@@ -22,6 +22,15 @@ export default function NewVendorOrderPage() {
     return <EmptyState title="ভেন্ডর পাওয়া যায়নি" />;
   }
 
+  if (vendor.status === "INACTIVE") {
+    return (
+      <EmptyState
+        title="ইনঅ্যাক্টিভ ভেন্ডরের জন্য নতুন অর্ডার তৈরি করা যাবে না"
+        description="নতুন অর্ডার তৈরি করতে হলে আগে এই ভেন্ডরকে সক্রিয় করুন।"
+      />
+    );
+  }
+
   return (
     <>
       <Breadcrumb

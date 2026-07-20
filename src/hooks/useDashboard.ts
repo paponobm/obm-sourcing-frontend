@@ -133,7 +133,9 @@ export function useOrderStats(filters: OrderStatsFilters = {}) {
 
       return {
         totalOrders: page.data.length,
-        pendingOrders: countFor("IN_TRANSIT"),
+        // Confirmed is still pre-warehouse — grouped with Pending here the
+        // same way the Pending Invoice view treats both as one list.
+        pendingOrders: countFor("IN_TRANSIT") + countFor("CONFIRMED"),
         receivedOrders: countFor("RECEIVED") + countFor("VERIFIED"),
         closedOrders: countFor("CLOSED"),
         discrepancyOrders: countFor("DISCREPANCY"),

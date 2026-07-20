@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { invoiceService } from "@/services/invoice.service";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { CreateInvoiceInput, ReceiveCheckInput } from "@/types/invoice.types";
+import type { CreateInvoiceInput, ConfirmOrderInput, ReceiveCheckInput } from "@/types/invoice.types";
 
 const INVOICES_KEY = ["invoices"] as const;
 
@@ -41,6 +41,21 @@ export function useCreateInvoice(vendorId: string) {
       toast.success("অর্ডার তৈরি করা হয়েছে — ইনভয়েস তৈরি হয়েছে");
     },
     onError: (error) => toast.error(getApiErrorMessage(error, "অর্ডার তৈরি করা যায়নি")),
+  });
+}
+
+/** Step 2 (optional) — saves courier/costs/payment status on a still-Pending
+ * invoice without changing its status. */
+export function useConfirmOrder(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: ConfirmOrderInput) => invoiceService.confirmOrder(id, input),
+    onSuccess: (invoice) => {
+      queryClient.invalidateQueries({ queryKey: [...INVOICES_KEY, id] });
+      queryClient.invalidateQueries({ queryKey: [...INVOICES_KEY, "vendor", invoice.vendorId] });
+      toast.success("অর্ডার কনফার্ম করা হয়েছে");
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, "অর্ডার কনফার্ম করা যায়নি")),
   });
 }
 
