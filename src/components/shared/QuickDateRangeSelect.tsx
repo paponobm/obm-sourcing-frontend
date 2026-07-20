@@ -7,11 +7,10 @@ import {
   type QuickDateRangeOption,
 } from "@/utils/quick-date-range";
 
-const OPTIONS: { value: QuickDateRangeOption; label: string }[] = [
+const OPTIONS: { value: Exclude<QuickDateRangeOption, "custom">; label: string }[] = [
   { value: "today", label: "আজ" },
   { value: "thisWeek", label: "এই সপ্তাহ" },
   { value: "thisMonth", label: "এই মাস" },
-  { value: "custom", label: "কাস্টম" },
 ];
 
 /** Sits beside an existing Start/End date input pair. Its displayed value is

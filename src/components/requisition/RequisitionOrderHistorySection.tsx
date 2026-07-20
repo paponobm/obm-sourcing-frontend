@@ -9,6 +9,7 @@ import {
   RequisitionOrderHistoryTable,
   type RequisitionOrderHistorySortColumn,
 } from "./RequisitionOrderHistoryTable";
+import { RequisitionDetailModal } from "./RequisitionDetailModal";
 import { useRequisitionOrderHistory } from "@/hooks/useRequisitions";
 import { useDebounce } from "@/hooks/use-debounce";
 import type { OrderStatus } from "@/types/invoice.types";
@@ -31,6 +32,7 @@ export function RequisitionOrderHistorySection() {
   const [sortColumn, setSortColumn] = useState<RequisitionOrderHistorySortColumn>("orderedAt");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     let result = rows ?? [];
@@ -122,7 +124,10 @@ export function RequisitionOrderHistorySection() {
         sortColumn={sortColumn}
         sortDirection={sortDirection}
         onSortChange={handleSortChange}
+        onViewDetails={setDetailId}
       />
+
+      <RequisitionDetailModal requisitionId={detailId} onOpenChange={(open) => !open && setDetailId(null)} />
     </>
   );
 }

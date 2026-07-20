@@ -9,8 +9,8 @@ export const VENDOR_STATUS_LABEL_BN: Record<VendorStatus, string> = {
 };
 
 export const PAYMENT_STATUS_LABEL_BN: Record<PaymentStatus, string> = {
-  PAID: "পরিশোধিত",
-  UNPAID: "অপরিশোধিত",
+  PAID: "PAID",
+  UNPAID: "DUE",
 };
 
 export function vendorStatusBadgeVariant(status: VendorStatus): "active" | "inactive" {
@@ -63,7 +63,7 @@ export const PRODUCT_ACTIVITY_ACTION_LABEL_BN: Record<ProductActivityActionType,
 
 export const ORDER_STATUS_LABEL_BN: Record<OrderStatus, string> = {
   IN_TRANSIT: "পেন্ডিং",
-  CONFIRMED: "কনফার্মড",
+  CONFIRMED: "পথে আছে",
   RECEIVED: "রিসিভড",
   DISCREPANCY: "ডিসক্রেপান্সি",
   VERIFIED: "ভেরিফায়েড",

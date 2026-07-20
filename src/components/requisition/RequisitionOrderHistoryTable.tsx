@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { History } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import { ROUTES } from "@/constants/routes";
@@ -20,6 +22,7 @@ export function RequisitionOrderHistoryTable({
   sortColumn,
   sortDirection,
   onSortChange,
+  onViewDetails,
 }: {
   rows: RequisitionOrderHistoryRow[];
   total: number;
@@ -28,6 +31,7 @@ export function RequisitionOrderHistoryTable({
   sortColumn: RequisitionOrderHistorySortColumn;
   sortDirection: SortDirection;
   onSortChange: (column: string) => void;
+  onViewDetails: (requisitionId: string) => void;
 }) {
   const columns: DataTableColumn<RequisitionOrderHistoryRow>[] = [
     {
@@ -46,21 +50,11 @@ export function RequisitionOrderHistoryTable({
       ),
     },
     {
-      key: "products",
-      header: "প্রোডাক্ট",
-      render: (r) => r.items.map((i) => i.productName).join(", "),
-    },
-    {
       key: "quantity",
       header: "পরিমাণ",
       render: (r) => `${toBnDigits(r.items.reduce((sum, i) => sum + i.orderedQty, 0))} টি`,
     },
     { key: "orderedAt", header: "অর্ডার তারিখ", sortable: true, render: (r) => <span className="text-gray">{formatBnDate(r.orderedAt)}</span> },
-    {
-      key: "receivedAt",
-      header: "ডেলিভারি তারিখ",
-      render: (r) => <span className="text-gray">{r.receivedAt ? formatBnDate(r.receivedAt) : "–"}</span>,
-    },
     { key: "status", header: "স্ট্যাটাস", render: (r) => <OrderStatusBadge status={r.status} /> },
     {
       key: "invoiceNumber",
@@ -69,6 +63,15 @@ export function RequisitionOrderHistoryTable({
         <Link href={ROUTES.invoiceDetail(r.invoiceId)} className="font-mono text-teal hover:underline">
           {r.invoiceNumber}
         </Link>
+      ),
+    },
+    {
+      key: "details",
+      header: "",
+      render: (r) => (
+        <Button type="button" variant="ghost" size="sm" onClick={() => onViewDetails(r.requisitionId)}>
+          <History className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> বিস্তারিত
+        </Button>
       ),
     },
   ];
