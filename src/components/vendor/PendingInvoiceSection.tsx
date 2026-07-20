@@ -261,6 +261,7 @@ export function PendingInvoiceSection({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10 text-center">ক্রমিক</TableHead>
               <TableHead>প্রোডাক্ট</TableHead>
               <TableHead>ভেন্ডর প্রাইস</TableHead>
               <TableHead>অর্ডার QTY</TableHead>
@@ -268,8 +269,9 @@ export function PendingInvoiceSection({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoice.items.map((item) => (
+            {invoice.items.map((item, index) => (
               <TableRow key={item.id}>
+                <TableCell className="text-center text-gray">{index + 1}</TableCell>
                 <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">{item.productName}</TableCell>
                 <TableCell className="font-mono text-brass">{formatBDT(item.priceAtOrder)}</TableCell>
                 <TableCell>{item.orderedQty}</TableCell>

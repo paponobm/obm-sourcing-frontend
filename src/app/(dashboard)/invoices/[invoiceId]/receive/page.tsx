@@ -224,6 +224,7 @@ export default function ReceiveCheckPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10 text-center">ক্রমিক</TableHead>
               <TableHead>প্রোডাক্ট</TableHead>
               <TableHead>অর্ডার QTY</TableHead>
               <TableHead>রিসিভড QTY</TableHead>
@@ -232,7 +233,7 @@ export default function ReceiveCheckPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map((item) => {
+            {items.map((item, index) => {
               const row = getRow(item.id, item.orderedQty, item.receivedQty);
               const receivedQty = Number(row.receivedQty || 0);
               const diff = receivedQty - item.orderedQty;
@@ -240,6 +241,7 @@ export default function ReceiveCheckPage() {
 
               return (
                 <TableRow key={item.id} className={cn(matched ? "bg-green-soft" : "bg-[#f6e5e2]")}>
+                  <TableCell className="text-center text-gray">{index + 1}</TableCell>
                   <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
                     {item.productName}
                   </TableCell>

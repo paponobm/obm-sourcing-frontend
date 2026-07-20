@@ -9,10 +9,12 @@ import { CHART_COLORS } from "@/components/dashboard/chart-colors";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { QuickDateRangeSelect } from "@/components/shared/QuickDateRangeSelect";
 import { useOrderStats } from "@/hooks/useDashboard";
 import { useVendors } from "@/hooks/useVendors";
 import { formatBDT } from "@/utils/currency";
 import { ORDER_STATUS_LABEL_BN } from "@/utils/status";
+import { getQuickDateRange } from "@/utils/quick-date-range";
 import type { OrderStatus } from "@/types/invoice.types";
 
 const ORDER_STATUSES: OrderStatus[] = ["IN_TRANSIT", "RECEIVED", "DISCREPANCY", "VERIFIED", "CLOSED"];
@@ -21,10 +23,11 @@ const ORDER_STATUSES: OrderStatus[] = ["IN_TRANSIT", "RECEIVED", "DISCREPANCY", 
  * `useOrderStats` query, independent of every other section. Unlike the real
  * Order Management page's `useOrderSummary` (always the full unfiltered
  * snapshot), this aggregates the existing filterable `/invoices` list
- * endpoint client-side so these filters actually narrow the numbers. */
+ * endpoint client-side so these filters actually narrow the numbers. Date
+ * range defaults to Today (see QuickDateRangeSelect). */
 export function OrdersSection() {
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState(() => getQuickDateRange("today").dateFrom);
+  const [dateTo, setDateTo] = useState(() => getQuickDateRange("today").dateTo);
   const [status, setStatus] = useState<OrderStatus | "all">("all");
   const [vendorId, setVendorId] = useState("");
 
@@ -44,6 +47,7 @@ export function OrdersSection() {
         <>
           <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-36" aria-label="শুরুর তারিখ" />
           <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-36" aria-label="শেষ তারিখ" />
+          <QuickDateRangeSelect dateFrom={dateFrom} dateTo={dateTo} onDateFromChange={setDateFrom} onDateToChange={setDateTo} />
           <Select value={status} onValueChange={(v) => setStatus(v as OrderStatus | "all")}>
             <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
             <SelectContent>

@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { QuickDateRangeSelect } from "@/components/shared/QuickDateRangeSelect";
 import { useVendors } from "@/hooks/useVendors";
 import { useUsers } from "@/hooks/useUsers";
 import { ORDER_STATUS_LABEL_BN } from "@/utils/status";
@@ -102,6 +103,13 @@ export function OrderAdvancedFilters({
           onChange={(e) => onDateToChange(e.target.value)}
           className="sm:w-40"
           aria-label="শেষ তারিখ"
+        />
+        <QuickDateRangeSelect
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateFromChange={onDateFromChange}
+          onDateToChange={onDateToChange}
+          className="sm:w-32"
         />
       </div>
 

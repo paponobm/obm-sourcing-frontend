@@ -237,6 +237,7 @@ export default function InvoiceDetailPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10 text-center">ক্রমিক</TableHead>
               <TableHead>প্রোডাক্ট</TableHead>
               <TableHead>দাম/পিস</TableHead>
               <TableHead>অর্ডার QTY</TableHead>
@@ -245,8 +246,9 @@ export default function InvoiceDetailPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoice.items.map((item) => (
+            {invoice.items.map((item, index) => (
               <TableRow key={item.id}>
+                <TableCell className="text-center text-gray">{index + 1}</TableCell>
                 <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
                   {item.productName}
                 </TableCell>

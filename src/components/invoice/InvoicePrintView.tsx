@@ -1,4 +1,5 @@
 import { formatBnDate } from "@/utils/date";
+import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
 import type { Invoice } from "@/types/invoice.types";
 
 const COMPANY_NAME = "OBM সোর্সিং";
@@ -13,9 +14,10 @@ const COMPANY_NAME = "OBM সোর্সিং";
  * Deliberately excludes anything price- or workflow-related (line totals,
  * grand total, order status, tracking steps, vendor rating, internal notes) —
  * this is a dispatch/goods-note style document for physical hand-off, not a
- * screen for tracking order state. To add another printable field, extend the
- * header grid or the table columns below; nothing outside this file needs to
- * change.
+ * screen for tracking order state. Payment status is the one exception,
+ * since a courier/warehouse needs to know that on sight. To add another
+ * printable field, extend the header grid or the table columns below;
+ * nothing outside this file needs to change.
  */
 export function InvoicePrintView({ invoice }: { invoice: Invoice }) {
   return (
@@ -33,6 +35,9 @@ export function InvoicePrintView({ invoice }: { invoice: Invoice }) {
         <div className="text-right text-sm text-black">
           <div className="font-mono font-bold">INVOICE #{invoice.invoiceNumber}</div>
           <div>তারিখ: {formatBnDate(invoice.orderedAt)}</div>
+          <div>
+            পেমেন্ট স্ট্যাটাস: {invoice.paymentStatus ? PAYMENT_STATUS_LABEL_BN[invoice.paymentStatus] : "—"}
+          </div>
         </div>
       </div>
 

@@ -176,6 +176,7 @@ export function OrderCreatePanel({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10 text-center">ক্রমিক</TableHead>
                 <TableHead className="w-10" />
                 <TableHead>প্রোডাক্ট</TableHead>
                 <TableHead>ইউনিট</TableHead>
@@ -186,7 +187,7 @@ export function OrderCreatePanel({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {displayedProducts.map((p) => {
+              {displayedProducts.map((p, index) => {
                 const row = getRow(p.productId);
                 const qty = Number(row.qty || 0);
                 const canOrder = p.productStatus === "ACTIVE";
@@ -194,6 +195,7 @@ export function OrderCreatePanel({
                 const priceChanged = priceDraft !== "" && Number(priceDraft) >= 0 && Number(priceDraft) !== p.price;
                 return (
                   <TableRow key={p.productId}>
+                    <TableCell className="text-center text-gray">{index + 1}</TableCell>
                     <TableCell>
                       <input
                         type="checkbox"

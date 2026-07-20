@@ -3,6 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchBox } from "@/components/shared/SearchBox";
+import { QuickDateRangeSelect } from "@/components/shared/QuickDateRangeSelect";
 import { ORDER_STATUS_LABEL_BN } from "@/utils/status";
 import type { OrderStatus } from "@/types/invoice.types";
 
@@ -60,6 +61,13 @@ export function OrderHistoryFilters({
           onChange={(e) => onDateToChange(e.target.value)}
           className="sm:w-40"
           aria-label="শেষ তারিখ"
+        />
+        <QuickDateRangeSelect
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateFromChange={onDateFromChange}
+          onDateToChange={onDateToChange}
+          className="sm:w-32"
         />
       </div>
     </div>

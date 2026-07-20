@@ -9,17 +9,20 @@ import { CHART_COLORS } from "@/components/dashboard/chart-colors";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { QuickDateRangeSelect } from "@/components/shared/QuickDateRangeSelect";
 import { useProductStats } from "@/hooks/useDashboard";
 import { useCategories } from "@/hooks/useCategories";
+import { getQuickDateRange } from "@/utils/quick-date-range";
 
 type ProductStatusFilter = "all" | "ACTIVE" | "INACTIVE";
 
 /** Fully self-contained — its own date/category/status filter state, its own
  * `useProductStats` query. Changing any filter here only re-fetches this
- * section (a new React Query key), never touches Vendors/Orders/Requisitions. */
+ * section (a new React Query key), never touches Vendors/Orders/Requisitions.
+ * Date range defaults to Today (see QuickDateRangeSelect). */
 export function ProductsSection() {
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState(() => getQuickDateRange("today").dateFrom);
+  const [dateTo, setDateTo] = useState(() => getQuickDateRange("today").dateTo);
   const [categoryId, setCategoryId] = useState("");
   const [status, setStatus] = useState<ProductStatusFilter>("all");
 
@@ -39,6 +42,7 @@ export function ProductsSection() {
         <>
           <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-36" aria-label="শুরুর তারিখ" />
           <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-36" aria-label="শেষ তারিখ" />
+          <QuickDateRangeSelect dateFrom={dateFrom} dateTo={dateTo} onDateFromChange={setDateFrom} onDateToChange={setDateTo} />
           <Select value={categoryId || "all"} onValueChange={(v) => setCategoryId(v === "all" ? "" : v)}>
             <SelectTrigger className="w-40"><SelectValue placeholder="ক্যাটাগরি" /></SelectTrigger>
             <SelectContent>

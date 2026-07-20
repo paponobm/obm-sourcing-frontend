@@ -313,6 +313,7 @@ export function WarehouseReceiveCheckSection({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10 text-center">ক্রমিক</TableHead>
               <TableHead>প্রোডাক্ট</TableHead>
               <TableHead>অর্ডার QTY</TableHead>
               <TableHead>রিসিভড QTY</TableHead>
@@ -321,10 +322,11 @@ export function WarehouseReceiveCheckSection({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rowsWithStatus.map(({ item, row, receivedQtyNum, status }) => {
+            {rowsWithStatus.map(({ item, row, receivedQtyNum, status }, index) => {
               const diff = receivedQtyNum - item.orderedQty;
               return (
                 <TableRow key={item.id} className={ROW_BG[status]}>
+                  <TableCell className="text-center text-gray">{index + 1}</TableCell>
                   <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">{item.productName}</TableCell>
                   <TableCell>{item.orderedQty}</TableCell>
                   <TableCell>

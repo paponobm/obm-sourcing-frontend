@@ -9,7 +9,9 @@ import { CHART_COLORS } from "@/components/dashboard/chart-colors";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { QuickDateRangeSelect } from "@/components/shared/QuickDateRangeSelect";
 import { useRequisitionSummary } from "@/hooks/useRequisitions";
+import { getQuickDateRange } from "@/utils/quick-date-range";
 
 type RequisitionStatusFilter = "all" | "PENDING" | "CONFIRMED" | "ORDERED" | "CANCELLED";
 
@@ -21,10 +23,11 @@ const STATUS_LABEL: Record<Exclude<RequisitionStatusFilter, "all">, string> = {
 };
 
 /** Fully self-contained — its own date/status filter state, its own
- * `useRequisitionSummary` query, independent of every other section. */
+ * `useRequisitionSummary` query, independent of every other section. Date
+ * range defaults to Today (see QuickDateRangeSelect). */
 export function RequisitionsSection() {
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState(() => getQuickDateRange("today").dateFrom);
+  const [dateTo, setDateTo] = useState(() => getQuickDateRange("today").dateTo);
   const [status, setStatus] = useState<RequisitionStatusFilter>("all");
 
   const { data: summary, isLoading } = useRequisitionSummary({
@@ -41,6 +44,7 @@ export function RequisitionsSection() {
         <>
           <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-36" aria-label="শুরুর তারিখ" />
           <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-36" aria-label="শেষ তারিখ" />
+          <QuickDateRangeSelect dateFrom={dateFrom} dateTo={dateTo} onDateFromChange={setDateFrom} onDateToChange={setDateTo} />
           <Select value={status} onValueChange={(v) => setStatus(v as RequisitionStatusFilter)}>
             <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
             <SelectContent>
