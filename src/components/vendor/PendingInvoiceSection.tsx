@@ -143,7 +143,7 @@ export function PendingInvoiceSection({
   return (
     <>
       {sectionTitle}
-      <div className="border-b border-line px-4 py-4 sm:px-5 pb-10">
+      <div className="print:hidden border-b border-line px-4 py-4 sm:px-5 pb-10">
         <OrderStepper status={invoice.status} />
       </div>
       <Card className="print:hidden">
