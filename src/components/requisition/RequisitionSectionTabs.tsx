@@ -38,11 +38,15 @@ export function RequisitionSectionTabs({
               type="button"
               onClick={() => onChange(tab.key)}
               className={cn(
-                "shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out sm:px-4 sm:text-sm",
-                isActive ? "bg-teal text-white shadow-md" : "bg-paper-2 text-ink hover:bg-line",
+                "shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs transition-all duration-300 ease-in-out sm:px-4 sm:text-sm",
+                isActive
+                  ? "bg-teal text-white shadow-md"
+                  : "bg-paper-2 text-ink hover:bg-line",
               )}
             >
-              {tab.label}
+              <span className="font-mono font-semibold">
+                {tab.label}
+              </span>
             </button>
           );
         })}

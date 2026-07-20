@@ -143,7 +143,7 @@ export function PendingInvoiceSection({
   return (
     <>
       {sectionTitle}
-      <div className="print:hidden border-b border-line px-4 py-4 sm:px-5 pb-10">
+      <div className="border-b border-line px-4 py-4 sm:px-5 pb-10">
         <OrderStepper status={invoice.status} />
       </div>
       <Card className="print:hidden">
@@ -281,23 +281,23 @@ export function PendingInvoiceSection({
       <div className="mt-3.5 flex flex-col items-end gap-1 text-xs print:hidden sm:mt-4 sm:text-sm">
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট প্রোডাক্ট</span>
-          <span className="font-semibold">{totalProducts} টি</span>
+          <span className="font-mono">{totalProducts} টি</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট কোয়ান্টিটি</span>
-          <span className="font-semibold">{totalQuantity} পিস</span>
+          <span className="font-mono">{totalQuantity} পিস</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">প্রোডাক্ট টোটাল</span>
-          <span className="font-semibold">{formatBDT(invoice.totalAmount)}</span>
+          <span className="font-mono">{formatBDT(invoice.totalAmount)}</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">লেবার কস্ট</span>
-          <span className="font-semibold">{formatBDT(Number(laborCost) || 0)}</span>
+          <span className="font-mono">{formatBDT(Number(laborCost) || 0)}</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">কুরিয়ার কস্ট</span>
-          <span className="font-semibold">{formatBDT(Number(courierCost) || 0)}</span>
+          <span className="font-mono ">{formatBDT(Number(courierCost) || 0)}</span>
         </div>
         <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
           <span className="font-serif text-sm text-teal-dark sm:text-base">গ্র্যান্ড টোটাল</span>
