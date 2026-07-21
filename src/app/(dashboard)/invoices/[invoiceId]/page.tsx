@@ -251,6 +251,7 @@ export default function InvoiceDetailPage() {
               <TableHead>দাম/পিস</TableHead>
               <TableHead>অর্ডার QTY</TableHead>
               {showReceivedColumn && <TableHead>রিসিভড QTY</TableHead>}
+              {showReceivedColumn && <TableHead>মন্তব্য</TableHead>}
               <TableHead>লাইন টোটাল</TableHead>
             </TableRow>
           </TableHeader>
@@ -264,6 +265,7 @@ export default function InvoiceDetailPage() {
                 <TableCell className="font-mono text-brass">{priceText(item.priceAtOrder)}</TableCell>
                 <TableCell>{item.orderedQty}</TableCell>
                 {showReceivedColumn && <TableCell>{item.receivedQty ?? "–"}</TableCell>}
+                {showReceivedColumn && <TableCell className="text-gray">{item.remark || "–"}</TableCell>}
                 <TableCell className="font-mono font-bold text-brass">{priceText(item.lineTotal)}</TableCell>
               </TableRow>
             ))}
@@ -331,6 +333,59 @@ export default function InvoiceDetailPage() {
         </div>
       )}
 
+      {/* Only appears once a Manager has actually verified this order —
+       * shows the exact data their receive-check submitted, plus Admin's
+       * own Approve & Close info once that's happened too. */}
+      {invoice.verifiedAt && (
+        <Card className="mt-3.5 print:hidden sm:mt-4">
+          <div className="border-b border-line px-4 py-3 sm:px-5 sm:py-3.5">
+            <h3 className="m-0 font-serif text-sm text-teal-dark sm:text-base">ভেরিফিকেশন তথ্য</h3>
+          </div>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-2.5 px-4 py-3.5 text-xs sm:grid-cols-2 sm:px-5 sm:py-4 sm:text-sm lg:grid-cols-3">
+            <div>
+              <div className="text-gray">ভেরিফাই করেছেন</div>
+              <div className="font-semibold text-ink">{invoice.verifiedByName ?? "—"} (Manager)</div>
+            </div>
+            <div>
+              <div className="text-gray">ভেরিফিকেশন তারিখ</div>
+              <div className="font-semibold text-ink">{formatBnDate(invoice.verifiedAt)}</div>
+            </div>
+            <div>
+              <div className="text-gray">কুরিয়ার</div>
+              <div className="font-semibold text-ink">{invoice.courierName ?? "—"}</div>
+            </div>
+            <div>
+              <div className="text-gray">পেমেন্ট স্ট্যাটাস</div>
+              <div className="font-semibold text-ink">
+                {invoice.paymentStatus ? PAYMENT_STATUS_LABEL_BN[invoice.paymentStatus] : "—"}
+              </div>
+            </div>
+            <div>
+              <div className="text-gray">লেবার কস্ট</div>
+              <div className="font-mono font-semibold text-ink">{priceText(invoice.laborCost ?? 0)}</div>
+            </div>
+            <div>
+              <div className="text-gray">কুরিয়ার কস্ট</div>
+              <div className="font-mono font-semibold text-ink">{priceText(invoice.courierCost ?? 0)}</div>
+            </div>
+            {invoice.approvedByName && (
+              <>
+                <div>
+                  <div className="text-gray">অনুমোদন ও ক্লোজ করেছেন</div>
+                  <div className="font-semibold text-ink">{invoice.approvedByName} (Admin)</div>
+                </div>
+                <div>
+                  <div className="text-gray">অনুমোদনের সময়</div>
+                  <div className="font-semibold text-ink">
+                    {invoice.closedAt ? formatBnDate(invoice.closedAt) : "—"}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </Card>
+      )}
+
       <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
         {isPreWarehouse && (
           <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleStartReceiveCheck}>
@@ -346,7 +401,8 @@ export default function InvoiceDetailPage() {
           invoice.status === "DISCREPANCY" ||
           (invoice.status === "VERIFIED" && canConfirmOrder)) && (
           <Button type="button" variant="brass" onClick={() => router.push(ROUTES.invoiceReceive(invoiceId))}>
-            <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> রিসিভ চেক চালিয়ে যান
+            <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            {invoice.status === "VERIFIED" ? "অনুমোদন করে ক্লোজ করুন" : "রিসিভ চেক চালিয়ে যান"}
           </Button>
         )}
         <Button type="button" variant="ghost" onClick={() => window.print()}>

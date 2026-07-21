@@ -34,10 +34,12 @@ function getStageStates(status: OrderStatus): StageState[] {
   else if (status === "DISCREPANCY") stage4 = "warning";
   else stage4 = "done"; // VERIFIED | CLOSED
 
-  // Stage 5 — ক্লোজ: done only once actually closed.
+  // Stage 5 — ক্লোজ: done only once actually closed. While VERIFIED, this
+  // sits red/"pending admin approval" — a Manager's own verification never
+  // closes the order, only Super Admin's Approve & Close does.
   let stage5: StageState;
   if (status === "CLOSED") stage5 = "done";
-  else if (status === "VERIFIED") stage5 = "current";
+  else if (status === "VERIFIED") stage5 = "warning";
   else stage5 = "pending";
 
   return [stage1, stage2, stage3, stage4, stage5];
@@ -59,7 +61,7 @@ export function OrderStepper({ status }: { status: OrderStatus }) {
                   "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold sm:h-7 sm:w-7 sm:text-xs lg:h-8 lg:w-8 lg:text-sm",
                   state === "done" && "bg-teal text-white",
                   state === "current" && "bg-brass text-white",
-                  state === "warning" && "bg-red text-white",
+                  state === "warning" && "bg-brass text-white",
                   state === "pending" && "bg-paper-2 text-gray",
                 )}
               >
@@ -70,7 +72,7 @@ export function OrderStepper({ status }: { status: OrderStatus }) {
                   "whitespace-nowrap text-center text-[10px] sm:text-xs lg:text-sm",
                   state === "pending" ? "text-gray" : "text-ink",
                   state === "current" && "font-semibold text-brass",
-                  state === "warning" && "font-semibold text-red",
+                  state === "warning" && "font-semibold text-brass",
                 )}
               >
                 {label}

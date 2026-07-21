@@ -111,7 +111,15 @@ export function OrdersTable({
       header: "",
       render: (o) => (
         <Button asChild type="button" variant="ghost" size="sm" className="ml-auto flex">
-          <Link href={viewHref ? viewHref(o) : `${ROUTES.vendorDetail(o.vendorId)}?tab=${STATUS_SECTION[o.status]}&invoiceId=${o.id}`}>
+          <Link
+            href={
+              viewHref
+                ? viewHref(o)
+                : o.status === "VERIFIED"
+                  ? ROUTES.invoiceReceive(o.id)
+                  : `${ROUTES.vendorDetail(o.vendorId)}?tab=${STATUS_SECTION[o.status]}&invoiceId=${o.id}`
+            }
+          >
             দেখুন
           </Link>
         </Button>

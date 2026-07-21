@@ -1,6 +1,7 @@
 "use client";
 
-import { Download, FileSpreadsheet, Printer } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, Download, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -11,6 +12,7 @@ import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import { OrderStepper } from "@/components/vendor/OrderStepper";
 import { InvoicePrintView } from "@/components/invoice/InvoicePrintView";
 import { useSectionInvoice } from "@/hooks/useSectionInvoice";
+import { ROUTES } from "@/constants/routes";
 import { formatBDT } from "@/utils/currency";
 import { formatBnDate } from "@/utils/date";
 
@@ -57,6 +59,10 @@ export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string
   const totalProducts = invoice.items.length;
   const totalOrderedQty = invoice.items.reduce((sum, item) => sum + item.orderedQty, 0);
   const totalReceivedQty = invoice.items.reduce((sum, item) => sum + (item.receivedQty ?? 0), 0);
+  // Manager's own verification lands here too (see STATUS_SECTION in
+  // OrdersTable.tsx) — still awaiting Admin's Approve & Close from the
+  // Warehouse Receive page, so it's flagged distinctly from a true Close.
+  const isVerifiedPending = invoice.status === "VERIFIED";
 
   const handlePrint = () => window.print();
   const handleDownloadPdf = () => window.print();
@@ -64,7 +70,9 @@ export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string
 
   return (
     <>
-      {sectionTitle}
+      <h2 className="m-0 mb-3.5 font-serif text-base text-teal-dark print:hidden sm:mb-4 sm:text-lg lg:text-[1.1875rem] xl:text-xl">
+        {isVerifiedPending ? "ইনভয়েস (ভেরিফাইড — অ্যাডমিন ক্লোজের অপেক্ষায়)" : "ইনভয়েস (ক্লোজড)"}
+      </h2>
       <Card className="print:hidden">
         <div className="flex flex-col gap-3 border-b border-line px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between sm:px-5 sm:py-4">
           <div>
@@ -163,6 +171,13 @@ export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string
       <InvoicePrintView invoice={invoice} />
 
       <div className="mt-4 flex flex-wrap gap-2 print:hidden sm:mt-5">
+        {isVerifiedPending && (
+          <Button asChild type="button" variant="brass">
+            <Link href={ROUTES.invoiceReceive(invoice.id)}>
+              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> রিভিউ করে ক্লোজ করুন
+            </Link>
+          </Button>
+        )}
         <Button type="button" variant="ghost" onClick={handlePrint}>
           <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> প্রিন্ট ইনভয়েস
         </Button>

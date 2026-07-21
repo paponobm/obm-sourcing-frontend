@@ -49,12 +49,20 @@ export type Invoice = {
   totalAmount: number;
   laborCost: number | null;
   courierCost: number | null;
+  // A Manager's own proposed additional cost, awaiting Super Admin's
+  // Approve & Close — not yet folded into laborCost/courierCost above.
+  managerLaborCost?: number | null;
+  managerCourierCost?: number | null;
   paymentStatus: PaymentStatus | null;
   procurementCost: number | null;
   items: InvoiceItem[];
-  // Not yet populated by the backend (no verifier/notes tracking on Invoice
-  // yet) — declared here so ClosedInvoiceSection can render them once it is.
+  // Set once a Manager's own matched receive-check moves the invoice to
+  // VERIFIED — null for an invoice a Super Admin closed directly.
+  verifiedAt?: string | null;
   verifiedByName?: string | null;
+  // Set once Super Admin's Approve & Close action finalizes a VERIFIED
+  // invoice to CLOSED.
+  approvedByName?: string | null;
   notes?: string | null;
 };
 
