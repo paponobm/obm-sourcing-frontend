@@ -4,12 +4,14 @@ import { cn } from "@/lib/utils";
 
 /** Comma-joined OrderStatus value(s) this tab sets as the active status
  * filter — "" means no filter (All). Pending bundles IN_TRANSIT+CONFIRMED
- * (a Confirmed order still hasn't reached the warehouse), matching Received
- * bundling RECEIVED+VERIFIED — both match the summary cards' own buckets. */
+ * (a Confirmed order still hasn't reached the warehouse) — Received and
+ * Verified are their own separate tabs (a Manager-verified order awaiting
+ * Admin's Close is a distinctly actionable state, not just "received"). */
 const TABS = [
   { key: "", label: "সব" },
   { key: "IN_TRANSIT,CONFIRMED", label: "পেন্ডিং" },
-  { key: "RECEIVED,VERIFIED", label: "রিসিভড" },
+  { key: "RECEIVED", label: "রিসিভড" },
+  { key: "VERIFIED", label: "ভেরিফায়েড" },
   { key: "CLOSED", label: "ক্লোজড" },
   { key: "DISCREPANCY", label: "ডিসক্রেপান্সি" },
 ] as const;

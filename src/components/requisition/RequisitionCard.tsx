@@ -47,7 +47,7 @@ export function RequisitionCard({
               {REQUISITION_PRIORITY_LABEL_BN[requisition.priority]}
             </Badge>
           </div>
-          <div className="mt-1 text-[11px] text-gray sm:text-xs">
+          <div className="mt-1 text-[11px] text-brass sm:text-xs">
             {formatBnDate(requisition.createdAt)} · অনুরোধ করেছেন: {requisition.requestedByName}
           </div>
         </div>

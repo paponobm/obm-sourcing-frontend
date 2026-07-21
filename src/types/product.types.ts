@@ -37,6 +37,7 @@ export type Product = {
   highestPrice: number;
   /** Last-ordered vendor if this product has order history, else the lowest-priced vendor. */
   recommendedVendorId: string | null;
+  createdById: string | null;
   createdAt: string;
   /** Every vendor supplying this product, sorted by price ascending. */
   vendors: ProductVendorEntry[];

@@ -26,6 +26,7 @@ import { CategoryStrip } from "@/components/product/CategoryStrip";
 import { useProducts, useActivateProduct, useDeactivateProduct } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
 import { useHasRole } from "@/hooks/useHasRole";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { MANAGE_CATALOG_ROLES } from "@/constants/roles";
 import { PRODUCT_STATUS_LABEL_BN, productStatusBadgeVariant } from "@/utils/status";
 import type { Product } from "@/types/product.types";
@@ -34,13 +35,18 @@ import type { SortDirection } from "@/types/common.types";
 
 const PAGE_SIZE = 10;
 
-export function AllProductsSection() {
+export function AllProductsSection({ scopeToOwn = false }: { scopeToOwn?: boolean } = {}) {
   const isManager = useHasRole(["MANAGER"]);
+  const { data: currentUser } = useCurrentUser();
   const [search, setSearch] = useState("");
-  // A Manager's own-products view defaults to "all" — the backend expands
-  // that to every status (including still-Pending/Rejected submissions) once
-  // it's scoped to a creator, unlike the Admin catalog's "all" (active+inactive only).
-  const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "all">(isManager ? "all" : "active");
+  // "নিজের প্রোডাক্ট" defaults to "all" — the backend expands that to every
+  // status (including still-Pending/Rejected submissions) once it's scoped
+  // to a creator, unlike the catalog's "all" (active+inactive only). Own
+  // view can also narrow to just pending/rejected, to see exactly what's
+  // been submitted and its current status.
+  const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "all" | "pending" | "rejected">(
+    scopeToOwn ? "all" : "active",
+  );
   const [categoryId, setCategoryId] = useState("");
   const [page, setPage] = useState(1);
   const [sortColumn, setSortColumn] = useState<ProductSortColumn>("name");
@@ -61,6 +67,7 @@ export function AllProductsSection() {
     categoryId: categoryId || undefined,
     sortColumn,
     sortDirection,
+    ownOnly: scopeToOwn || undefined,
   });
 
   const handleSortChange = (column: string) => {
@@ -96,24 +103,32 @@ export function AllProductsSection() {
     },
     { key: "unit", header: "ইউনিট", render: (p) => p.unit },
     { key: "category", header: "ক্যাটাগরি", render: (p) => p.categories.map((c) => c.name).join(", ") },
-    {
-      key: "vendorCount",
-      header: "ভেন্ডর সংখ্যা",
-      sortable: true,
-      render: (p) => `${p.vendorCount} জন`,
-    },
-    {
-      key: "vendors",
-      header: "ভেন্ডর ও দাম",
-      render: (p) => (
-        <ProductVendorPicker
-          recommendedVendorId={p.recommendedVendorId}
-          lowestPrice={p.lowestPrice}
-          highestPrice={p.highestPrice}
-          vendors={p.vendors}
-        />
-      ),
-    },
+    // Manager never sees vendor/price info here, on either tab — not their
+    // own submissions (nothing assigned until Admin approves) and not the
+    // shared catalog either (not their business as a Manager to see/manage
+    // vendor pricing). Admin still sees both, unchanged.
+    ...(isManager
+      ? []
+      : [
+          {
+            key: "vendorCount",
+            header: "ভেন্ডর সংখ্যা",
+            sortable: true,
+            render: (p: Product) => `${p.vendorCount} জন`,
+          },
+          {
+            key: "vendors",
+            header: "ভেন্ডর ও দাম",
+            render: (p: Product) => (
+              <ProductVendorPicker
+                recommendedVendorId={p.recommendedVendorId}
+                lowestPrice={p.lowestPrice}
+                highestPrice={p.highestPrice}
+                vendors={p.vendors}
+              />
+            ),
+          },
+        ]),
     {
       key: "status",
       header: "স্ট্যাটাস",
@@ -122,47 +137,60 @@ export function AllProductsSection() {
     {
       key: "actions",
       header: "",
-      render: (p: Product) => (
-        <div className="flex justify-end gap-1.5">
-          <Button type="button" variant="ghost" size="sm" onClick={() => setHistoryId(p.id)}>
-            <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
-          </Button>
-          {canManage && (
-            <>
+      render: (p: Product) =>
+        isManager ? (
+          // Manager only ever gets an Edit button, and only on their own
+          // product — no activity history, no activate/deactivate (that
+          // toggle is for an already-live catalog product they don't own).
+          // On "সব প্রোডাক্ট" this means most rows show no action at all.
+          <div className="flex justify-end gap-1.5">
+            {canManage && p.createdById === currentUser?.id && (
               <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(p.id)}>
                 <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
               </Button>
-              {p.status === "ACTIVE" ? (
-                <ConfirmDialog
-                  trigger={
-                    <Button type="button" variant="ghost" size="sm">
-                      <Ban className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
-                    </Button>
-                  }
-                  title="প্রোডাক্টটি নিষ্ক্রিয় করবেন?"
-                  description={`আপনি কি নিশ্চিত "${p.name}" নিষ্ক্রিয় করতে চান?`}
-                  confirmLabel="নিষ্ক্রিয় করুন"
-                  onConfirm={() => deactivateProduct.mutate(p.id)}
-                  isLoading={deactivateProduct.isPending}
-                />
-              ) : (
-                <ConfirmDialog
-                  trigger={
-                    <Button type="button" variant="ghost" size="sm">
-                      <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
-                    </Button>
-                  }
-                  title="প্রোডাক্টটি সক্রিয় করবেন?"
-                  description={`আপনি কি নিশ্চিত "${p.name}" সক্রিয় করতে চান?`}
-                  confirmLabel="সক্রিয় করুন"
-                  onConfirm={() => activateProduct.mutate(p.id)}
-                  isLoading={activateProduct.isPending}
-                />
-              )}
-            </>
-          )}
-        </div>
-      ),
+            )}
+          </div>
+        ) : (
+          <div className="flex justify-end gap-1.5">
+            <Button type="button" variant="ghost" size="sm" onClick={() => setHistoryId(p.id)}>
+              <History className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+            </Button>
+            {canManage && (
+              <>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(p.id)}>
+                  <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                </Button>
+                {p.status === "ACTIVE" ? (
+                  <ConfirmDialog
+                    trigger={
+                      <Button type="button" variant="ghost" size="sm">
+                        <Ban className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                      </Button>
+                    }
+                    title="প্রোডাক্টটি নিষ্ক্রিয় করবেন?"
+                    description={`আপনি কি নিশ্চিত "${p.name}" নিষ্ক্রিয় করতে চান?`}
+                    confirmLabel="নিষ্ক্রিয় করুন"
+                    onConfirm={() => deactivateProduct.mutate(p.id)}
+                    isLoading={deactivateProduct.isPending}
+                  />
+                ) : (
+                  <ConfirmDialog
+                    trigger={
+                      <Button type="button" variant="ghost" size="sm">
+                        <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                      </Button>
+                    }
+                    title="প্রোডাক্টটি সক্রিয় করবেন?"
+                    description={`আপনি কি নিশ্চিত "${p.name}" সক্রিয় করতে চান?`}
+                    confirmLabel="সক্রিয় করুন"
+                    onConfirm={() => activateProduct.mutate(p.id)}
+                    isLoading={activateProduct.isPending}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        ),
     },
   ];
 
@@ -181,7 +209,7 @@ export function AllProductsSection() {
             <Select
               value={statusFilter}
               onValueChange={(v) => {
-                setStatusFilter(v as "active" | "inactive" | "all");
+                setStatusFilter(v as "active" | "inactive" | "all" | "pending" | "rejected");
                 setPage(1);
               }}
             >
@@ -191,6 +219,8 @@ export function AllProductsSection() {
               <SelectContent>
                 <SelectItem value="active">অ্যাক্টিভ প্রোডাক্ট</SelectItem>
                 <SelectItem value="inactive">ইনঅ্যাক্টিভ প্রোডাক্ট</SelectItem>
+                {scopeToOwn && <SelectItem value="pending">পেন্ডিং প্রোডাক্ট</SelectItem>}
+                {scopeToOwn && <SelectItem value="rejected">প্রত্যাখ্যাত প্রোডাক্ট</SelectItem>}
                 <SelectItem value="all">সব প্রোডাক্ট</SelectItem>
               </SelectContent>
             </Select>

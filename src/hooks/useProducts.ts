@@ -39,11 +39,12 @@ export function usePendingProducts() {
 /** Drives the Pending Products tab's badge count — shares the same query key
  * as `usePendingProducts`, so it's kept in sync for free by the
  * approve/reject mutations below invalidating that key. */
-export function usePendingProductsCount() {
+export function usePendingProductsCount(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: [...PRODUCTS_KEY, "pending"],
     queryFn: () => productService.listPending(),
     select: (data) => data.length,
+    enabled: options?.enabled ?? true,
   });
 }
 

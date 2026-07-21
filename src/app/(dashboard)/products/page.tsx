@@ -7,7 +7,7 @@ import { AllProductsSection } from "@/components/product/AllProductsSection";
 import { PendingProductsSection } from "@/components/product/PendingProductsSection";
 import { useHasRole } from "@/hooks/useHasRole";
 
-const VALID_SECTIONS: ProductSectionKey[] = ["all", "pending"];
+const VALID_SECTIONS: ProductSectionKey[] = ["all", "pending", "mine"];
 
 // useSearchParams() (used below to read the active tab) requires a Suspense
 // boundary so this statically prerenderable route can still build.
@@ -39,10 +39,16 @@ function ProductsPageContent() {
     router.push(`${pathname}?tab=${section}`);
   };
 
-  // Manager has no approval queue to review — just their own products, any
-  // status, in the one combined table (no tab bar needed at all).
+  // Manager sees the same Admin-approved catalog everyone does on "সব
+  // প্রোডাক্ট" — "নিজের প্রোডাক্ট" is the one scoped to just their own
+  // submissions (any status). No approval-queue tab for them.
   if (isManager) {
-    return <AllProductsSection />;
+    return (
+      <>
+        <ProductSectionTabs active={activeSection} onChange={handleChange} />
+        {activeSection === "mine" ? <AllProductsSection scopeToOwn /> : <AllProductsSection />}
+      </>
+    );
   }
 
   return (

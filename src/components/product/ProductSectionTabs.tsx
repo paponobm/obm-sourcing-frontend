@@ -2,12 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import { usePendingProductsCount } from "@/hooks/useProducts";
+import { useHasRole } from "@/hooks/useHasRole";
 
-export type ProductSectionKey = "all" | "pending";
+export type ProductSectionKey = "all" | "pending" | "mine";
 
 /** Fixed top navigation for the Products page — mirrors VendorSectionTabs'
  * exact pill markup/classes, just with two tabs instead of a vendor
- * workspace's several. */
+ * workspace's several. Manager gets "সব প্রোডাক্ট" (the same Admin-approved
+ * catalog everyone sees) + "নিজের প্রোডাক্ট" (their own submissions, any
+ * status) instead of Admin's "পেন্ডিং প্রোডাক্ট" approval-queue tab. */
 export function ProductSectionTabs({
   active,
   onChange,
@@ -15,7 +18,8 @@ export function ProductSectionTabs({
   active: ProductSectionKey;
   onChange: (key: ProductSectionKey) => void;
 }) {
-  const { data: pendingCount } = usePendingProductsCount();
+  const isManager = useHasRole(["MANAGER"]);
+  const { data: pendingCount } = usePendingProductsCount({ enabled: !isManager });
 
   return (
     <div className="sticky top-0 z-10 mb-4 border-b border-line bg-paper pb-2 pt-1 print:hidden sm:mb-5 sm:pb-2.5">
@@ -33,16 +37,29 @@ export function ProductSectionTabs({
         >
           সব প্রোডাক্ট
         </button>
-        <button
-          type="button"
-          onClick={() => onChange("pending")}
-          className={cn(
-            "shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out sm:px-4 sm:text-sm",
-            active === "pending" ? "bg-teal text-white shadow-md" : "bg-paper-2 text-ink hover:bg-line",
-          )}
-        >
-          পেন্ডিং প্রোডাক্ট ({pendingCount ?? 0})
-        </button>
+        {isManager ? (
+          <button
+            type="button"
+            onClick={() => onChange("mine")}
+            className={cn(
+              "shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out sm:px-4 sm:text-sm",
+              active === "mine" ? "bg-teal text-white shadow-md" : "bg-paper-2 text-ink hover:bg-line",
+            )}
+          >
+            নিজের প্রোডাক্ট
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onChange("pending")}
+            className={cn(
+              "shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out sm:px-4 sm:text-sm",
+              active === "pending" ? "bg-teal text-white shadow-md" : "bg-paper-2 text-ink hover:bg-line",
+            )}
+          >
+            পেন্ডিং প্রোডাক্ট ({pendingCount ?? 0})
+          </button>
+        )}
       </div>
     </div>
   );

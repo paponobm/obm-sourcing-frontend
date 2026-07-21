@@ -15,7 +15,9 @@ export type ProductSortColumn = "name" | "vendorCount" | "lowestPrice";
 
 export type ProductListQuery = ListQuery<ProductSortColumn> & {
   categoryId?: string;
-  statusFilter?: "active" | "inactive" | "all";
+  statusFilter?: "active" | "inactive" | "all" | "pending" | "rejected";
+  /** A Manager's "my products" view — scopes to their own submissions. */
+  ownOnly?: boolean;
 };
 
 export const productService = {

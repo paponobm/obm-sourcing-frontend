@@ -220,27 +220,27 @@ export default function ReceiveCheckPage() {
             <CardTitle>ম্যানেজার ভেরিফিকেশন তথ্য</CardTitle>
           </CardHeader>
           {invoice.verifiedAt && (
-            <div className="border-b border-line px-4 py-2.5 text-xs text-gray sm:px-5 sm:text-sm">
-              ভেরিফাই করেছেন: <span className="font-semibold text-ink">{invoice.verifiedByName ?? "—"} (Manager)</span>{" "}
+            <div className="border-b border-line px-4 text-brass py-2.5 text-xs  sm:px-5 sm:text-sm">
+              ভেরিফাই করেছেন: <span className="font-mono  font-bold">{invoice.verifiedByName ?? "—"} (Manager)</span>{" "}
               — {formatBnDate(invoice.verifiedAt)} {formatBnTime(invoice.verifiedAt)}
             </div>
           )}
           <div className="grid grid-cols-2 gap-3 border-b border-line px-4 py-2.5 text-xs sm:grid-cols-4 sm:px-5 sm:text-sm">
             <div>
               <div className="text-gray">পূর্ববর্তী লেবার কস্ট</div>
-              <div className="font-mono font-semibold text-ink">{formatBDT(invoice.laborCost ?? 0)}</div>
+              <div className="font-mono font-semibold text-ink text-red">{formatBDT(invoice.laborCost ?? 0)}</div>
             </div>
             <div>
               <div className="text-gray">ম্যানেজার যোগ করেছেন (লেবার)</div>
-              <div className="font-mono font-semibold text-ink">{formatBDT(invoice.managerLaborCost ?? 0)}</div>
+              <div className="font-mono font-semibold text-ink text-red">{formatBDT(invoice.managerLaborCost ?? 0)}</div>
             </div>
             <div>
               <div className="text-gray">পূর্ববর্তী কুরিয়ার কস্ট</div>
-              <div className="font-mono font-semibold text-ink">{formatBDT(invoice.courierCost ?? 0)}</div>
+              <div className="font-mono font-semibold text-ink text-red ">{formatBDT(invoice.courierCost ?? 0)}</div>
             </div>
             <div>
               <div className="text-gray">ম্যানেজার যোগ করেছেন (কুরিয়ার)</div>
-              <div className="font-mono font-semibold text-ink">{formatBDT(invoice.managerCourierCost ?? 0)}</div>
+              <div className="font-mono font-semibold text-ink text-red">{formatBDT(invoice.managerCourierCost ?? 0)}</div>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3 px-4 py-3.5 sm:grid-cols-2 sm:px-5 sm:py-4 lg:grid-cols-4">
@@ -396,7 +396,7 @@ export default function ReceiveCheckPage() {
           <ConfirmDialog
             trigger={
               <Button type="button" variant="brass" disabled={qtyMismatch || receiveCheck.isPending}>
-                Close Order
+              অর্ডার ক্লোজ করুন
               </Button>
             }
             title="Close this order?"

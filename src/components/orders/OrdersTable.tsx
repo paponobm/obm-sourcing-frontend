@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import type { VendorSectionKey } from "@/components/vendor/VendorSectionTabs";
@@ -33,6 +32,7 @@ export function OrdersTable({
   pageSize,
   onPageChange,
   viewHref,
+  hideTotalColumn,
 }: {
   orders: OrderListItem[];
   isLoading: boolean;
@@ -46,8 +46,12 @@ export function OrdersTable({
    * (Manager has no Vendor Management access). Admin usage omits this, so
    * its vendor-tab-based navigation is unchanged. */
   viewHref?: (order: OrderListItem) => string;
+  /** Drops the "গ্র্যান্ড টোটাল" column entirely — Manager can't see prices
+   * anywhere on the order-detail pages either, so this list shouldn't show
+   * one. Admin usage omits this, so its column set is unchanged. */
+  hideTotalColumn?: boolean;
 }) {
-  const columns: DataTableColumn<OrderListItem>[] = [
+  const allColumns: DataTableColumn<OrderListItem>[] = [
     {
       key: "invoiceNumber",
       header: "ইনভয়েস নম্বর",
@@ -89,12 +93,7 @@ export function OrdersTable({
     {
       key: "status",
       header: "স্ট্যাটাস",
-      render: (o) => (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <OrderStatusBadge status={o.status} />
-          {o.managerDraftAt && <Badge variant="low">ম্যানেজার ড্রাফট</Badge>}
-        </div>
-      ),
+      render: (o) => <OrderStatusBadge status={o.status} />,
     },
     {
       key: "orderedByName",
@@ -126,6 +125,8 @@ export function OrdersTable({
       ),
     },
   ];
+
+  const columns = hideTotalColumn ? allColumns.filter((c) => c.key !== "totalAmount") : allColumns;
 
   return (
     <Card>

@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ClipboardCheck } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
-import { Button } from "@/components/ui/button";
 import { OrderSummaryCards } from "./OrderSummaryCards";
 import { OrderQuickFilters } from "./OrderQuickFilters";
 import { OrderSearchBar } from "./OrderSearchBar";
@@ -13,7 +11,6 @@ import { OrdersTable } from "./OrdersTable";
 import { useOrders, useOrderSummary } from "@/hooks/useOrders";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useHasRole } from "@/hooks/useHasRole";
-import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/routes";
 import type { OrderSortMode } from "@/types/order.types";
 
@@ -55,7 +52,6 @@ export function OrderManagementPage() {
   const [dateTo, setDateTo] = useState("");
   const [sortMode, setSortMode] = useState<OrderSortMode>("newest");
   const [page, setPage] = useState(1);
-  const [managerDraftOnly, setManagerDraftOnly] = useState(false);
 
   const { data: summary } = useOrderSummary();
   const { data, isLoading } = useOrders({
@@ -68,7 +64,6 @@ export function OrderManagementPage() {
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,
     sortMode,
-    managerDraftOnly: managerDraftOnly || undefined,
   });
 
   const handleStatusChange = (value: string) => {
@@ -114,32 +109,14 @@ export function OrderManagementPage() {
         />
 
         {/* Right Side */}
-        <div className="flex w-full items-center gap-2 md:w-auto">
-          {!isManager && (
-            <Button
-              type="button"
-              variant="ghost"
-              className={cn(
-                "shrink-0 whitespace-nowrap",
-                managerDraftOnly && "bg-teal text-white hover:bg-teal hover:text-white",
-              )}
-              onClick={() => {
-                setManagerDraftOnly((v) => !v);
-                setPage(1);
-              }}
-            >
-              <ClipboardCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> ম্যানেজার ড্রাফট
-            </Button>
-          )}
-          <div className="w-full md:w-80 lg:w-96">
-            <OrderSearchBar
-              value={search}
-              onChange={(v) => {
-                setSearch(v);
-                setPage(1);
-              }}
-            />
-          </div>
+        <div className="w-full md:w-80 lg:w-96">
+          <OrderSearchBar
+            value={search}
+            onChange={(v) => {
+              setSearch(v);
+              setPage(1);
+            }}
+          />
         </div>
       </div>
 
@@ -181,6 +158,7 @@ export function OrderManagementPage() {
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
         viewHref={isManager ? (o) => ROUTES.invoiceDetail(o.id) : undefined}
+        hideTotalColumn={isManager}
       />
     </>
   );
