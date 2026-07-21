@@ -26,6 +26,8 @@ export function SidebarContent({
 }) {
   const { data: user } = useCurrentUser();
   const logout = useLogout();
+  const isManager = user?.role === "MANAGER";
+  const navItems = NAV_ITEMS.filter((item) => !(item.hiddenForManager && isManager));
 
   return (
     <div className="flex h-full flex-col text-[#CFE1E2]">
@@ -58,7 +60,7 @@ export function SidebarContent({
 
       {/* <nav className="flex-1"> */}
         <nav className="flex-1 pt-3">
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <NavItem key={item.href + item.label} item={item} collapsed={collapsed} />
         ))}
       </nav>
@@ -88,11 +90,13 @@ export function SidebarContent({
               <UserRound className="h-4 w-4" /> প্রোফাইল
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href={ROUTES.settings}>
-              <Settings className="h-4 w-4" /> সেটিংস
-            </Link>
-          </DropdownMenuItem>
+          {!isManager && (
+            <DropdownMenuItem asChild>
+              <Link href={ROUTES.settings}>
+                <Settings className="h-4 w-4" /> সেটিংস
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-red"

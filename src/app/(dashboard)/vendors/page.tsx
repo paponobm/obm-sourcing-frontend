@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import { VendorPendingRequisitionBadge } from "@/components/vendor/VendorPendingRequisitionBadge";
 import { VendorEditForm } from "@/components/forms/VendorEditForm";
+import { RequireRole } from "@/components/shared/RequireRole";
 import { useVendors, useActivateVendor, useDeactivateVendor } from "@/hooks/useVendors";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useHasRole } from "@/hooks/useHasRole";
@@ -30,6 +31,14 @@ import type { SortDirection } from "@/types/common.types";
 const PAGE_SIZE = 10;
 
 export default function VendorListPage() {
+  return (
+    <RequireRole roles={["SUPER_ADMIN", "VIEWER"]}>
+      <VendorListContent />
+    </RequireRole>
+  );
+}
+
+function VendorListContent() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);

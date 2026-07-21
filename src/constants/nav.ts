@@ -19,6 +19,8 @@ export type NavItemConfig = {
   isActive: (pathname: string) => boolean;
   /** Shows a live count badge (currently only the pending-requisitions count) beside the label. */
   badge?: "pendingRequisitions";
+  /** Manager's restricted Panel doesn't show this item — everyone else (Super Admin, Viewer) sees it as before. */
+  hiddenForManager?: boolean;
 };
 
 /**
@@ -37,6 +39,7 @@ export const NAV_ITEMS: NavItemConfig[] = [
     href: ROUTES.vendors,
     icon: Store,
     isActive: (p) => p.startsWith(ROUTES.vendors),
+    hiddenForManager: true,
   },
   {
     label: "অর্ডার ম্যানেজমেন্ট",
@@ -74,11 +77,13 @@ export const NAV_ITEMS: NavItemConfig[] = [
     href: ROUTES.activityLogs,
     icon: Activity,
     isActive: (p) => p.startsWith(ROUTES.activityLogs),
+    hiddenForManager: true,
   },
   {
     label: "ইউজার ম্যানেজমেন্ট",
     href: ROUTES.users,
     icon: Users,
     isActive: (p) => p.startsWith(ROUTES.users),
+    hiddenForManager: true,
   },
 ];

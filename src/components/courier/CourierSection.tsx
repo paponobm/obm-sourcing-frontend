@@ -22,7 +22,7 @@ import { CourierForm } from "@/components/forms/CourierForm";
 import { Avatar } from "@/components/shared/Avatar";
 import { useCouriers, useActivateCourier, useDeactivateCourier } from "@/hooks/useCouriers";
 import { useHasRole } from "@/hooks/useHasRole";
-import { MANAGE_CATALOG_ROLES } from "@/constants/roles";
+import { SUPER_ADMIN_ONLY } from "@/constants/roles";
 import { vendorStatusBadgeVariant, VENDOR_STATUS_LABEL_BN } from "@/utils/status";
 
 export function CourierSection() {
@@ -32,7 +32,7 @@ export function CourierSection() {
   const { data: couriers, isLoading } = useCouriers();
   const activateCourier = useActivateCourier();
   const deactivateCourier = useDeactivateCourier();
-  const canManage = useHasRole(MANAGE_CATALOG_ROLES);
+  const canManage = useHasRole(SUPER_ADMIN_ONLY);
 
   const filteredCouriers = useMemo(() => {
     if (!couriers) return couriers;

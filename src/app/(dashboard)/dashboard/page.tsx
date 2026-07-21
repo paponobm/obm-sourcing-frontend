@@ -11,6 +11,7 @@ import { ProductsSection } from "@/components/dashboard/ProductsSection";
 import { VendorsSection } from "@/components/dashboard/VendorsSection";
 import { OrdersSection } from "@/components/dashboard/OrdersSection";
 import { RequisitionsSection } from "@/components/dashboard/RequisitionsSection";
+import { ManagerDashboardSection } from "@/components/dashboard/ManagerDashboardSection";
 import { RecentPriceUpdatesTable } from "@/components/dashboard/RecentPriceUpdatesTable";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import {
@@ -21,6 +22,7 @@ import {
   useRecentPriceUpdates,
 } from "@/hooks/useDashboard";
 import { useActivities } from "@/hooks/useActivities";
+import { useHasRole } from "@/hooks/useHasRole";
 import { cn } from "@/lib/utils";
 
 type DashboardTab = "overview" | "product" | "vendor" | "order" | "requisition";
@@ -35,6 +37,7 @@ const TABS: { key: DashboardTab; label: string; icon: LucideIcon }[] = [
 
 export default function DashboardPage() {
   const [tab, setTab] = useState<DashboardTab>("overview");
+  const isManager = useHasRole(["MANAGER"]);
 
   // Always the full, unfiltered rollup — independent of whatever date/status
   // filters a user has dialed into the section tabs below, matching
@@ -46,6 +49,15 @@ export default function DashboardPage() {
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: updates, isLoading: updatesLoading } = useRecentPriceUpdates();
   const { data: activityPage, isLoading: activitiesLoading } = useActivities({ pageSize: 5 });
+
+  if (isManager) {
+    return (
+      <>
+        <Topbar title="ড্যাশবোর্ড" />
+        <ManagerDashboardSection />
+      </>
+    );
+  }
 
   return (
     <>

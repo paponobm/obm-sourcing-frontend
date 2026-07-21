@@ -5,11 +5,20 @@ import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { OrderCreatePanel } from "@/components/vendor/OrderCreatePanel";
+import { RequireRole } from "@/components/shared/RequireRole";
 import { useVendor } from "@/hooks/useVendor";
 import { ROUTES } from "@/constants/routes";
 import { goBackOrFallback } from "@/lib/utils";
 
 export default function NewVendorOrderPage() {
+  return (
+    <RequireRole roles={["SUPER_ADMIN", "VIEWER"]}>
+      <NewVendorOrderContent />
+    </RequireRole>
+  );
+}
+
+function NewVendorOrderContent() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: vendor, isLoading } = useVendor(id);

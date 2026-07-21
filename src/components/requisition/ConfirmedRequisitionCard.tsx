@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SuggestedVendorBadge } from "@/components/requisition/SuggestedVendorBadge";
 import { AdditionalSuppliers } from "@/components/requisition/AdditionalSuppliers";
+import { useHasRole } from "@/hooks/useHasRole";
 import { ROUTES } from "@/constants/routes";
 import { formatBnDate, toBnDigits } from "@/utils/date";
 import { REQUISITION_PRIORITY_LABEL_BN, requisitionPriorityBadgeVariant } from "@/utils/status";
@@ -33,6 +34,7 @@ export function ConfirmedRequisitionCard({
   onViewDetails: () => void;
 }) {
   const totalQty = requisition.items.reduce((sum, i) => sum + i.requiredQty, 0);
+  const canPlaceOrder = !useHasRole(["MANAGER"]);
   const vendors = remainingVendors(requisition);
 
   return (
@@ -73,28 +75,30 @@ export function ConfirmedRequisitionCard({
         ))}
       </div>
 
-      <div className="mt-3 border-t border-line pt-2.5">
-        <div className="mb-1.5 text-[11px] font-semibold text-gray sm:text-xs">অর্ডার তৈরি করুন — ভেন্ডর নির্বাচন করুন</div>
-        {vendors.length === 0 ? (
-          <span className="text-xs text-gray">
-            {totalQty > 0 && requisition.items.every((i) => i.fulfilled)
-              ? "সব প্রোডাক্ট অর্ডার করা হয়েছে"
-              : "বাকি প্রোডাক্টগুলোর কোনো ভেন্ডর সেট করা নেই"}
-          </span>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {vendors.map((v) => (
-              <Link
-                key={v.vendorId}
-                href={`${ROUTES.vendorDetail(v.vendorId)}?tab=newOrder&requisitionId=${requisition.id}`}
-                className="rounded-full border border-line bg-paper-2 px-2.5 py-1 text-[11px] font-semibold text-teal-dark transition-colors hover:bg-line sm:text-xs"
-              >
-                {v.vendorName}
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+      {canPlaceOrder && (
+        <div className="mt-3 border-t border-line pt-2.5">
+          <div className="mb-1.5 text-[11px] font-semibold text-gray sm:text-xs">অর্ডার তৈরি করুন — ভেন্ডর নির্বাচন করুন</div>
+          {vendors.length === 0 ? (
+            <span className="text-xs text-gray">
+              {totalQty > 0 && requisition.items.every((i) => i.fulfilled)
+                ? "সব প্রোডাক্ট অর্ডার করা হয়েছে"
+                : "বাকি প্রোডাক্টগুলোর কোনো ভেন্ডর সেট করা নেই"}
+            </span>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {vendors.map((v) => (
+                <Link
+                  key={v.vendorId}
+                  href={`${ROUTES.vendorDetail(v.vendorId)}?tab=newOrder&requisitionId=${requisition.id}`}
+                  className="rounded-full border border-line bg-paper-2 px-2.5 py-1 text-[11px] font-semibold text-teal-dark transition-colors hover:bg-line sm:text-xs"
+                >
+                  {v.vendorName}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </Card>
   );
 }

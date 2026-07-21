@@ -20,14 +20,14 @@ import { CategoryForm } from "@/components/forms/CategoryForm";
 import { Avatar } from "@/components/shared/Avatar";
 import { useCategories, useDeleteCategory } from "@/hooks/useCategories";
 import { useHasRole } from "@/hooks/useHasRole";
-import { MANAGE_CATALOG_ROLES, SUPER_ADMIN_ONLY } from "@/constants/roles";
+import { SUPER_ADMIN_ONLY } from "@/constants/roles";
 
 export function CategorySection() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const { data: categories, isLoading } = useCategories();
   const deleteCategory = useDeleteCategory();
-  const canManage = useHasRole(MANAGE_CATALOG_ROLES);
+  const canManage = useHasRole(SUPER_ADMIN_ONLY);
   const canDelete = useHasRole(SUPER_ADMIN_ONLY);
   const showActionsColumn = canManage || canDelete;
 

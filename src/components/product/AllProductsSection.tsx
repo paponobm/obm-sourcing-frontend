@@ -35,8 +35,12 @@ import type { SortDirection } from "@/types/common.types";
 const PAGE_SIZE = 10;
 
 export function AllProductsSection() {
+  const isManager = useHasRole(["MANAGER"]);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "all">("active");
+  // A Manager's own-products view defaults to "all" — the backend expands
+  // that to every status (including still-Pending/Rejected submissions) once
+  // it's scoped to a creator, unlike the Admin catalog's "all" (active+inactive only).
+  const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "all">(isManager ? "all" : "active");
   const [categoryId, setCategoryId] = useState("");
   const [page, setPage] = useState(1);
   const [sortColumn, setSortColumn] = useState<ProductSortColumn>("name");

@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ProductSectionTabs, type ProductSectionKey } from "@/components/product/ProductSectionTabs";
 import { AllProductsSection } from "@/components/product/AllProductsSection";
 import { PendingProductsSection } from "@/components/product/PendingProductsSection";
+import { useHasRole } from "@/hooks/useHasRole";
 
 const VALID_SECTIONS: ProductSectionKey[] = ["all", "pending"];
 
@@ -22,6 +23,7 @@ function ProductsPageContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isManager = useHasRole(["MANAGER"]);
 
   // Read straight from the URL (not a useState snapshot) so a refresh always
   // lands back on whichever tab is actually showing, and every tab switch
@@ -36,6 +38,12 @@ function ProductsPageContent() {
   const handleChange = (section: ProductSectionKey) => {
     router.push(`${pathname}?tab=${section}`);
   };
+
+  // Manager has no approval queue to review — just their own products, any
+  // status, in the one combined table (no tab bar needed at all).
+  if (isManager) {
+    return <AllProductsSection />;
+  }
 
   return (
     <>

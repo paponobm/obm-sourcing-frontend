@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { SearchableProductSelect } from "@/components/shared/SearchableProductSelect";
 import { useInvoice, useReceiveCheck } from "@/hooks/useInvoices";
 import { useCouriers } from "@/hooks/useCouriers";
+import { useHasRole } from "@/hooks/useHasRole";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
@@ -31,6 +32,7 @@ export default function ReceiveCheckPage() {
   const receiveCheck = useReceiveCheck(invoiceId);
   const { data: couriers, isLoading: couriersLoading } = useCouriers();
   const activeCouriers = (couriers ?? []).filter((c) => c.status === "ACTIVE");
+  const isManager = useHasRole(["MANAGER"]);
 
   const [rows, setRows] = useState<Record<string, RowState>>({});
   const [courierId, setCourierId] = useState("");
@@ -45,20 +47,29 @@ export default function ReceiveCheckPage() {
   // Pre-fill from the invoice's own current values (already set via the
   // optional Order Confirm step, or an earlier draft save) — `!= null` (not
   // a truthy check) so an already-saved 0 cost shows as "0", not blank.
+  // A Manager's labor/courier cost fields are the exception: they start
+  // blank so whatever the Manager types is an *additional* cost on top of
+  // the existing figure (see `submit` below), not a replacement of it.
   useEffect(() => {
     setCourierId(invoice?.courierId ?? "");
     setCourierTouched(false);
     setPaymentStatus(invoice?.paymentStatus ?? "");
     setPaymentStatusTouched(false);
-    setLaborCost(invoice?.laborCost != null ? String(invoice.laborCost) : "");
+    setLaborCost(!isManager && invoice?.laborCost != null ? String(invoice.laborCost) : "");
     setLaborCostTouched(false);
-    setCourierCost(invoice?.courierCost != null ? String(invoice.courierCost) : "");
+    setCourierCost(!isManager && invoice?.courierCost != null ? String(invoice.courierCost) : "");
     setCourierCostTouched(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoice?.id]);
 
+  // A Manager must actually type the received quantity — no defaulting to
+  // "looks matched" — unlike Admin's existing pre-fill-to-ordered-qty flow,
+  // which stays unchanged. Either way, an already-saved value always wins.
   const getRow = (itemId: string, orderedQty: number, receivedQty: number | null): RowState =>
-    rows[itemId] ?? { receivedQty: String(receivedQty ?? orderedQty), remark: "" };
+    rows[itemId] ?? {
+      receivedQty: receivedQty != null ? String(receivedQty) : isManager ? "" : String(orderedQty),
+      remark: "",
+    };
 
   const setRow = (itemId: string, patch: Partial<RowState>, orderedQty: number, receivedQty: number | null) => {
     setRows((prev) => ({ ...prev, [itemId]: { ...getRow(itemId, orderedQty, receivedQty), ...patch } }));
@@ -86,6 +97,16 @@ export default function ReceiveCheckPage() {
       setPaymentStatusTouched(true);
       return;
     }
+    // A Manager's input is an *additional* cost on top of whatever Order
+    // Confirm already set — Admin's own field stays a direct replacement,
+    // exactly as before.
+    const effectiveLaborCost = isManager
+      ? (invoice.laborCost ?? 0) + Math.max(0, Number(laborCost) || 0)
+      : Math.max(0, Number(laborCost) || 0);
+    const effectiveCourierCost = isManager
+      ? (invoice.courierCost ?? 0) + Math.max(0, Number(courierCost) || 0)
+      : Math.max(0, Number(courierCost) || 0);
+
     await receiveCheck.mutateAsync({
       mode,
       items: items.map((it) => {
@@ -93,8 +114,8 @@ export default function ReceiveCheckPage() {
         return { itemId: it.id, receivedQty: Number(row.receivedQty || 0), remark: row.remark || undefined };
       }),
       courierId,
-      laborCost: Math.max(0, Number(laborCost) || 0),
-      courierCost: Math.max(0, Number(courierCost) || 0),
+      laborCost: effectiveLaborCost,
+      courierCost: effectiveCourierCost,
       paymentStatus: paymentStatus || undefined,
     });
     router.push(ROUTES.invoiceDetail(invoiceId));
@@ -123,7 +144,11 @@ export default function ReceiveCheckPage() {
           মাল রিসিভ চেক — {invoice.invoiceNumber}
         </h2>
         <span className="text-xs text-gray sm:text-sm">
-          {invoice.status === "DISCREPANCY" ? "ডিসক্রেপান্সি — পুনরায় চেক করুন" : "রিসিভড — চেকিং চলছে"}
+          {invoice.status === "DISCREPANCY"
+            ? "ডিসক্রেপান্সি — পুনরায় চেক করুন"
+            : invoice.status === "VERIFIED"
+              ? "ভেরিফাইড — চূড়ান্তভাবে ক্লোজ করুন"
+              : "রিসিভড — চেকিং চলছে"}
         </span>
       </div>
 
@@ -146,6 +171,7 @@ export default function ReceiveCheckPage() {
               isLoading={couriersLoading}
               invalid={courierTouched && !courierId}
               emptyMessage="কোনো অ্যাক্টিভ কুরিয়ার পাওয়া যায়নি।"
+              disabled={isManager}
             />
             {courierTouched && !courierId && (
               <p className="mt-1 text-[11px] text-red sm:text-xs">⚠ একটি কুরিয়ার নির্বাচন করুন।</p>
@@ -155,6 +181,7 @@ export default function ReceiveCheckPage() {
             <Label htmlFor="receive-payment-status">পেমেন্ট স্ট্যাটাস *</Label>
             <Select
               value={paymentStatus}
+              disabled={isManager}
               onValueChange={(v) => {
                 setPaymentStatus(v as PaymentStatus);
                 setPaymentStatusTouched(false);
@@ -293,17 +320,25 @@ export default function ReceiveCheckPage() {
       </div>
 
       <div className="mt-4 flex gap-2 sm:mt-5">
-        <Button
-          type="button"
-          variant={hasMismatch ? "brass" : "primary"}
-          disabled={receiveCheck.isPending}
-          onClick={() => submit("final")}
-        >
-          {hasMismatch ? "⚠ ডিসক্রেপান্সি নোট করে সেভ করুন" : "✓ সব মিলেছে — যাচাই করে ক্লোজ করুন"}
-        </Button>
-        <Button type="button" variant="ghost" disabled={receiveCheck.isPending} onClick={() => submit("draft")}>
-          পরে চেক করবো (Draft সেভ)
-        </Button>
+        {isManager ? (
+          <Button type="button" variant="brass" disabled={receiveCheck.isPending} onClick={() => submit("final")}>
+            ভেরিফাই করুন
+          </Button>
+        ) : (
+          <>
+            <Button
+              type="button"
+              variant={hasMismatch ? "brass" : "primary"}
+              disabled={receiveCheck.isPending}
+              onClick={() => submit("final")}
+            >
+              {hasMismatch ? "⚠ ডিসক্রেপান্সি নোট করে সেভ করুন" : "✓ সব মিলেছে — যাচাই করে ক্লোজ করুন"}
+            </Button>
+            <Button type="button" variant="ghost" disabled={receiveCheck.isPending} onClick={() => submit("draft")}>
+              পরে চেক করবো (Draft সেভ)
+            </Button>
+          </>
+        )}
       </div>
     </>
   );

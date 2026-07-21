@@ -17,13 +17,15 @@ const TABS = [
 export function OrderQuickFilters({
   active,
   onChange,
+  tabs = TABS,
 }: {
   active: string;
   onChange: (status: string) => void;
+  tabs?: readonly { key: string; label: string }[];
 }) {
   return (
     <div className="mb-3.5 flex flex-wrap gap-1.5 sm:mb-4 sm:gap-2">
-      {TABS.map((tab) => {
+      {tabs.map((tab) => {
         const isActive = tab.key === active;
         return (
           <button

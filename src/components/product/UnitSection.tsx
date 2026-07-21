@@ -19,14 +19,14 @@ import {
 import { UnitForm } from "@/components/forms/UnitForm";
 import { useUnits, useDeleteUnit } from "@/hooks/useUnits";
 import { useHasRole } from "@/hooks/useHasRole";
-import { MANAGE_CATALOG_ROLES, SUPER_ADMIN_ONLY } from "@/constants/roles";
+import { SUPER_ADMIN_ONLY } from "@/constants/roles";
 
 export function UnitSection() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const { data: units, isLoading } = useUnits();
   const deleteUnit = useDeleteUnit();
-  const canManage = useHasRole(MANAGE_CATALOG_ROLES);
+  const canManage = useHasRole(SUPER_ADMIN_ONLY);
   const canDelete = useHasRole(SUPER_ADMIN_ONLY);
   const showActionsColumn = canManage || canDelete;
 

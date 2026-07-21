@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import type { VendorSectionKey } from "@/components/vendor/VendorSectionTabs";
@@ -31,6 +32,7 @@ export function OrdersTable({
   page,
   pageSize,
   onPageChange,
+  viewHref,
 }: {
   orders: OrderListItem[];
   isLoading: boolean;
@@ -38,6 +40,12 @@ export function OrdersTable({
   page: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  /** Overrides the "দেখুন" action link and disables the vendor-name link —
+   * used for the Manager's Order Management view, which routes into the
+   * standalone /invoices/[invoiceId] page instead of the vendor workspace
+   * (Manager has no Vendor Management access). Admin usage omits this, so
+   * its vendor-tab-based navigation is unchanged. */
+  viewHref?: (order: OrderListItem) => string;
 }) {
   const columns: DataTableColumn<OrderListItem>[] = [
     {
@@ -48,12 +56,18 @@ export function OrdersTable({
     {
       key: "vendorName",
       header: "ভেন্ডর",
-      render: (o) => (
-        <Link href={ROUTES.vendorDetail(o.vendorId)} className="hover:underline">
-          <div className="text-sm md:text-base">{o.vendorName}</div>
-          <div className="font-mono text-xs text-gray">{o.vendorCode}</div>
-        </Link>
-      ),
+      render: (o) =>
+        viewHref ? (
+          <div>
+            <div className="text-sm md:text-base">{o.vendorName}</div>
+            <div className="font-mono text-xs text-gray">{o.vendorCode}</div>
+          </div>
+        ) : (
+          <Link href={ROUTES.vendorDetail(o.vendorId)} className="hover:underline">
+            <div className="text-sm md:text-base">{o.vendorName}</div>
+            <div className="font-mono text-xs text-gray">{o.vendorCode}</div>
+          </Link>
+        ),
     },
     {
       key: "orderedAt",
@@ -75,7 +89,12 @@ export function OrdersTable({
     {
       key: "status",
       header: "স্ট্যাটাস",
-      render: (o) => <OrderStatusBadge status={o.status} />,
+      render: (o) => (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <OrderStatusBadge status={o.status} />
+          {o.managerDraftAt && <Badge variant="low">ম্যানেজার ড্রাফট</Badge>}
+        </div>
+      ),
     },
     {
       key: "orderedByName",
@@ -92,7 +111,7 @@ export function OrdersTable({
       header: "",
       render: (o) => (
         <Button asChild type="button" variant="ghost" size="sm" className="ml-auto flex">
-          <Link href={`${ROUTES.vendorDetail(o.vendorId)}?tab=${STATUS_SECTION[o.status]}&invoiceId=${o.id}`}>
+          <Link href={viewHref ? viewHref(o) : `${ROUTES.vendorDetail(o.vendorId)}?tab=${STATUS_SECTION[o.status]}&invoiceId=${o.id}`}>
             দেখুন
           </Link>
         </Button>

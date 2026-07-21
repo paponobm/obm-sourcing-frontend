@@ -20,6 +20,7 @@ import { OrderStepper } from "@/components/vendor/OrderStepper";
 import { InvoicePrintView } from "@/components/invoice/InvoicePrintView";
 import { useConfirmOrder, useInvoice, useMarkReceived } from "@/hooks/useInvoices";
 import { useCouriers } from "@/hooks/useCouriers";
+import { useHasRole } from "@/hooks/useHasRole";
 import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
 import { formatBnDate } from "@/utils/date";
@@ -35,6 +36,8 @@ export default function InvoiceDetailPage() {
   const { data: invoice, isLoading } = useInvoice(invoiceId);
   const confirmOrder = useConfirmOrder(invoiceId);
   const markReceived = useMarkReceived();
+  const canConfirmOrder = useHasRole(["SUPER_ADMIN"]);
+  const isManager = useHasRole(["MANAGER"]);
   const { data: couriers, isLoading: couriersLoading } = useCouriers();
   const activeCouriers = (couriers ?? []).filter((c) => c.status === "ACTIVE");
 
@@ -104,6 +107,10 @@ export default function InvoiceDetailPage() {
   const grandTotal = isPreWarehouse
     ? invoice.totalAmount + (Number(laborCost) || 0) + (Number(courierCost) || 0)
     : (invoice.procurementCost ?? invoice.totalAmount);
+  // Manager sees every field on this page except price, regardless of
+  // status — masked here rather than hidden, so the layout/columns stay identical.
+  const hidePrices = isManager;
+  const priceText = (amount: number) => (hidePrices ? "***" : formatBDT(amount));
 
   return (
     <>
@@ -254,10 +261,10 @@ export default function InvoiceDetailPage() {
                 <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
                   {item.productName}
                 </TableCell>
-                <TableCell className="font-mono text-brass">{formatBDT(item.priceAtOrder)}</TableCell>
+                <TableCell className="font-mono text-brass">{priceText(item.priceAtOrder)}</TableCell>
                 <TableCell>{item.orderedQty}</TableCell>
                 {showReceivedColumn && <TableCell>{item.receivedQty ?? "–"}</TableCell>}
-                <TableCell className="font-mono font-bold text-brass">{formatBDT(item.lineTotal)}</TableCell>
+                <TableCell className="font-mono font-bold text-brass">{priceText(item.lineTotal)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -277,21 +284,21 @@ export default function InvoiceDetailPage() {
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">প্রোডাক্ট টোটাল</span>
-          <span className="font-mono">{formatBDT(invoice.totalAmount)}</span>
+          <span className="font-mono">{priceText(invoice.totalAmount)}</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">লেবার কস্ট</span>
-          <span className="font-mono">{formatBDT(Number(laborCost) || 0)}</span>
+          <span className="font-mono">{priceText(Number(laborCost) || 0)}</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">কুরিয়ার কস্ট</span>
-          <span className="font-mono">{formatBDT(Number(courierCost) || 0)}</span>
+          <span className="font-mono">{priceText(Number(courierCost) || 0)}</span>
         </div>
         <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
           <span className="font-serif text-sm text-teal-dark sm:text-base">
             সর্বমোট{isClosed ? " (পরিশোধিত)" : ""}
           </span>
-          <span className="font-mono text-base font-bold text-brass sm:text-lg">{formatBDT(grandTotal)}</span>
+          <span className="font-mono text-base font-bold text-brass sm:text-lg">{priceText(grandTotal)}</span>
         </div>
       </div>
 
@@ -325,17 +332,19 @@ export default function InvoiceDetailPage() {
       )}
 
       <div className="mt-4 flex gap-2 print:hidden sm:mt-5">
-        {/* {isPreWarehouse && (
+        {isPreWarehouse && (
           <Button type="button" variant="brass" disabled={markReceived.isPending} onClick={handleStartReceiveCheck}>
             <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> মাল রিসিভড — চেক শুরু করুন
           </Button>
-        )} */}
-        {invoice.status === "IN_TRANSIT" && (
+        )}
+        {invoice.status === "IN_TRANSIT" && canConfirmOrder && (
           <Button type="button" variant="brass" disabled={confirmOrder.isPending} onClick={handleConfirmOrder}>
             <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />ভেন্ডর Order Confirm করেছেন
           </Button>
         )}
-        {(invoice.status === "RECEIVED" || invoice.status === "DISCREPANCY") && (
+        {(invoice.status === "RECEIVED" ||
+          invoice.status === "DISCREPANCY" ||
+          (invoice.status === "VERIFIED" && canConfirmOrder)) && (
           <Button type="button" variant="brass" onClick={() => router.push(ROUTES.invoiceReceive(invoiceId))}>
             <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> রিসিভ চেক চালিয়ে যান
           </Button>

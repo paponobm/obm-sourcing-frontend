@@ -13,6 +13,7 @@ export type OrderListItem = {
   status: OrderStatus;
   orderedByName: string;
   updatedAt: string;
+  managerDraftAt: string | null;
 };
 
 export type OrderSummary = {
@@ -48,4 +49,5 @@ export type OrderListQuery = {
   dateFrom?: string;
   dateTo?: string;
   sortMode?: OrderSortMode;
+  managerDraftOnly?: boolean;
 };

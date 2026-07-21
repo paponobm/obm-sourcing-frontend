@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { CancelRequisitionDialog } from "@/components/requisition/CancelRequisitionDialog";
 import { SuggestedVendorBadge } from "@/components/requisition/SuggestedVendorBadge";
 import { useConfirmRequisition, useCancelRequisition } from "@/hooks/useRequisitions";
+import { useHasRole } from "@/hooks/useHasRole";
 import { formatBnDate, toBnDigits } from "@/utils/date";
 import {
   REQUISITION_PRIORITY_LABEL_BN,
@@ -31,6 +32,7 @@ export function RequisitionCard({
 }) {
   const confirmRequisition = useConfirmRequisition();
   const cancelRequisition = useCancelRequisition();
+  const canConfirm = !useHasRole(["MANAGER"]);
   const totalQty = requisition.items.reduce((sum, i) => sum + i.requiredQty, 0);
 
   return (
@@ -79,18 +81,20 @@ export function RequisitionCard({
         <Button type="button" variant="ghost" size="sm" onClick={onEdit}>
           <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> এডিট
         </Button>
-        <ConfirmDialog
-          trigger={
-            <Button type="button" variant="ghost" size="sm">
-              <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5" /> কনফার্ম
-            </Button>
-          }
-          title="রিকুইজিশন কনফার্ম করবেন?"
-          description="আপনি কি নিশ্চিত এই রিকুইজিশনটি কনফার্ম করতে চান? কনফার্ম করার পর এটি কনফার্মড রিকুইজিশন সেকশনে চলে যাবে এবং অর্ডার তৈরির জন্য উপলব্ধ হবে।"
-          confirmLabel="কনফার্ম করুন"
-          onConfirm={() => confirmRequisition.mutate(requisition.id)}
-          isLoading={confirmRequisition.isPending}
-        />
+        {canConfirm && (
+          <ConfirmDialog
+            trigger={
+              <Button type="button" variant="ghost" size="sm">
+                <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5" /> কনফার্ম
+              </Button>
+            }
+            title="রিকুইজিশন কনফার্ম করবেন?"
+            description="আপনি কি নিশ্চিত এই রিকুইজিশনটি কনফার্ম করতে চান? কনফার্ম করার পর এটি কনফার্মড রিকুইজিশন সেকশনে চলে যাবে এবং অর্ডার তৈরির জন্য উপলব্ধ হবে।"
+            confirmLabel="কনফার্ম করুন"
+            onConfirm={() => confirmRequisition.mutate(requisition.id)}
+            isLoading={confirmRequisition.isPending}
+          />
+        )}
         <CancelRequisitionDialog
           trigger={
             <Button type="button" variant="ghost" size="sm">

@@ -19,6 +19,7 @@ import { ClosedInvoiceSection } from "@/components/vendor/ClosedInvoiceSection";
 import { ReceivedInvoiceSection } from "@/components/vendor/ReceivedInvoiceSection";
 import { OrderHistorySection } from "@/components/vendor/OrderHistorySection";
 import { VendorActivityLogSection } from "@/components/vendor/VendorActivityLogSection";
+import { RequireRole } from "@/components/shared/RequireRole";
 import { useVendor } from "@/hooks/useVendor";
 import { ROUTES } from "@/constants/routes";
 import { goBackOrFallback } from "@/lib/utils";
@@ -35,6 +36,14 @@ const VALID_SECTIONS: VendorSectionKey[] = [
 ];
 
 export default function VendorDetailPage() {
+  return (
+    <RequireRole roles={["SUPER_ADMIN", "VIEWER"]}>
+      <VendorDetailContent />
+    </RequireRole>
+  );
+}
+
+function VendorDetailContent() {
   const { id } = useParams<{ id: string }>();
   const pathname = usePathname();
   const router = useRouter();

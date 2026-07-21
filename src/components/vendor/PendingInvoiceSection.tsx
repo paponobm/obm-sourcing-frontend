@@ -20,6 +20,7 @@ import type { NavigateToSection } from "@/components/vendor/VendorSectionTabs";
 import { useConfirmOrder, useMarkReceived } from "@/hooks/useInvoices";
 import { useSectionInvoice } from "@/hooks/useSectionInvoice";
 import { useCouriers } from "@/hooks/useCouriers";
+import { useHasRole } from "@/hooks/useHasRole";
 import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
 import { formatBnDate } from "@/utils/date";
@@ -50,6 +51,7 @@ export function PendingInvoiceSection({
   const { invoice, isLoading, hasTarget } = useSectionInvoice(vendorId, PENDING_STATUSES, invoiceId);
   const confirmOrder = useConfirmOrder(invoice?.id ?? "");
   const markReceived = useMarkReceived();
+  const canConfirmOrder = useHasRole(["SUPER_ADMIN"]);
   const { data: couriers, isLoading: couriersLoading } = useCouriers();
   const activeCouriers = (couriers ?? []).filter((c) => c.status === "ACTIVE");
 
@@ -351,7 +353,7 @@ export function PendingInvoiceSection({
         )}
         {/* Step 2 — courier/costs/payment status above are all mandatory;
          * clicking this while any are missing just marks them invalid. */}
-        {invoice.status === "IN_TRANSIT" && (
+        {invoice.status === "IN_TRANSIT" && canConfirmOrder && (
           <Button type="button" variant="brass" disabled={confirmOrder.isPending} onClick={handleConfirmOrder}>
             <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />ভেন্ডর Order Confirm করেছেন
           </Button>

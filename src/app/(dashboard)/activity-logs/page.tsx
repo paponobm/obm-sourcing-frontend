@@ -5,6 +5,7 @@ import { Topbar } from "@/components/layout/Topbar";
 import { Card } from "@/components/ui/card";
 import { SearchBox } from "@/components/shared/SearchBox";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
+import { RequireRole } from "@/components/shared/RequireRole";
 import { useActivities } from "@/hooks/useActivities";
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatBnDate } from "@/utils/date";
@@ -20,6 +21,14 @@ const TARGET_LABEL_BN: Record<string, string> = {
 };
 
 export default function ActivityLogsPage() {
+  return (
+    <RequireRole roles={["SUPER_ADMIN", "VIEWER"]}>
+      <ActivityLogsContent />
+    </RequireRole>
+  );
+}
+
+function ActivityLogsContent() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search);
