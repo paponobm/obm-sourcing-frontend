@@ -17,8 +17,8 @@ export type NavItemConfig = {
   href: string;
   icon: LucideIcon;
   isActive: (pathname: string) => boolean;
-  /** Shows a live count badge (currently only the pending-requisitions count) beside the label. */
-  badge?: "pendingRequisitions";
+  /** Shows a live count badge beside the label. */
+  badge?: "pendingRequisitions" | "pendingProducts";
   /** Manager's restricted Panel doesn't show this item — everyone else (Super Admin, Viewer) sees it as before. */
   hiddenForManager?: boolean;
 };
@@ -52,6 +52,7 @@ export const NAV_ITEMS: NavItemConfig[] = [
     href: ROUTES.products,
     icon: Package,
     isActive: (p) => p === ROUTES.products,
+    badge: "pendingProducts",
   },
   {
     label: "রিকুইজিশন",

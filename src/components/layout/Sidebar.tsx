@@ -41,7 +41,7 @@ export function SidebarContent({
           href={ROUTES.dashboard}
           className="flex min-w-0 items-center gap-2 rounded-md font-serif text-sm text-white transition-colors hover:text-white/80 sm:gap-[9px] sm:text-base lg:text-lg"
         >
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brass font-sans text-xs font-bold text-[#2B1E08] transition-opacity sm:h-[26px] sm:w-[26px] sm:text-[0.8125rem] lg:h-8 lg:w-8 lg:text-sm">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brass font-sans text-xs font-bold text-white transition-opacity sm:h-[26px] sm:w-[26px] sm:text-[0.8125rem] lg:h-8 lg:w-8 lg:text-sm">
             OS
           </span>
           {!collapsed && <span className="truncate">OBM সোর্সিং</span>}

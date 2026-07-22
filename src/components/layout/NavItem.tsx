@@ -4,19 +4,33 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { usePendingRequisitionsCount } from "@/hooks/useRequisitions";
+import { usePendingProductsCount } from "@/hooks/useProducts";
+import { useHasRole } from "@/hooks/useHasRole";
 import type { NavItemConfig } from "@/constants/nav";
 
 export function NavItem({ item, collapsed = false }: { item: NavItemConfig; collapsed?: boolean }) {
   const pathname = usePathname();
   const active = item.isActive(pathname);
   const Icon = item.icon;
+  // The pending-products approval queue is Super Admin-only server-side —
+  // Manager/Viewer never fetch it here, same as they never see that tab.
+  const isSuperAdmin = useHasRole(["SUPER_ADMIN"]);
 
-  // Only the requisition item sets `badge`, so this query stays disabled (no
-  // network call) for every other nav item — and dedupes against whichever
-  // component is currently viewing the Pending Requisition list, since it's
-  // the same query key.
-  const { data: pendingCount } = usePendingRequisitionsCount({ enabled: item.badge === "pendingRequisitions" });
-  const count = item.badge === "pendingRequisitions" ? pendingCount : undefined;
+  // Each of these queries stays disabled (no network call) for every other
+  // nav item — and dedupes against whichever component is currently viewing
+  // that same pending list, since it's the same query key.
+  const { data: pendingRequisitionsCount } = usePendingRequisitionsCount({
+    enabled: item.badge === "pendingRequisitions",
+  });
+  const { data: pendingProductsCount } = usePendingProductsCount({
+    enabled: item.badge === "pendingProducts" && isSuperAdmin,
+  });
+  const count =
+    item.badge === "pendingRequisitions"
+      ? pendingRequisitionsCount
+      : item.badge === "pendingProducts"
+        ? pendingProductsCount
+        : undefined;
 
   return (
     <Link
@@ -37,7 +51,7 @@ export function NavItem({ item, collapsed = false }: { item: NavItemConfig; coll
       <span className="relative shrink-0">
         <Icon className="h-4.5 w-4.5 opacity-85 sm:h-[15px] sm:w-[15px] lg:h-4 lg:w-4" />
         {collapsed && Boolean(count) && (
-          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red" />
+          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-brass" />
         )}
       </span>
       {collapsed ? (
@@ -49,7 +63,10 @@ export function NavItem({ item, collapsed = false }: { item: NavItemConfig; coll
         <>
           <span>{item.label}</span>
           {Boolean(count) && (
-            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red px-1 text-[10px] font-bold text-white sm:h-[18px] sm:min-w-[18px] sm:text-[11px]">
+            // <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-brass px-1 text-[10px] font-bold text-white sm:h-[18px] sm:min-w-[18px] sm:text-[11px]">
+            //   {count}
+            // </span>
+            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-brass px-1 text-[10px] font-bold text-white sm:h-[18px] sm:min-w-[18px] sm:text-[11px]">
               {count}
             </span>
           )}

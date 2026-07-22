@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { requisitionSchema, type RequisitionFormValues } from "@/lib/validations/requisition.schema";
 import { useCreateRequisition, useUpdateRequisition } from "@/hooks/useRequisitions";
 import { useProducts } from "@/hooks/useProducts";
+import { useCategories } from "@/hooks/useCategories";
 import {
   Dialog,
   DialogContent,
@@ -51,7 +52,13 @@ export function NewRequisitionModal({
 }) {
   const createRequisition = useCreateRequisition();
   const updateRequisition = useUpdateRequisition();
-  const { data: productsPage, isLoading: productsLoading } = useProducts({ page: 1, pageSize: 100 });
+  const [categoryId, setCategoryId] = useState("");
+  const { data: categories } = useCategories();
+  const { data: productsPage, isLoading: productsLoading } = useProducts({
+    page: 1,
+    pageSize: 100,
+    categoryId: categoryId || undefined,
+  });
   const isEditing = Boolean(editingRequisition);
 
   const {
@@ -72,7 +79,10 @@ export function NewRequisitionModal({
   // different requisition to edit) — react-hook-form's defaultValues are
   // only read once at mount otherwise.
   useEffect(() => {
-    if (open) reset(defaultValuesFor(editingRequisition));
+    if (open) {
+      reset(defaultValuesFor(editingRequisition));
+      setCategoryId("");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, editingRequisition]);
 
@@ -121,6 +131,22 @@ export function NewRequisitionModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+          <FormField label="ক্যাটাগরি (ঐচ্ছিক)" htmlFor="req-category">
+            <Select value={categoryId || "all"} onValueChange={(v) => setCategoryId(v === "all" ? "" : v)}>
+              <SelectTrigger id="req-category">
+                <SelectValue placeholder="সব ক্যাটাগরি" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">সব ক্যাটাগরি</SelectItem>
+                {categories?.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+
           <RequisitionItemsSection
             fields={fields}
             control={control}

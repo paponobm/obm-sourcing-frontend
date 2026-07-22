@@ -9,6 +9,9 @@ import { matchesProductSearch } from "@/utils/bangla-search";
 export type SearchableProductOption = {
   id: string;
   name: string;
+  /** When present, also searchable and shown alongside the name (e.g. the
+   * requisition product picker) — callers that don't pass it are unaffected. */
+  sku?: string;
 };
 
 /**
@@ -70,7 +73,12 @@ export function SearchableProductSelect({
   }, [debouncedQuery]);
 
   const filtered = useMemo(
-    () => products.filter((p) => matchesProductSearch(p.name, query)),
+    () =>
+      products.filter(
+        (p) =>
+          matchesProductSearch(p.name, query) ||
+          (p.sku ? p.sku.toLowerCase().includes(query.trim().toLowerCase()) : false),
+      ),
     [products, query],
   );
 
@@ -178,6 +186,7 @@ export function SearchableProductSelect({
                     {p.id === value && <Check className="h-4 w-4 text-teal" />}
                   </span>
                   {p.name}
+                  {p.sku && <span className="ml-1.5 font-mono text-[10px] text-gray">{p.sku}</span>}
                 </button>
               </li>
             ))
