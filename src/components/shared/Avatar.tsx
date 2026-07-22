@@ -28,6 +28,11 @@ export function Avatar({
           src={imageUrl}
           alt=""
           onClick={(e) => {
+            // Rows commonly wrap this avatar in a Link/onRowClick — without
+            // preventDefault, stopping propagation alone blocks the Link's
+            // own handler (which is what calls preventDefault) from ever
+            // running, so the anchor's native navigation fires anyway.
+            e.preventDefault();
             e.stopPropagation();
             setZoomed(true);
           }}
