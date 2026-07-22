@@ -13,6 +13,13 @@ const badgeVariants = cva(
         low: "bg-brass-soft text-brass",
         destructive: "bg-red/10 text-red",
         alert: "bg-orange-100 text-orange-700",
+        // Distinct from `active`/`inactive`/`low` above (which are also
+        // reused for unrelated meanings — order VERIFIED/CLOSED, requisition
+        // priority, payment/fulfillment status) — these back ONLY the
+        // Vendor/Product/Courier PENDING/ACTIVE/INACTIVE status badges.
+        pending: "bg-brass text-white",
+        statusActive: "bg-green text-white",
+        statusInactive: "bg-red text-white",
       },
     },
     defaultVariants: {

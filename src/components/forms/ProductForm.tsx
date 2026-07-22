@@ -104,6 +104,7 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
         categoriesLoading={categoriesLoading}
         units={units}
         unitsLoading={unitsLoading}
+        fixedSkuPrefix="SKU-"
       />
 
       <ImageUploadSection

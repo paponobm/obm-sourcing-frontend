@@ -4,8 +4,8 @@ import type { RequisitionPriority, RequisitionStatus } from "@/types/requisition
 import type { ProductActivityActionType, ProductStatus } from "@/types/product.types";
 
 export const VENDOR_STATUS_LABEL_BN: Record<VendorStatus, string> = {
-  ACTIVE: "অ্যাক্টিভ",
-  INACTIVE: "ইনঅ্যাক্টিভ",
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
 };
 
 export const PAYMENT_STATUS_LABEL_BN: Record<PaymentStatus, string> = {
@@ -13,28 +13,30 @@ export const PAYMENT_STATUS_LABEL_BN: Record<PaymentStatus, string> = {
   UNPAID: "DUE",
 };
 
-export function vendorStatusBadgeVariant(status: VendorStatus): "active" | "inactive" {
-  return status === "ACTIVE" ? "active" : "inactive";
+export function vendorStatusBadgeVariant(status: VendorStatus): "statusActive" | "statusInactive" {
+  return status === "ACTIVE" ? "statusActive" : "statusInactive";
 }
 
 export const PRODUCT_STATUS_LABEL_BN: Record<ProductStatus, string> = {
-  ACTIVE: "অ্যাক্টিভ",
-  INACTIVE: "ইনঅ্যাক্টিভ",
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
   PENDING: "পেন্ডিং",
   REJECTED: "প্রত্যাখ্যাত",
 };
 
-export function productStatusBadgeVariant(status: ProductStatus): "active" | "inactive" | "low" | "destructive" {
+export function productStatusBadgeVariant(
+  status: ProductStatus,
+): "statusActive" | "statusInactive" | "pending" | "destructive" {
   switch (status) {
     case "ACTIVE":
-      return "active";
+      return "statusActive";
     case "PENDING":
-      return "low";
+      return "pending";
     case "REJECTED":
       return "destructive";
     case "INACTIVE":
     default:
-      return "inactive";
+      return "statusInactive";
   }
 }
 
@@ -70,14 +72,20 @@ export const ORDER_STATUS_LABEL_BN: Record<OrderStatus, string> = {
   CLOSED: "ক্লোজড",
 };
 
-export function orderStatusBadgeVariant(status: OrderStatus): "active" | "inactive" | "low" | "destructive" {
+export function orderStatusBadgeVariant(
+  status: OrderStatus,
+): "active" | "inactive" | "low" | "destructive" | "pending" {
   switch (status) {
     case "VERIFIED":
     case "CLOSED":
       return "active";
     case "DISCREPANCY":
       return "destructive";
+    // Labeled "পেন্ডিং" (see ORDER_STATUS_LABEL_BN) — same pending styling
+    // as Product/Vendor's PENDING status. CONFIRMED/RECEIVED keep the
+    // existing "low" look, unchanged.
     case "IN_TRANSIT":
+      return "pending";
     case "CONFIRMED":
     case "RECEIVED":
     default:

@@ -51,7 +51,7 @@ export function RequisitionCard({
             {formatBnDate(requisition.createdAt)} · অনুরোধ করেছেন: {requisition.requestedByName}
           </div>
         </div>
-        <Badge variant="low">{REQUISITION_STATUS_LABEL_BN[requisition.status]}</Badge>
+        <Badge variant="pending">{REQUISITION_STATUS_LABEL_BN[requisition.status]}</Badge>
       </div>
 
       <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-xs text-gray sm:text-sm">
