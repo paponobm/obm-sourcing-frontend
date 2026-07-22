@@ -12,16 +12,23 @@ export function RequisitionSectionTabs({
   active,
   onChange,
   counts,
+  hideOrderHistory,
 }: {
   active: RequisitionSectionKey;
   onChange: (key: RequisitionSectionKey) => void;
   counts: Record<RequisitionSectionKey, number>;
+  /** Manager's Requisition Management page has no order-history view of its
+   * own — this tab stays Admin/Viewer-only. Omitted (or false) leaves the
+   * existing 4-tab set unchanged. */
+  hideOrderHistory?: boolean;
 }) {
   const tabs: { key: RequisitionSectionKey; label: string }[] = [
     { key: "pending", label: `পেন্ডিং (${toBnDigits(counts.pending)})` },
     { key: "confirmed", label: `কনফার্মড (${toBnDigits(counts.confirmed)})` },
     { key: "cancelled", label: `বাতিল (${toBnDigits(counts.cancelled)})` },
-    { key: "orderHistory", label: `সব অর্ডার(${toBnDigits(counts.orderHistory)})` },
+    ...(hideOrderHistory
+      ? []
+      : [{ key: "orderHistory" as const, label: `সব অর্ডার(${toBnDigits(counts.orderHistory)})` }]),
   ];
 
   return (

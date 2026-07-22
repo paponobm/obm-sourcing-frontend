@@ -10,10 +10,10 @@ export default function LoginPage() {
       }}
     >
       <div className="w-full max-w-[380px] rounded-md bg-paper px-8 py-9">
-        <div className="mb-4 flex h-[42px] w-[42px] items-center justify-center rounded-lg bg-teal font-serif text-xl text-brass-soft">
+        <div className="mb-4 flex h-[42px] w-[42px] items-center justify-center rounded-lg bg-brass font-bold text-sm text-brass-soft">
           OS
         </div>
-        <h2 className="m-0 mb-1 font-serif text-[1.3125rem] text-teal-dark">সাইন ইন করুন</h2>
+        <h2 className="m-0 mb-1 font-serif text-[1.3125rem] text-">সাইন ইন করুন</h2>
         <p className="mb-6 text-[0.78125rem] text-gray">
           Online Burmese Market — সোর্সিং প্যানেল
         </p>

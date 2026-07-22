@@ -34,7 +34,8 @@ export function ConfirmedRequisitionCard({
   onViewDetails: () => void;
 }) {
   const totalQty = requisition.items.reduce((sum, i) => sum + i.requiredQty, 0);
-  const canPlaceOrder = !useHasRole(["MANAGER"]);
+  const isManager = useHasRole(["MANAGER"]);
+  const canPlaceOrder = !isManager;
   const vendors = remainingVendors(requisition);
 
   return (
@@ -63,14 +64,18 @@ export function ConfirmedRequisitionCard({
           <div key={item.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs sm:text-sm">
             <span className=" flex flex-wrap items-center gap-1.5 text-ink">
               {item.productName} — {toBnDigits(item.requiredQty)} {item.unit}
-              <SuggestedVendorBadge vendor={item.suggestedVendor} />
-            
-              <AdditionalSuppliers item={item} />
-            
+              {!isManager && (
+                <>
+                  <SuggestedVendorBadge vendor={item.suggestedVendor} />
+                  <AdditionalSuppliers item={item} />
+                </>
+              )}
             </span>
-            <Badge variant={item.fulfilled ? "active" : "low"}>
-              {item.fulfilled ? "অর্ডার করা হয়েছে" : "বাকি আছে"}
-            </Badge>
+            {!isManager && (
+              <Badge variant={item.fulfilled ? "active" : "low"}>
+                {item.fulfilled ? "অর্ডার করা হয়েছে" : "বাকি আছে"}
+              </Badge>
+            )}
           </div>
         ))}
       </div>

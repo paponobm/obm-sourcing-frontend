@@ -138,10 +138,10 @@ export function LoginForm() {
         </p>
       )}
 
-      <Button type="submit" fullWidth className="mt-1.5" disabled={login.isPending}>
+      <Button type="submit" fullWidth className="mt-1.5 bg-brass " disabled={login.isPending}>
         {login.isPending
           ? login.failureCount > 0
-            ? "অপেক্ষা করুন..."
+            ? "অপেক্ষা করুন..." 
             : "সাইন ইন হচ্ছে..."
           : "সাইন ইন করুন"}
       </Button>

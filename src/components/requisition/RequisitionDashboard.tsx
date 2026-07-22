@@ -36,8 +36,14 @@ export function RequisitionDashboard() {
   // workspace — read the active tab from the URL every render (refresh-safe)
   // and push a real history entry per tab switch (Back steps through tabs
   // instead of skipping past all of them straight to the previous page).
+  const isManager = useHasRole(["MANAGER"]);
+  // Manager's page has no order-history view — a direct URL hit on that tab
+  // falls back to Pending, same as an invalid/unrecognized tab value would.
+  const sections: RequisitionSectionKey[] = isManager
+    ? ["pending", "confirmed", "cancelled"]
+    : VALID_SECTIONS;
   const tabParam = searchParams.get("tab");
-  const activeSection: RequisitionSectionKey = VALID_SECTIONS.includes(tabParam as RequisitionSectionKey)
+  const activeSection: RequisitionSectionKey = sections.includes(tabParam as RequisitionSectionKey)
     ? (tabParam as RequisitionSectionKey)
     : "pending";
   const handleSectionChange = (section: RequisitionSectionKey) => {
@@ -76,6 +82,7 @@ export function RequisitionDashboard() {
           cancelled: cancelled?.length ?? 0,
           orderHistory: orderHistory?.length ?? 0,
         }}
+        hideOrderHistory={isManager}
       />
 
       <div key={activeSection} className="animate-in fade-in-0 duration-300">
