@@ -13,6 +13,7 @@ import { QuickDateRangeSelect } from "@/components/shared/QuickDateRangeSelect";
 import { useProductStats } from "@/hooks/useDashboard";
 import { useCategories } from "@/hooks/useCategories";
 import { getQuickDateRange } from "@/utils/quick-date-range";
+import { toBnDigits } from "@/utils/date";
 
 type ProductStatusFilter = "all" | "ACTIVE" | "INACTIVE";
 
@@ -71,9 +72,9 @@ export function ProductsSection() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <AnalyticsStatCard icon={Package} label="মোট প্রোডাক্ট" value={`${stats?.totalProducts ?? 0} টি`} />
-            <AnalyticsStatCard icon={CheckCircle2} label="অ্যাক্টিভ প্রোডাক্ট" value={`${stats?.activeProducts ?? 0} টি`} />
-            <AnalyticsStatCard icon={Ban} label="ইনঅ্যাক্টিভ প্রোডাক্ট" value={`${stats?.inactiveProducts ?? 0} টি`} />
+            <AnalyticsStatCard icon={Package} label="মোট প্রোডাক্ট" value={`${toBnDigits(stats?.totalProducts ?? 0)} টি`} />
+            <AnalyticsStatCard icon={CheckCircle2} label="অ্যাক্টিভ প্রোডাক্ট" value={`${toBnDigits(stats?.activeProducts ?? 0)} টি`} />
+            <AnalyticsStatCard icon={Ban} label="ইনঅ্যাক্টিভ প্রোডাক্ট" value={`${toBnDigits(stats?.inactiveProducts ?? 0)} টি`} />
           </div>
         )
       }

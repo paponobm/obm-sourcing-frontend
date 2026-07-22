@@ -24,6 +24,7 @@ import {
 import { useActivities } from "@/hooks/useActivities";
 import { useHasRole } from "@/hooks/useHasRole";
 import { cn } from "@/lib/utils";
+import { toBnDigits } from "@/utils/date";
 
 type DashboardTab = "overview" | "product" | "vendor" | "order" | "requisition";
 
@@ -96,24 +97,24 @@ export default function DashboardPage() {
           <StatRow>
             <StatCard
               label="মোট ভেন্ডর"
-              value={statsLoading ? "..." : String(stats?.totalVendors ?? 0)}
-              delta={statsLoading ? undefined : `${stats?.activeVendors} অ্যাক্টিভ`}
+              value={statsLoading ? "..." : toBnDigits(stats?.totalVendors ?? 0)}
+              delta={statsLoading ? undefined : `${toBnDigits(stats?.activeVendors ?? 0)} অ্যাক্টিভ`}
             />
             <StatCard
               label="মোট প্রোডাক্ট"
-              value={statsLoading ? "..." : String(stats?.totalProducts ?? 0)}
-              delta={statsLoading ? undefined : `+${stats?.newProductsThisWeek} এই সপ্তাহে`}
+              value={statsLoading ? "..." : toBnDigits(stats?.totalProducts ?? 0)}
+              delta={statsLoading ? undefined : `+${toBnDigits(stats?.newProductsThisWeek ?? 0)} এই সপ্তাহে`}
             />
             <StatCard
               label="আজ দাম আপডেট হয়েছে"
-              value={statsLoading ? "..." : String(stats?.priceUpdatesToday ?? 0)}
+              value={statsLoading ? "..." : toBnDigits(stats?.priceUpdatesToday ?? 0)}
               delta={
-                statsLoading ? undefined : `${stats?.priceUpdatesFromVendorsCount} জন ভেন্ডর থেকে`
+                statsLoading ? undefined : `${toBnDigits(stats?.priceUpdatesFromVendorsCount ?? 0)} জন ভেন্ডর থেকে`
               }
             />
             <StatCard
               label="দাম-পার্থক্য বেশি এমন প্রোডাক্ট"
-              value={statsLoading ? "..." : String(stats?.priceDiscrepancyCount ?? 0)}
+              value={statsLoading ? "..." : toBnDigits(stats?.priceDiscrepancyCount ?? 0)}
               delta="রিভিউ প্রয়োজন"
               deltaVariant="brass"
             />

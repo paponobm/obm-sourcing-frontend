@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { useVendorInvoices } from "@/hooks/useInvoices";
 import { formatBDT } from "@/utils/currency";
-import { formatBnDate } from "@/utils/date";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import { ROUTES } from "@/constants/routes";
 
 export function VendorOrdersTable({ vendorId }: { vendorId: string }) {
@@ -25,7 +25,7 @@ export function VendorOrdersTable({ vendorId }: { vendorId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>সব ইনভয়েস (মোট {invoices?.length ?? "..."} টি)</CardTitle>
+        <CardTitle>সব ইনভয়েস (মোট {invoices != null ? toBnDigits(invoices.length) : "..."} টি)</CardTitle>
         <button
           type="button"
           onClick={() => setOldestFirst((v) => !v)}
@@ -64,7 +64,7 @@ export function VendorOrdersTable({ vendorId }: { vendorId: string }) {
               <TableRow key={inv.id}>
                 <TableCell className="font-mono">{inv.invoiceNumber}</TableCell>
                 <TableCell className="text-gray">{formatBnDate(inv.orderedAt)}</TableCell>
-                <TableCell>{inv.itemCount} টি</TableCell>
+                <TableCell className="font-mono">{toBnDigits(inv.itemCount)} টি</TableCell>
                 <TableCell className="font-mono font-bold text-brass">
                   {formatBDT(inv.procurementCost ?? inv.totalAmount)}
                 </TableCell>

@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useRequisitionSummary } from "@/hooks/useRequisitions";
 import { useProducts } from "@/hooks/useProducts";
+import { toBnDigits } from "@/utils/date";
 
 /** Manager's restricted Panel dashboard — just their own contribution
  * numbers, none of the Super Admin's global tabbed analytics. Requisition
@@ -30,19 +31,19 @@ export function ManagerDashboardSection() {
           <AnalyticsStatCard
             icon={ClipboardList}
             label="মোট রিকুইজিশন তৈরি"
-            value={`${requisitionSummary?.totalRequisitions ?? 0} টি`}
+            value={`${toBnDigits(requisitionSummary?.totalRequisitions ?? 0)} টি`}
           />
           <AnalyticsStatCard
             icon={CheckCircle2}
             label="কনফার্মড রিকুইজিশন"
-            value={`${requisitionSummary?.confirmedCount ?? 0} টি`}
+            value={`${toBnDigits(requisitionSummary?.confirmedCount ?? 0)} টি`}
           />
           <AnalyticsStatCard
             icon={XCircle}
             label="বাতিল রিকুইজিশন"
-            value={`${requisitionSummary?.cancelledCount ?? 0} টি`}
+            value={`${toBnDigits(requisitionSummary?.cancelledCount ?? 0)} টি`}
           />
-          <AnalyticsStatCard icon={Package} label="মোট প্রোডাক্ট যোগ" value={`${productsPage?.total ?? 0} টি`} />
+          <AnalyticsStatCard icon={Package} label="মোট প্রোডাক্ট যোগ" value={`${toBnDigits(productsPage?.total ?? 0)} টি`} />
         </>
       )}
     </div>

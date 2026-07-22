@@ -14,7 +14,7 @@ import { InvoicePrintView } from "@/components/invoice/InvoicePrintView";
 import { useSectionInvoice } from "@/hooks/useSectionInvoice";
 import { ROUTES } from "@/constants/routes";
 import { formatBDT } from "@/utils/currency";
-import { formatBnDate } from "@/utils/date";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 
 const CLOSED_STATUSES = ["CLOSED"] as const;
 
@@ -112,11 +112,13 @@ export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string
           <TableBody>
             {invoice.items.map((item, index) => (
               <TableRow key={item.id}>
-                <TableCell className="text-center text-gray">{index + 1}</TableCell>
+                <TableCell className="text-center font-mono text-gray">{toBnDigits(index + 1)}</TableCell>
                 <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">{item.productName}</TableCell>
                 <TableCell className="font-mono text-brass">{formatBDT(item.priceAtOrder)}</TableCell>
-                <TableCell>{item.orderedQty}</TableCell>
-                <TableCell>{item.receivedQty ?? "–"}</TableCell>
+                <TableCell className="font-mono">{toBnDigits(item.orderedQty)}</TableCell>
+                <TableCell className="font-mono">
+                  {item.receivedQty != null ? toBnDigits(item.receivedQty) : "–"}
+                </TableCell>
                 <TableCell className="font-mono font-bold text-brass">{formatBDT(item.lineTotal)}</TableCell>
               </TableRow>
             ))}
@@ -136,15 +138,15 @@ export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string
       <div className="mt-3.5 flex flex-col items-end gap-1 text-xs print:hidden sm:mt-4 sm:text-sm">
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট প্রোডাক্ট</span>
-          <span className="font-semibold">{totalProducts} টি</span>
+          <span className="font-mono font-semibold">{toBnDigits(totalProducts)} টি</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট অর্ডার Qty</span>
-          <span className="font-semibold">{totalOrderedQty} পিস</span>
+          <span className="font-mono font-semibold">{toBnDigits(totalOrderedQty)} পিস</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট রিসিভড Qty</span>
-          <span className="font-semibold">{totalReceivedQty} পিস</span>
+          <span className="font-mono font-semibold">{toBnDigits(totalReceivedQty)} পিস</span>
         </div>
         <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
           <span className="font-serif text-sm text-teal-dark sm:text-base">গ্র্যান্ড টোটাল</span>
@@ -154,11 +156,11 @@ export function ClosedInvoiceSection({ vendorId, invoiceId }: { vendorId: string
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">লেবার কস্ট</span>
-          <span className="font-semibold">{formatBDT(invoice.laborCost ?? 0)}</span>
+          <span className="font-mono font-semibold">{formatBDT(invoice.laborCost ?? 0)}</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">কুরিয়ার কস্ট</span>
-          <span className="font-semibold">{formatBDT(invoice.courierCost ?? 0)}</span>
+          <span className="font-mono font-semibold">{formatBDT(invoice.courierCost ?? 0)}</span>
         </div>
         <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
           <span className="font-serif text-sm text-teal-dark sm:text-base">ফাইনাল প্রোকিউরমেন্ট কস্ট</span>

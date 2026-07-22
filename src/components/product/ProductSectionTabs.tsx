@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { usePendingProductsCount } from "@/hooks/useProducts";
 import { useHasRole } from "@/hooks/useHasRole";
+import { toBnDigits } from "@/utils/date";
 
 export type ProductSectionKey = "all" | "pending" | "mine";
 
@@ -57,7 +58,7 @@ export function ProductSectionTabs({
               active === "pending" ? "bg-teal text-white shadow-md" : "bg-paper-2 text-ink hover:bg-line",
             )}
           >
-            পেন্ডিং প্রোডাক্ট ({pendingCount ?? 0})
+            পেন্ডিং প্রোডাক্ট ({toBnDigits(pendingCount ?? 0)})
           </button>
         )}
       </div>

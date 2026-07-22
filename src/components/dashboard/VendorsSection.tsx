@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { QuickDateRangeSelect } from "@/components/shared/QuickDateRangeSelect";
 import { useVendorStats } from "@/hooks/useDashboard";
 import { getQuickDateRange } from "@/utils/quick-date-range";
+import { toBnDigits } from "@/utils/date";
 
 type VendorStatusFilter = "all" | "ACTIVE" | "INACTIVE";
 
@@ -55,10 +56,10 @@ export function VendorsSection() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <AnalyticsStatCard icon={Store} label="মোট ভেন্ডর" value={`${stats?.totalVendors ?? 0} টি`} />
-            <AnalyticsStatCard icon={CheckCircle2} label="অ্যাক্টিভ ভেন্ডর" value={`${stats?.activeVendors ?? 0} টি`} />
-            <AnalyticsStatCard icon={Ban} label="ইনঅ্যাক্টিভ ভেন্ডর" value={`${stats?.inactiveVendors ?? 0} টি`} />
-            <AnalyticsStatCard icon={Truck} label="মাসিক অ্যাক্টিভ সাপ্লায়ার" value={`${stats?.monthlyActiveSuppliers ?? 0} টি`} />
+            <AnalyticsStatCard icon={Store} label="মোট ভেন্ডর" value={`${toBnDigits(stats?.totalVendors ?? 0)} টি`} />
+            <AnalyticsStatCard icon={CheckCircle2} label="অ্যাক্টিভ ভেন্ডর" value={`${toBnDigits(stats?.activeVendors ?? 0)} টি`} />
+            <AnalyticsStatCard icon={Ban} label="ইনঅ্যাক্টিভ ভেন্ডর" value={`${toBnDigits(stats?.inactiveVendors ?? 0)} টি`} />
+            <AnalyticsStatCard icon={Truck} label="মাসিক অ্যাক্টিভ সাপ্লায়ার" value={`${toBnDigits(stats?.monthlyActiveSuppliers ?? 0)} টি`} />
           </div>
         )
       }

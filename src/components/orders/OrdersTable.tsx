@@ -6,7 +6,7 @@ import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import type { VendorSectionKey } from "@/components/vendor/VendorSectionTabs";
 import { ROUTES } from "@/constants/routes";
 import { formatBDT } from "@/utils/currency";
-import { formatBnDate } from "@/utils/date";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import type { OrderListItem } from "@/types/order.types";
 import type { OrderStatus } from "@/types/invoice.types";
 
@@ -81,7 +81,7 @@ export function OrdersTable({
     {
       key: "itemCount",
       header: "মোট প্রোডাক্ট",
-      render: (o) => `${o.itemCount} টি`,
+      render: (o) => <span className="font-mono">{toBnDigits(o.itemCount)} টি</span>,
     },
     {
       key: "totalAmount",

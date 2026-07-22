@@ -23,7 +23,7 @@ import { useCouriers } from "@/hooks/useCouriers";
 import { useHasRole } from "@/hooks/useHasRole";
 import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
-import { formatBnDate } from "@/utils/date";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
 import { ROUTES } from "@/constants/routes";
 import type { PaymentStatus } from "@/types/invoice.types";
@@ -258,13 +258,17 @@ export default function InvoiceDetailPage() {
           <TableBody>
             {invoice.items.map((item, index) => (
               <TableRow key={item.id}>
-                <TableCell className="text-center text-gray">{index + 1}</TableCell>
+                <TableCell className="text-center font-mono text-gray">{toBnDigits(index + 1)}</TableCell>
                 <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
                   {item.productName}
                 </TableCell>
                 <TableCell className="font-mono text-brass">{priceText(item.priceAtOrder)}</TableCell>
-                <TableCell>{item.orderedQty}</TableCell>
-                {showReceivedColumn && <TableCell>{item.receivedQty ?? "–"}</TableCell>}
+                <TableCell className="font-mono">{toBnDigits(item.orderedQty)}</TableCell>
+                {showReceivedColumn && (
+                  <TableCell className="font-mono">
+                    {item.receivedQty != null ? toBnDigits(item.receivedQty) : "–"}
+                  </TableCell>
+                )}
                 {showReceivedColumn && <TableCell className="text-gray">{item.remark || "–"}</TableCell>}
                 <TableCell className="font-mono font-bold text-brass">{priceText(item.lineTotal)}</TableCell>
               </TableRow>
@@ -276,12 +280,12 @@ export default function InvoiceDetailPage() {
       <div className="mt-3.5 flex flex-col items-end gap-1 text-xs print:hidden sm:mt-4 sm:text-sm">
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট প্রোডাক্ট</span>
-          <span className="font-mono">{invoice.items.length} টি</span>
+          <span className="font-mono">{toBnDigits(invoice.items.length)} টি</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট কোয়ান্টিটি</span>
           <span className="font-mono">
-            {invoice.items.reduce((sum, item) => sum + item.orderedQty, 0)} পিস
+            {toBnDigits(invoice.items.reduce((sum, item) => sum + item.orderedQty, 0))} পিস
           </span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">

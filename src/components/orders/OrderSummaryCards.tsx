@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { AlertTriangle, CheckCircle2, Clock, Package, PackageCheck, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
+import { toBnDigits } from "@/utils/date";
 import type { OrderSummary } from "@/types/order.types";
 
 function SummaryCard({
@@ -44,11 +45,11 @@ function SummaryCard({
 export function OrderSummaryCards({ summary }: { summary: OrderSummary | undefined }) {
   return (
     <div className="mb-3.5 grid grid-cols-1 gap-3 sm:mb-4 sm:grid-cols-2 sm:gap-3.5 md:grid-cols-3 lg:grid-cols-6">
-      <SummaryCard icon={Package} label="মোট অর্ডার" value={`${summary?.totalOrders ?? 0} টি`} />
-      <SummaryCard icon={Clock} label="পেন্ডিং অর্ডার" value={`${summary?.pendingOrders ?? 0} টি`} />
-      <SummaryCard icon={PackageCheck} label="রিসিভড অর্ডার" value={`${summary?.receivedOrders ?? 0} টি`} />
-      <SummaryCard icon={CheckCircle2} label="ক্লোজড অর্ডার" value={`${summary?.closedOrders ?? 0} টি`} />
-      <SummaryCard icon={AlertTriangle} label="ডিসক্রেপান্সি অর্ডার" value={`${summary?.discrepancyOrders ?? 0} টি`} />
+      <SummaryCard icon={Package} label="মোট অর্ডার" value={`${toBnDigits(summary?.totalOrders ?? 0)} টি`} />
+      <SummaryCard icon={Clock} label="পেন্ডিং অর্ডার" value={`${toBnDigits(summary?.pendingOrders ?? 0)} টি`} />
+      <SummaryCard icon={PackageCheck} label="রিসিভড অর্ডার" value={`${toBnDigits(summary?.receivedOrders ?? 0)} টি`} />
+      <SummaryCard icon={CheckCircle2} label="ক্লোজড অর্ডার" value={`${toBnDigits(summary?.closedOrders ?? 0)} টি`} />
+      <SummaryCard icon={AlertTriangle} label="ডিসক্রেপান্সি অর্ডার" value={`${toBnDigits(summary?.discrepancyOrders ?? 0)} টি`} />
       <SummaryCard
         icon={Wallet}
         label="মোট প্রোকিউরমেন্ট কস্ট"

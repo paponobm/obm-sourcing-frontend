@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { toBnDigits } from "@/utils/date";
 
 export function RankBadge({ rank }: { rank: number }) {
   return (
@@ -8,7 +9,7 @@ export function RankBadge({ rank }: { rank: number }) {
         rank === 1 ? "bg-brass text-white" : "bg-paper-2 text-gray",
       )}
     >
-      {rank}
+      {toBnDigits(rank)}
     </span>
   );
 }

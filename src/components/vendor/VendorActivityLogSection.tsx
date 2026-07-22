@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { PriceChangeActivityDetails } from "@/components/shared/PriceChangeActivityDetails";
 import { useVendorActivityLogs } from "@/hooks/useVendors";
 import { PRODUCT_ACTIVITY_ACTION_LABEL_BN } from "@/utils/status";
-import { formatBnDate, formatBnTime } from "@/utils/date";
+import { formatBnDate, formatBnTime, toBnDigits } from "@/utils/date";
 
 /** "প্রোফাইল → অ্যাক্টিভিটি লগ" — every price/rating/status/vendor-added
  * change for this vendor, across every product it supplies. Same underlying
@@ -18,7 +18,7 @@ export function VendorActivityLogSection({ vendorId }: { vendorId: string }) {
     <Card>
       <CardHeader>
         <CardTitle>অ্যাক্টিভিটি লগ</CardTitle>
-        <CardTag>{logs?.length ?? 0} টি</CardTag>
+        <CardTag>{toBnDigits(logs?.length ?? 0)} টি</CardTag>
       </CardHeader>
 
       <div className="space-y-3 p-3 sm:p-4">

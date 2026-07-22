@@ -15,6 +15,7 @@ import { useVendors } from "@/hooks/useVendors";
 import { formatBDT } from "@/utils/currency";
 import { ORDER_STATUS_LABEL_BN } from "@/utils/status";
 import { getQuickDateRange } from "@/utils/quick-date-range";
+import { toBnDigits } from "@/utils/date";
 import type { OrderStatus } from "@/types/invoice.types";
 
 const ORDER_STATUSES: OrderStatus[] = ["IN_TRANSIT", "CONFIRMED", "RECEIVED", "DISCREPANCY", "VERIFIED", "CLOSED"];
@@ -75,11 +76,11 @@ export function OrdersSection() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <AnalyticsStatCard icon={ShoppingCart} label="মোট অর্ডার" value={`${summary?.totalOrders ?? 0} টি`} />
-            <AnalyticsStatCard icon={Clock} label="পেন্ডিং" value={`${summary?.pendingOrders ?? 0} টি`} />
-            <AnalyticsStatCard icon={PackageCheck} label="রিসিভড" value={`${summary?.receivedOrders ?? 0} টি`} />
-            <AnalyticsStatCard icon={CheckCircle2} label="ক্লোজড" value={`${summary?.closedOrders ?? 0} টি`} />
-            <AnalyticsStatCard icon={AlertTriangle} label="ডিসক্রেপান্সি" value={`${summary?.discrepancyOrders ?? 0} টি`} />
+            <AnalyticsStatCard icon={ShoppingCart} label="মোট অর্ডার" value={`${toBnDigits(summary?.totalOrders ?? 0)} টি`} />
+            <AnalyticsStatCard icon={Clock} label="পেন্ডিং" value={`${toBnDigits(summary?.pendingOrders ?? 0)} টি`} />
+            <AnalyticsStatCard icon={PackageCheck} label="রিসিভড" value={`${toBnDigits(summary?.receivedOrders ?? 0)} টি`} />
+            <AnalyticsStatCard icon={CheckCircle2} label="ক্লোজড" value={`${toBnDigits(summary?.closedOrders ?? 0)} টি`} />
+            <AnalyticsStatCard icon={AlertTriangle} label="ডিসক্রেপান্সি" value={`${toBnDigits(summary?.discrepancyOrders ?? 0)} টি`} />
             <AnalyticsStatCard
               icon={Wallet}
               label="গ্র্যান্ড টোটাল কস্ট"

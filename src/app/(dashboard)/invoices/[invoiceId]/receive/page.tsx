@@ -21,7 +21,7 @@ import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
 import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
-import { formatBnDate, formatBnTime } from "@/utils/date";
+import { formatBnDate, formatBnTime, toBnDigits } from "@/utils/date";
 import type { PaymentStatus } from "@/types/invoice.types";
 import { OrderStepper } from "@/components/vendor/OrderStepper";
 
@@ -319,9 +319,9 @@ export default function ReceiveCheckPage() {
 
                 return (
                   <TableRow key={item.id} className={cn(matched ? "bg-green-soft" : "bg-[#f6e5e2]")}>
-                    <TableCell className="text-center text-gray">{index + 1}</TableCell>
+                    <TableCell className="text-center font-mono text-gray">{toBnDigits(index + 1)}</TableCell>
                     <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">{item.productName}</TableCell>
-                    <TableCell>{item.orderedQty}</TableCell>
+                    <TableCell className="font-mono">{toBnDigits(item.orderedQty)}</TableCell>
                     <TableCell>
                       <Input
                         type="number"
@@ -557,11 +557,11 @@ export default function ReceiveCheckPage() {
 
               return (
                 <TableRow key={item.id} className={cn(matched ? "bg-green-soft" : "bg-[#f6e5e2]")}>
-                  <TableCell className="text-center text-gray">{index + 1}</TableCell>
+                  <TableCell className="text-center font-mono text-gray">{toBnDigits(index + 1)}</TableCell>
                   <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
                     {item.productName}
                   </TableCell>
-                  <TableCell>{item.orderedQty}</TableCell>
+                  <TableCell className="font-mono">{toBnDigits(item.orderedQty)}</TableCell>
                   <TableCell>
                     <Input
                       type="number"
@@ -581,7 +581,9 @@ export default function ReceiveCheckPage() {
                     ) : (
                       <span className="inline-flex items-center gap-1 font-semibold text-red">
                         <X className="h-3.5 w-3.5" />
-                        {diff < 0 ? `কম এসেছে (${Math.abs(diff)})` : `বেশি এসেছে (${diff})`}
+                        {diff < 0
+                          ? `কম এসেছে (${toBnDigits(Math.abs(diff))})`
+                          : `বেশি এসেছে (${toBnDigits(diff)})`}
                       </span>
                     )}
                   </TableCell>

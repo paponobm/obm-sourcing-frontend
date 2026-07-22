@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { usePendingRequisitionsCount } from "@/hooks/useRequisitions";
 import { usePendingProductsCount } from "@/hooks/useProducts";
 import { useHasRole } from "@/hooks/useHasRole";
+import { toBnDigits } from "@/utils/date";
 import type { NavItemConfig } from "@/constants/nav";
 
 export function NavItem({ item, collapsed = false }: { item: NavItemConfig; collapsed?: boolean }) {
@@ -57,7 +58,7 @@ export function NavItem({ item, collapsed = false }: { item: NavItemConfig; coll
       {collapsed ? (
         <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-teal-dark px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-panel transition-opacity duration-150 group-hover:opacity-100">
           {item.label}
-          {Boolean(count) && ` (${count})`}
+          {Boolean(count) && ` (${toBnDigits(count ?? 0)})`}
         </span>
       ) : (
         <>
@@ -66,8 +67,8 @@ export function NavItem({ item, collapsed = false }: { item: NavItemConfig; coll
             // <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-brass px-1 text-[10px] font-bold text-white sm:h-[18px] sm:min-w-[18px] sm:text-[11px]">
             //   {count}
             // </span>
-            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-brass px-1 text-[10px] font-bold text-white sm:h-[18px] sm:min-w-[18px] sm:text-[11px]">
-              {count}
+            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-brass px-1 font-mono text-[10px] font-bold text-white sm:h-[18px] sm:min-w-[18px] sm:text-[11px]">
+              {toBnDigits(count ?? 0)}
             </span>
           )}
         </>

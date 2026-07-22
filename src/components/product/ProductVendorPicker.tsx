@@ -4,7 +4,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { StarRating } from "./StarRating";
 import { formatBDT } from "@/utils/currency";
-import { formatBnDate } from "@/utils/date";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import type { ProductVendorEntry } from "@/types/product.types";
 
 /** Inline vendor viewer for a product row — always shows the vendor this
@@ -59,7 +59,7 @@ export function ProductVendorPicker({
                       </div>
                       <div>
                         <span className="text-gray">মোট অর্ডার: </span>
-                        {v.totalOrderCount} টি
+                        <span className="font-mono">{toBnDigits(v.totalOrderCount)}</span> টি
                       </div>
                       <div>
                         <span className="text-gray">সর্বশেষ অর্ডার: </span>

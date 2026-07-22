@@ -1,4 +1,4 @@
-import { formatBnDate } from "@/utils/date";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
 import type { Invoice } from "@/types/invoice.types";
 
@@ -88,11 +88,11 @@ export function InvoicePrintView({ invoice }: { invoice: Invoice }) {
         <tbody>
           {invoice.items.map((item, index) => (
             <tr key={item.id}>
-              <td className="border border-black px-2 py-1.5 text-center">
-                {index + 1}
+              <td className="border border-black px-2 py-1.5 text-center font-mono">
+                {toBnDigits(index + 1)}
               </td>
               <td className="border border-black px-2 py-1.5">{item.productName}</td>
-               <td className="border border-black px-2 py-1.5">{item.orderedQty}</td>
+               <td className="border border-black px-2 py-1.5 font-mono">{toBnDigits(item.orderedQty)}</td>
               <td className="border border-black px-2 py-1.5">{item.unit}</td>
              
               <td className="border border-black px-2 py-1.5">{item.remark || "–"}</td>

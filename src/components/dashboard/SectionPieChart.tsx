@@ -1,6 +1,7 @@
 "use client";
 
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { toBnDigits } from "@/utils/date";
 
 export type PieSlice = {
   name: string;
@@ -39,7 +40,7 @@ export function SectionPieChart({ data, emptyLabel = "কোনো তথ্য 
           innerRadius={40}
           outerRadius={75}
           paddingAngle={2}
-          label={({ percent }) => `${Math.round((percent ?? 0) * 100)}%`}
+          label={({ percent }) => `${toBnDigits(Math.round((percent ?? 0) * 100))}%`}
           labelLine={false}
         >
           {slices.map((slice) => (
@@ -47,7 +48,7 @@ export function SectionPieChart({ data, emptyLabel = "কোনো তথ্য 
           ))}
         </Pie>
         <Tooltip
-          formatter={(value, name) => [`${value} টি`, name]}
+          formatter={(value, name) => [`${toBnDigits(Number(value))} টি`, name]}
           contentStyle={{
             borderRadius: 8,
             border: "1px solid var(--line)",

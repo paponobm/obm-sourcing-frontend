@@ -6,7 +6,7 @@ import { Avatar } from "@/components/shared/Avatar";
 import { RankBadge } from "./RankBadge";
 import { PriceCell } from "./PriceCell";
 import { StarRating } from "./StarRating";
-import { formatBnDate } from "@/utils/date";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import type { ProductVendorEntry } from "@/types/product.types";
@@ -22,7 +22,9 @@ export function PriceCompareTable({
     <Card>
       <CardHeader>
         <CardTitle>{productName}</CardTitle>
-        <CardTag>{rows.length} জন ভেন্ডর</CardTag>
+        <CardTag>
+          <span className="font-mono">{toBnDigits(rows.length)}</span> জন ভেন্ডর
+        </CardTag>
       </CardHeader>
       <Table>
         <TableHeader>

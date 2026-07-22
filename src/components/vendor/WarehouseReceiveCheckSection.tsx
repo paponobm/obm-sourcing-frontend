@@ -21,6 +21,7 @@ import { useSectionInvoice } from "@/hooks/useSectionInvoice";
 import { useCouriers } from "@/hooks/useCouriers";
 import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
+import { toBnDigits } from "@/utils/date";
 import { PAYMENT_STATUS_LABEL_BN } from "@/utils/status";
 import type { PaymentStatus } from "@/types/invoice.types";
 import { OrderStepper } from "./OrderStepper";
@@ -326,9 +327,9 @@ export function WarehouseReceiveCheckSection({
               const diff = receivedQtyNum - item.orderedQty;
               return (
                 <TableRow key={item.id} className={ROW_BG[status]}>
-                  <TableCell className="text-center text-gray">{index + 1}</TableCell>
+                  <TableCell className="text-center text-gray">{toBnDigits(index + 1)}</TableCell>
                   <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">{item.productName}</TableCell>
-                  <TableCell>{item.orderedQty}</TableCell>
+                  <TableCell>{toBnDigits(item.orderedQty)}</TableCell>
                   <TableCell>
                     <Input
                       type="number"
@@ -352,7 +353,7 @@ export function WarehouseReceiveCheckSection({
                           <X className="h-3.5 w-3.5" /> কম রিসিভড
                         </span>
                         <div className="text-[11px] text-red sm:text-xs">
-                          ঘাটতি: {Math.abs(diff)} {item.unit}
+                          ঘাটতি: {toBnDigits(Math.abs(diff))} {item.unit}
                         </div>
                       </div>
                     )}
@@ -362,7 +363,7 @@ export function WarehouseReceiveCheckSection({
                           <ArrowUp className="h-3.5 w-3.5" /> বেশি রিসিভড
                         </span>
                         <div className="text-[11px] text-brass sm:text-xs">
-                          অতিরিক্ত: {diff} {item.unit}
+                          অতিরিক্ত: {toBnDigits(diff)} {item.unit}
                         </div>
                       </div>
                     )}
@@ -384,17 +385,17 @@ export function WarehouseReceiveCheckSection({
 
       <div className="mt-3.5 sm:mt-4">
         <StatRow>
-          <StatCard label="মোট প্রোডাক্ট" value={String(totalProducts)} />
-          <StatCard label="মিলেছে" value={String(matchedCount)} />
+          <StatCard label="মোট প্রোডাক্ট" value={toBnDigits(totalProducts)} />
+          <StatCard label="মিলেছে" value={toBnDigits(matchedCount)} />
           <StatCard
             label="কম রিসিভড"
-            value={String(shortCount)}
+            value={toBnDigits(shortCount)}
             delta={shortCount > 0 ? "রিভিউ প্রয়োজন" : undefined}
             deltaVariant="brass"
           />
           <StatCard
             label="বেশি রিসিভড"
-            value={String(overCount)}
+            value={toBnDigits(overCount)}
             delta={overCount > 0 ? "রিভিউ প্রয়োজন" : undefined}
             deltaVariant="brass"
           />
@@ -405,7 +406,7 @@ export function WarehouseReceiveCheckSection({
         <div className="mb-3.5 flex gap-2 rounded-md bg-paper-2 px-3 py-2.5 text-xs text-gray sm:mb-4 sm:text-sm">
           <Info className="h-4 w-4 shrink-0" />
           <p className="m-0">
-            {pendingCount} টি প্রোডাক্টের রিসিভড Qty এখনো লেখা হয়নি — ভেরিফাই করার আগে সবগুলো পূরণ করুন।
+            {toBnDigits(pendingCount)} টি প্রোডাক্টের রিসিভড Qty এখনো লেখা হয়নি — ভেরিফাই করার আগে সবগুলো পূরণ করুন।
           </p>
         </div>
       )}

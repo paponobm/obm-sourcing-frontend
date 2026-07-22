@@ -20,7 +20,7 @@ export function StatCard({
       {delta && (
         <div
           className={
-            "mt-1 text-[0.625rem] sm:text-[0.6875rem] " +
+            "mt-1 font-mono text-[0.625rem] sm:text-[0.6875rem] " +
             (deltaVariant === "brass" ? "text-brass" : "text-green")
           }
         >

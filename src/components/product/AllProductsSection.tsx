@@ -29,6 +29,7 @@ import { useHasRole } from "@/hooks/useHasRole";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { MANAGE_CATALOG_ROLES } from "@/constants/roles";
 import { PRODUCT_STATUS_LABEL_BN, productStatusBadgeVariant } from "@/utils/status";
+import { toBnDigits } from "@/utils/date";
 import type { Product } from "@/types/product.types";
 import type { ProductSortColumn } from "@/services/product.service";
 import type { SortDirection } from "@/types/common.types";
@@ -86,6 +87,14 @@ export function AllProductsSection({ scopeToOwn = false }: { scopeToOwn?: boolea
 
   const columns: DataTableColumn<Product>[] = [
     {
+      key: "serial",
+      header: "ক্রমিক",
+      render: (p) => {
+        const index = (data?.data ?? []).findIndex((row) => row.id === p.id);
+        return <span className="font-mono text-gray">{toBnDigits((page - 1) * PAGE_SIZE + index + 1)}</span>;
+      },
+    },
+    {
       key: "name",
       header: "প্রোডাক্টের নাম",
       sortable: true,
@@ -114,7 +123,7 @@ export function AllProductsSection({ scopeToOwn = false }: { scopeToOwn?: boolea
             key: "vendorCount",
             header: "ভেন্ডর সংখ্যা",
             sortable: true,
-            render: (p: Product) => `${p.vendorCount} জন`,
+            render: (p: Product) => <span className="font-mono">{toBnDigits(p.vendorCount)} জন</span>,
           },
           {
             key: "vendors",
@@ -197,7 +206,7 @@ export function AllProductsSection({ scopeToOwn = false }: { scopeToOwn?: boolea
   return (
     <>
       <Topbar
-        title={`প্রোডাক্ট তালিকা (${data?.total ?? "..."})`}
+        title={`প্রোডাক্ট তালিকা (${data?.total != null ? toBnDigits(data.total) : "..."})`}
         actions={
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <ProductSearchBar

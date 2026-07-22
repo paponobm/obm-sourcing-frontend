@@ -17,7 +17,7 @@ import { usePendingProducts } from "@/hooks/useProducts";
 import { useHasRole } from "@/hooks/useHasRole";
 import { SUPER_ADMIN_ONLY } from "@/constants/roles";
 import { PRODUCT_STATUS_LABEL_BN, productStatusBadgeVariant } from "@/utils/status";
-import { formatBnDate } from "@/utils/date";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import type { PendingProduct } from "@/types/product.types";
 
 export function PendingProductsSection() {
@@ -52,12 +52,13 @@ export function PendingProductsSection() {
 
   return (
     <>
-      <Topbar title={`পেন্ডিং প্রোডাক্ট (${products?.length ?? 0})`} />
+      <Topbar title={`পেন্ডিং প্রোডাক্ট (${toBnDigits(products?.length ?? 0)})`} />
 
       <Card>
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10 text-center">ক্রমিক</TableHead>
               <TableHead>প্রোডাক্ট</TableHead>
               <TableHead>SKU</TableHead>
               <TableHead>ক্যাটাগরি</TableHead>
@@ -68,8 +69,9 @@ export function PendingProductsSection() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products?.map((p) => (
+            {products?.map((p, index) => (
               <TableRow key={p.id}>
+                <TableCell className="text-center font-mono text-gray">{toBnDigits(index + 1)}</TableCell>
                 <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
                   <span className="flex items-center">
                     <Avatar initials={p.name.slice(0, 2)} imageUrl={p.thumbnailUrl} />

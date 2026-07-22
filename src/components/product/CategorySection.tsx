@@ -21,6 +21,7 @@ import { Avatar } from "@/components/shared/Avatar";
 import { useCategories, useDeleteCategory } from "@/hooks/useCategories";
 import { useHasRole } from "@/hooks/useHasRole";
 import { SUPER_ADMIN_ONLY } from "@/constants/roles";
+import { toBnDigits } from "@/utils/date";
 
 export function CategorySection() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -36,7 +37,7 @@ export function CategorySection() {
   return (
     <>
       <Topbar
-        title={`প্রোডাক্ট ক্যাটাগরি (${categories?.length ?? "..."})`}
+        title={`প্রোডাক্ট ক্যাটাগরি (${categories != null ? toBnDigits(categories.length) : "..."})`}
         actions={
           canManage && (
             <Button variant="brass" onClick={() => setCreateOpen(true)}>
@@ -80,7 +81,7 @@ export function CategorySection() {
                       {c.name}
                     </span>
                   </TableCell>
-                  <TableCell>{c.productCount} টি</TableCell>
+                  <TableCell className="font-mono">{toBnDigits(c.productCount)} টি</TableCell>
                   {showActionsColumn && (
                     <TableCell>
                       <div className="flex justify-end gap-1.5">
@@ -99,7 +100,7 @@ export function CategorySection() {
                             title="ক্যাটাগরি মুছে ফেলবেন?"
                             description={
                               c.productCount > 0
-                                ? `এই ক্যাটাগরিতে ${c.productCount}টি প্রোডাক্ট আছে — মুছে ফেলার আগে সেগুলোকে অন্য ক্যাটাগরিতে সরাতে হবে।`
+                                ? `এই ক্যাটাগরিতে ${toBnDigits(c.productCount)}টি প্রোডাক্ট আছে — মুছে ফেলার আগে সেগুলোকে অন্য ক্যাটাগরিতে সরাতে হবে।`
                                 : `"${c.name}" ক্যাটাগরিটি মুছে ফেলা হবে। এই কাজটি ফিরিয়ে আনা যাবে না।`
                             }
                             confirmLabel="মুছে ফেলুন"

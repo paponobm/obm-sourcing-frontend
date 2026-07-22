@@ -18,6 +18,7 @@ import { useSetVendorProductPrice } from "@/hooks/useVendors";
 import { useActivateProduct, useDeactivateProduct } from "@/hooks/useProducts";
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatBDT } from "@/utils/currency";
+import { toBnDigits } from "@/utils/date";
 import type { VendorProductPrice, VendorWithProducts } from "@/types/vendor.types";
 
 type RowState = { selected: boolean; qty: string; requisitionItemId?: string };
@@ -153,7 +154,8 @@ export function OrderCreatePanel({
           <div>
             <CardTitle>প্রোডাক্ট বাছাই করুন এই ভেন্ডরের লিস্ট থেকে</CardTitle>
             <CardTag>
-              {displayedProducts.length} টির মধ্যে {totalItems} টি সিলেক্টেড
+              <span className="font-mono">{toBnDigits(displayedProducts.length)}</span> টির মধ্যে{" "}
+              <span className="font-mono">{toBnDigits(totalItems)}</span> টি সিলেক্টেড
             </CardTag>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -195,7 +197,7 @@ export function OrderCreatePanel({
                 const priceChanged = priceDraft !== "" && Number(priceDraft) >= 0 && Number(priceDraft) !== p.price;
                 return (
                   <TableRow key={p.productId}>
-                    <TableCell className="text-center text-gray">{index + 1}</TableCell>
+                    <TableCell className="text-center font-mono text-gray">{toBnDigits(index + 1)}</TableCell>
                     <TableCell>
                       <input
                         type="checkbox"
@@ -305,11 +307,11 @@ export function OrderCreatePanel({
       <div className="mt-3.5 flex flex-col items-end gap-1 text-xs sm:mt-4 sm:text-sm">
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট আইটেম</span>
-          <span className="font-semibold">{totalItems} টি প্রোডাক্ট</span>
+          <span className="font-mono font-semibold">{toBnDigits(totalItems)} টি প্রোডাক্ট</span>
         </div>
         <div className="flex w-full max-w-xs justify-between sm:max-w-sm">
           <span className="text-gray">মোট পিস</span>
-          <span className="font-semibold">{totalPieces} পিস</span>
+          <span className="font-mono font-semibold">{toBnDigits(totalPieces)} পিস</span>
         </div>
         <div className="flex w-full max-w-xs justify-between border-t border-line pt-1.5 sm:max-w-sm">
           <span className="font-serif text-sm text-teal-dark sm:text-base">সর্বমোট</span>

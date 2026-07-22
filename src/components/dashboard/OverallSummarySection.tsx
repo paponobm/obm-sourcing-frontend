@@ -2,6 +2,7 @@ import { Package, Store, ShoppingCart, Wallet } from "lucide-react";
 import { AnalyticsStatCard } from "@/components/dashboard/AnalyticsStatCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatBDT } from "@/utils/currency";
+import { toBnDigits } from "@/utils/date";
 
 /** The Dashboard's top-level rollup row — driven by the global date filter
  * only (unlike the 4 sections below, which each have their own independent
@@ -33,9 +34,9 @@ export function OverallSummarySection({
 
   return (
     <div className="mb-4 grid grid-cols-1 gap-3 sm:mb-5 sm:grid-cols-2 sm:gap-3.5 lg:grid-cols-4">
-      <AnalyticsStatCard icon={Package} label="মোট প্রোডাক্ট" value={`${totalProducts ?? 0} টি`} />
-      <AnalyticsStatCard icon={Store} label="মোট ভেন্ডর" value={`${totalVendors ?? 0} টি`} />
-      <AnalyticsStatCard icon={ShoppingCart} label="মোট অর্ডার" value={`${totalOrders ?? 0} টি`} />
+      <AnalyticsStatCard icon={Package} label="মোট প্রোডাক্ট" value={`${toBnDigits(totalProducts ?? 0)} টি`} />
+      <AnalyticsStatCard icon={Store} label="মোট ভেন্ডর" value={`${toBnDigits(totalVendors ?? 0)} টি`} />
+      <AnalyticsStatCard icon={ShoppingCart} label="মোট অর্ডার" value={`${toBnDigits(totalOrders ?? 0)} টি`} />
       <AnalyticsStatCard
         icon={Wallet}
         label="মোট প্রোকিউরমেন্ট কস্ট"

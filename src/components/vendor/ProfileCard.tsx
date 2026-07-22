@@ -9,6 +9,7 @@ import { VendorImageEditForm } from "@/components/forms/VendorImageEditForm";
 import { useHasRole } from "@/hooks/useHasRole";
 import { MANAGE_CATALOG_ROLES } from "@/constants/roles";
 import { vendorStatusBadgeVariant, VENDOR_STATUS_LABEL_BN } from "@/utils/status";
+import { toBnDigits } from "@/utils/date";
 import type { Vendor } from "@/types/vendor.types";
 
 export function ProfileCard({ vendor }: { vendor: Vendor }) {
@@ -61,7 +62,7 @@ export function ProfileCard({ vendor }: { vendor: Vendor }) {
           </Badge>
         }
       />
-      <InfoRow label="মোট প্রোডাক্ট" value={`${vendor.productCount} টি`} noBorder />
+      <InfoRow label="মোট প্রোডাক্ট" value={`${toBnDigits(vendor.productCount)} টি`} mono noBorder />
 
       {canManage && (
         <Dialog open={editingImage} onOpenChange={setEditingImage}>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable, type DataTableColumn } from "@/components/table/DataTable";
 import { OrderStatusBadge } from "@/components/vendor/OrderStatusBadge";
 import { formatBDT } from "@/utils/currency";
-import { formatBnDate } from "@/utils/date";
+import { formatBnDate, toBnDigits } from "@/utils/date";
 import type { InvoiceListItem } from "@/types/invoice.types";
 import type { SortDirection } from "@/types/common.types";
 
@@ -47,7 +47,7 @@ export function OrderHistoryTable({
     {
       key: "itemCount",
       header: "মোট প্রোডাক্ট",
-      render: (inv) => `${inv.itemCount} টি`,
+      render: (inv) => <span className="font-mono">{toBnDigits(inv.itemCount)} টি</span>,
     },
     {
       key: "totalAmount",

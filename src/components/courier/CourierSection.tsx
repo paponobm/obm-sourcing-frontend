@@ -24,6 +24,7 @@ import { useCouriers, useActivateCourier, useDeactivateCourier } from "@/hooks/u
 import { useHasRole } from "@/hooks/useHasRole";
 import { SUPER_ADMIN_ONLY } from "@/constants/roles";
 import { vendorStatusBadgeVariant, VENDOR_STATUS_LABEL_BN } from "@/utils/status";
+import { toBnDigits } from "@/utils/date";
 
 export function CourierSection() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -51,7 +52,7 @@ export function CourierSection() {
   return (
     <>
       <Topbar
-        title={`কুরিয়ার (${couriers?.length ?? "..."})`}
+        title={`কুরিয়ার (${couriers != null ? toBnDigits(couriers.length) : "..."})`}
         actions={
           <div className="flex items-center gap-2">
             <SearchBox value={search} onChange={setSearch} placeholder="কুরিয়ার সার্চ করুন..." />

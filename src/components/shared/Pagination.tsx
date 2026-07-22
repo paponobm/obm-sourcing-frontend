@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toBnDigits } from "@/utils/date";
 
 export function Pagination({
   page,
@@ -18,8 +19,8 @@ export function Pagination({
 
   return (
     <div className="flex items-center justify-between border-t border-line px-3 py-2.5 text-[0.6875rem] text-gray sm:px-4 sm:py-3 sm:text-xs lg:px-[18px] lg:text-sm">
-      <span>
-        {total === 0 ? "কোনো ফলাফল নেই" : `${from}–${to} দেখানো হচ্ছে, মোট ${total}`}
+      <span className="font-mono">
+        {total === 0 ? "কোনো ফলাফল নেই" : `${toBnDigits(from)}–${toBnDigits(to)} দেখানো হচ্ছে, মোট ${toBnDigits(total)}`}
       </span>
       <div className="flex items-center gap-1.5 sm:gap-2">
         <Button
@@ -32,7 +33,7 @@ export function Pagination({
           <ChevronLeft className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
         </Button>
         <span className="font-mono">
-          {page} / {totalPages}
+          {toBnDigits(page)} / {toBnDigits(totalPages)}
         </span>
         <Button
           type="button"

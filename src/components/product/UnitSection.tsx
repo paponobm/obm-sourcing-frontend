@@ -20,6 +20,7 @@ import { UnitForm } from "@/components/forms/UnitForm";
 import { useUnits, useDeleteUnit } from "@/hooks/useUnits";
 import { useHasRole } from "@/hooks/useHasRole";
 import { SUPER_ADMIN_ONLY } from "@/constants/roles";
+import { toBnDigits } from "@/utils/date";
 
 export function UnitSection() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -35,7 +36,7 @@ export function UnitSection() {
   return (
     <>
       <Topbar
-        title={`ইউনিট ম্যানেজমেন্ট (${units?.length ?? "..."})`}
+        title={`ইউনিট ম্যানেজমেন্ট (${units != null ? toBnDigits(units.length) : "..."})`}
         actions={
           canManage && (
             <Button variant="brass" onClick={() => setCreateOpen(true)}>
@@ -73,7 +74,7 @@ export function UnitSection() {
                   <TableCell>
                     <span className="text-sm md:text-base lg:text-lg xl:text-xl">{u.name}</span>
                   </TableCell>
-                  <TableCell>{u.productCount} টি</TableCell>
+                  <TableCell className="font-mono">{toBnDigits(u.productCount)} টি</TableCell>
                   {showActionsColumn && (
                     <TableCell>
                       <div className="flex justify-end gap-1.5">

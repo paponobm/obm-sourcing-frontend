@@ -24,6 +24,7 @@ import { useHasRole } from "@/hooks/useHasRole";
 import { ROUTES } from "@/constants/routes";
 import { MANAGE_CATALOG_ROLES } from "@/constants/roles";
 import { vendorStatusBadgeVariant, VENDOR_STATUS_LABEL_BN } from "@/utils/status";
+import { toBnDigits } from "@/utils/date";
 import type { Vendor } from "@/types/vendor.types";
 import type { VendorSortColumn } from "@/services/vendor.service";
 import type { SortDirection } from "@/types/common.types";
@@ -79,7 +80,7 @@ function VendorListContent() {
       header: "ক্রমিক",
       render: (v) => {
         const index = (data?.data ?? []).findIndex((row) => row.id === v.id);
-        return <span className="text-gray">{(page - 1) * PAGE_SIZE + index + 1}</span>;
+        return <span className="font-mono text-gray">{toBnDigits((page - 1) * PAGE_SIZE + index + 1)}</span>;
       },
     },
     {
@@ -112,7 +113,11 @@ function VendorListContent() {
       key: "productCount",
       header: "প্রোডাক্ট সংখ্যা",
       sortable: true,
-      render: (v) => `${v.productCount} টি`,
+      render: (v) => (
+        <span className="font-mono">
+          {toBnDigits(v.productCount)} টি
+        </span>
+      ),
     },
     {
       key: "status",
@@ -179,7 +184,7 @@ function VendorListContent() {
   return (
     <TooltipProvider delayDuration={200}>
       <Topbar
-        title={`ভেন্ডর তালিকা (${data?.total ?? "..."})`}
+        title={`ভেন্ডর তালিকা (${data?.total != null ? toBnDigits(data.total) : "..."})`}
         actions={
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <SearchBox

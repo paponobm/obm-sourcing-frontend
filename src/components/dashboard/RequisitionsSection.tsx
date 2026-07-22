@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { QuickDateRangeSelect } from "@/components/shared/QuickDateRangeSelect";
 import { useRequisitionSummary } from "@/hooks/useRequisitions";
 import { getQuickDateRange } from "@/utils/quick-date-range";
+import { toBnDigits } from "@/utils/date";
 
 type RequisitionStatusFilter = "all" | "PENDING" | "CONFIRMED" | "ORDERED" | "CANCELLED";
 
@@ -63,11 +64,11 @@ export function RequisitionsSection() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <AnalyticsStatCard icon={ClipboardList} label="মোট রিকুইজিশন" value={`${summary?.totalRequisitions ?? 0} টি`} />
-            <AnalyticsStatCard icon={Clock} label="পেন্ডিং" value={`${summary?.pendingCount ?? 0} টি`} />
-            <AnalyticsStatCard icon={CheckCircle2} label="কনফার্মড" value={`${summary?.confirmedCount ?? 0} টি`} />
-            <AnalyticsStatCard icon={XCircle} label="বাতিল" value={`${summary?.cancelledCount ?? 0} টি`} />
-            <AnalyticsStatCard icon={PackageCheck} label="সম্পন্ন" value={`${summary?.completedCount ?? 0} টি`} />
+            <AnalyticsStatCard icon={ClipboardList} label="মোট রিকুইজিশন" value={`${toBnDigits(summary?.totalRequisitions ?? 0)} টি`} />
+            <AnalyticsStatCard icon={Clock} label="পেন্ডিং" value={`${toBnDigits(summary?.pendingCount ?? 0)} টি`} />
+            <AnalyticsStatCard icon={CheckCircle2} label="কনফার্মড" value={`${toBnDigits(summary?.confirmedCount ?? 0)} টি`} />
+            <AnalyticsStatCard icon={XCircle} label="বাতিল" value={`${toBnDigits(summary?.cancelledCount ?? 0)} টি`} />
+            <AnalyticsStatCard icon={PackageCheck} label="সম্পন্ন" value={`${toBnDigits(summary?.completedCount ?? 0)} টি`} />
           </div>
         )
       }

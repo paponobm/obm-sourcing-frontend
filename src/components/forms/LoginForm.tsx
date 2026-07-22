@@ -10,6 +10,7 @@ import { getOrCreateDeviceId } from "@/lib/device-id";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toBnDigits } from "@/utils/date";
 
 export function LoginForm() {
   const login = useLogin();
@@ -129,7 +130,11 @@ export function LoginForm() {
 
       {login.isPending && login.failureCount > 0 && (
         <p className="mb-2 text-center text-xs text-brass">
-          সার্ভার প্রস্তুত হচ্ছে... আবার চেষ্টা করা হচ্ছে ({login.failureCount}/5)
+          সার্ভার প্রস্তুত হচ্ছে... আবার চেষ্টা করা হচ্ছে (
+          <span className="font-mono">
+            {toBnDigits(login.failureCount)}/{toBnDigits(5)}
+          </span>
+          )
         </p>
       )}
 

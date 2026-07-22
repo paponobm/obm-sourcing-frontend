@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { AlertTriangle, CheckCircle2, Clock, Package, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatBDT } from "@/utils/currency";
+import { toBnDigits } from "@/utils/date";
 import type { InvoiceListItem } from "@/types/invoice.types";
 
 function SummaryCard({
@@ -57,23 +58,23 @@ export function OrderHistorySummaryCards({ invoices }: { invoices: InvoiceListIt
 
   return (
     <div className="mb-3.5 grid grid-cols-1 gap-3 sm:mb-4 sm:grid-cols-2 sm:gap-3.5 md:grid-cols-3 lg:grid-cols-5">
-      <SummaryCard icon={Package} label="মোট অর্ডার" value={`${totalOrders} টি`} description="সর্বমোট পারচেজ অর্ডার" />
+      <SummaryCard icon={Package} label="মোট অর্ডার" value={`${toBnDigits(totalOrders)} টি`} description="সর্বমোট পারচেজ অর্ডার" />
       <SummaryCard
         icon={CheckCircle2}
         label="ক্লোজড অর্ডার"
-        value={`${closedOrders} টি`}
+        value={`${toBnDigits(closedOrders)} টি`}
         description="সফলভাবে সম্পন্ন হয়েছে"
       />
       <SummaryCard
         icon={Clock}
         label="পেন্ডিং ইনভয়েস"
-        value={`${pendingInvoices} টি`}
+        value={`${toBnDigits(pendingInvoices)} টি`}
         description="ওয়্যারহাউজ রিসিভের অপেক্ষায়"
       />
       <SummaryCard
         icon={AlertTriangle}
         label="ডিসক্রেপান্সি অর্ডার"
-        value={`${discrepancyOrders} টি`}
+        value={`${toBnDigits(discrepancyOrders)} টি`}
         description="কোয়ান্টিটি মিসম্যাচ আছে"
       />
       <SummaryCard

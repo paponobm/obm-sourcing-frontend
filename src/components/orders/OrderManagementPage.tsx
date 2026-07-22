@@ -12,6 +12,7 @@ import { useOrders, useOrderSummary } from "@/hooks/useOrders";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useHasRole } from "@/hooks/useHasRole";
 import { ROUTES } from "@/constants/routes";
+import { toBnDigits } from "@/utils/date";
 import type { OrderSortMode } from "@/types/order.types";
 
 const PAGE_SIZE = 10;
@@ -80,7 +81,7 @@ export function OrderManagementPage() {
       <Topbar
         title={
           statusFilter === "IN_TRANSIT,CONFIRMED"
-            ? `পেন্ডিং অর্ডার (${pendingCount})`
+            ? `পেন্ডিং অর্ডার (${toBnDigits(pendingCount)})`
             : isManager && statusFilter === "CONFIRMED"
               ? "পথে আছে অর্ডার"
               : "অর্ডার ম্যানেজমেন্ট"
