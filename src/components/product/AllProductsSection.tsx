@@ -149,11 +149,13 @@ export function AllProductsSection({ scopeToOwn = false }: { scopeToOwn?: boolea
       render: (p: Product) =>
         isManager ? (
           // Manager only ever gets an Edit button, and only on their own
-          // product — no activity history, no activate/deactivate (that
-          // toggle is for an already-live catalog product they don't own).
-          // On "সব প্রোডাক্ট" this means most rows show no action at all.
+          // product while it's still PENDING — once Admin has approved (or
+          // rejected/deactivated) it, it's out of the Manager's hands. No
+          // activity history, no activate/deactivate (that toggle is for an
+          // already-live catalog product they don't own). On "সব প্রোডাক্ট"
+          // this means most rows show no action at all.
           <div className="flex justify-end gap-1.5">
-            {canManage && p.createdById === currentUser?.id && (
+            {canManage && p.createdById === currentUser?.id && p.status === "PENDING" && (
               <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(p.id)}>
                 <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
               </Button>

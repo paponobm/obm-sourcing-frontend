@@ -11,6 +11,7 @@ import { useUpdateProduct } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
 import { useUnits } from "@/hooks/useUnits";
 import { useUploadImage } from "@/hooks/useUploadImage";
+import { useHasRole } from "@/hooks/useHasRole";
 import { resolveImageValue, resolveImageValues, type ImageValue } from "@/lib/image-value";
 import { BasicInformationSection } from "./BasicInformationSection";
 import { ImageUploadSection } from "./ImageUploadSection";
@@ -46,6 +47,11 @@ export function ProductDetailsEditForm({
 }) {
   const updateProduct = useUpdateProduct();
   const uploadImage = useUploadImage();
+  // Manager only ever edits the shared product info they themselves
+  // submitted (SKU/name/unit/category/description/images) — vendor
+  // assignment/pricing is an Admin-only concern, so this section is hidden
+  // for Manager entirely rather than shown read-only or disabled.
+  const isManager = useHasRole(["MANAGER"]);
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: units, isLoading: unitsLoading } = useUnits();
   const [thumbnailValue, setThumbnailValue] = useState<ImageValue>(defaultValues.thumbnailUrl);
@@ -106,7 +112,7 @@ export function ProductDetailsEditForm({
         onImageValuesChange={setImageValues}
       />
 
-      <VendorInformationEditTable ref={vendorTableRef} productId={productId} vendors={vendors} />
+      {!isManager && <VendorInformationEditTable ref={vendorTableRef} productId={productId} vendors={vendors} />}
 
       <ActionButtons
         onCancel={onCancel}

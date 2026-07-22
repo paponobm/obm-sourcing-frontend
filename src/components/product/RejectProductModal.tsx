@@ -44,7 +44,12 @@ export function RejectProductModal({
 
   return (
     <Dialog open={Boolean(product)} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>প্রোডাক্ট প্রত্যাখ্যান করুন</DialogTitle>
           <DialogDescription>&quot;{product?.name}&quot; প্রত্যাখ্যানের কারণ জানান।</DialogDescription>

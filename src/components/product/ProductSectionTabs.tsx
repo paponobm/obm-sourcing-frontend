@@ -20,7 +20,13 @@ export function ProductSectionTabs({
   onChange: (key: ProductSectionKey) => void;
 }) {
   const isManager = useHasRole(["MANAGER"]);
-  const { data: pendingCount } = usePendingProductsCount({ enabled: !isManager });
+  // GET /products/pending is SUPER_ADMIN-only server-side — gate on that
+  // directly (mirrors NavItem.tsx's equivalent badge query) rather than
+  // `!isManager`, which stays true (and fires a doomed request) for Viewer,
+  // and also races ahead of the role check while useCurrentUser is still
+  // loading, since `isManager` itself defaults to false until then.
+  const isSuperAdmin = useHasRole(["SUPER_ADMIN"]);
+  const { data: pendingCount } = usePendingProductsCount({ enabled: isSuperAdmin });
 
   return (
     <div className="sticky top-0 z-10 mb-4 border-b border-line bg-paper pb-2 pt-1 print:hidden sm:mb-5 sm:pb-2.5">

@@ -118,7 +118,11 @@ function UserManagementContent() {
       </Card>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+        <DialogContent
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>নতুন ইউজার তৈরি করুন</DialogTitle>
             <DialogDescription>নাম, ফোন নাম্বার, পাসওয়ার্ড ও রোল দিন।</DialogDescription>

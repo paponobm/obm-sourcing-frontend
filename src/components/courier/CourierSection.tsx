@@ -150,7 +150,11 @@ export function CourierSection() {
       </Card>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+        <DialogContent
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>নতুন কুরিয়ার যোগ করুন</DialogTitle>
             <DialogDescription>কুরিয়ারের তথ্য দিন।</DialogDescription>
@@ -160,7 +164,11 @@ export function CourierSection() {
       </Dialog>
 
       <Dialog open={Boolean(editingCourier)} onOpenChange={(open) => !open && setEditingId(null)}>
-        <DialogContent>
+        <DialogContent
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>কুরিয়ার এডিট করুন</DialogTitle>
           </DialogHeader>

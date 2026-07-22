@@ -66,7 +66,11 @@ export function ProfileCard({ vendor }: { vendor: Vendor }) {
 
       {canManage && (
         <Dialog open={editingImage} onOpenChange={setEditingImage}>
-          <DialogContent>
+          <DialogContent
+            onInteractOutside={(e) => e.preventDefault()}
+            onPointerDownOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+          >
             <DialogHeader>
               <DialogTitle>ভেন্ডরের ছবি পরিবর্তন করুন</DialogTitle>
               <DialogDescription>{vendor.shopName}-এর জন্য নতুন ছবি আপলোড করুন।</DialogDescription>

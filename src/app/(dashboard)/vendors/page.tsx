@@ -242,7 +242,11 @@ function VendorListContent() {
       </Card>
 
       <Dialog open={Boolean(editingVendor)} onOpenChange={(open) => !open && setEditingId(null)}>
-        <DialogContent>
+        <DialogContent
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>ভেন্ডর এডিট করুন</DialogTitle>
           </DialogHeader>

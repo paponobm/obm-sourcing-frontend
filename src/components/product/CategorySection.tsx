@@ -119,7 +119,11 @@ export function CategorySection() {
       </Card>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+        <DialogContent
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>নতুন ক্যাটাগরি যোগ করুন</DialogTitle>
             <DialogDescription>ক্যাটাগরির নাম দিন।</DialogDescription>
@@ -129,7 +133,11 @@ export function CategorySection() {
       </Dialog>
 
       <Dialog open={Boolean(editingCategory)} onOpenChange={(open) => !open && setEditingId(null)}>
-        <DialogContent>
+        <DialogContent
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>ক্যাটাগরি এডিট করুন</DialogTitle>
           </DialogHeader>

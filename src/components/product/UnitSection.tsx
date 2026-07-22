@@ -112,7 +112,11 @@ export function UnitSection() {
       </Card>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+        <DialogContent
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>নতুন ইউনিট যোগ করুন</DialogTitle>
             <DialogDescription>ইউনিটের নাম দিন।</DialogDescription>
@@ -122,7 +126,11 @@ export function UnitSection() {
       </Dialog>
 
       <Dialog open={Boolean(editingUnit)} onOpenChange={(open) => !open && setEditingId(null)}>
-        <DialogContent>
+        <DialogContent
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>ইউনিট এডিট করুন</DialogTitle>
           </DialogHeader>

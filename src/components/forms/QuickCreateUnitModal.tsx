@@ -59,8 +59,13 @@ export function QuickCreateUnitModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="z-[60] sm:max-w-md">
+    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+      <DialogContent
+        className="z-[60] sm:max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>নতুন ইউনিট যোগ করুন</DialogTitle>
           <DialogDescription>প্রোডাক্ট ফর্ম ছেড়ে না গিয়েই নতুন ইউনিট তৈরি করুন।</DialogDescription>
