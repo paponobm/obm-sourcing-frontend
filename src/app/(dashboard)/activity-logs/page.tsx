@@ -44,7 +44,11 @@ function ActivityLogsContent() {
       render: (a) => (a.targetType ? TARGET_LABEL_BN[a.targetType] : "—"),
     },
     { key: "targetLabel", header: "বিবরণ", render: (a) => a.targetLabel ?? "—" },
-    { key: "createdAt", header: "তারিখ", render: (a) => formatBnDate(a.createdAt) },
+    {
+      key: "createdAt",
+      header: "তারিখ",
+      render: (a) => <span className="font-mono">{formatBnDate(a.createdAt)}</span>,
+    },
   ];
 
   return (

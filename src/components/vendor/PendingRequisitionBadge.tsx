@@ -19,7 +19,7 @@ export function PendingRequisitionBadge({ product }: { product: VendorProductPri
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Badge variant="alert" className="cursor-help">
+        <Badge variant="alert" className="cursor-help font-mono bg-brass text-white">
           পেন্ডিং ({toBnDigits(product.pendingRequisitionCount)})
         </Badge>
       </TooltipTrigger>

@@ -49,6 +49,7 @@ export type VendorProductPrice = {
   productId: string;
   productName: string;
   sku: string;
+  thumbnailUrl?: string | null;
   unit: string;
   price: number;
   rating: number;

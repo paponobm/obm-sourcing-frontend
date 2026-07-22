@@ -17,7 +17,7 @@ export function VendorPendingRequisitionBadge({ items }: { items: VendorPendingR
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Badge variant="alert" className="ml-1.5 cursor-help">
+        <Badge variant="alert" className="ml-1.5 cursor-help font-mono bg-brass text-white">
           পেন্ডিং ({toBnDigits(items.length)})
         </Badge>
       </TooltipTrigger>

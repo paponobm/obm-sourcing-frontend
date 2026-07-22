@@ -11,6 +11,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SearchBox } from "@/components/shared/SearchBox";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { Avatar } from "@/components/shared/Avatar";
 import { PendingRequisitionBadge } from "@/components/vendor/PendingRequisitionBadge";
 import { ProductActivityLogModal } from "@/components/product/ProductActivityLogModal";
 import { useCreateInvoice } from "@/hooks/useInvoices";
@@ -214,6 +215,7 @@ export function OrderCreatePanel({
                     </TableCell>
                     <TableCell className="text-sm md:text-base lg:text-lg xl:text-xl">
                       <span className="flex flex-wrap items-center gap-1.5">
+                        <Avatar initials={p.productName.slice(0, 2)} imageUrl={p.thumbnailUrl ?? undefined} />
                         {p.productName}
                         <PendingRequisitionBadge product={p} />
                       </span>

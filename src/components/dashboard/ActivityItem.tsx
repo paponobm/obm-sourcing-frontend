@@ -10,7 +10,7 @@ export function ActivityItem({ activity }: { activity: ActivityLog }) {
           <b>{activity.actorName}</b> — {activity.action}
           {activity.targetLabel ? ` (${activity.targetLabel})` : ""}
         </div>
-        <div className="text-[0.625rem] text-gray sm:text-[0.6875rem]">
+        <div className="font-mono text-[0.625rem] text-gray sm:text-[0.6875rem]">
           {formatRelativeBn(activity.createdAt)}
         </div>
       </div>

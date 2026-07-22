@@ -18,7 +18,7 @@ export function VendorActivityLogSection({ vendorId }: { vendorId: string }) {
     <Card>
       <CardHeader>
         <CardTitle>অ্যাক্টিভিটি লগ</CardTitle>
-        <CardTag>{toBnDigits(logs?.length ?? 0)} টি</CardTag>
+        <CardTag className="font-mono">{toBnDigits(logs?.length ?? 0)} টি</CardTag>
       </CardHeader>
 
       <div className="space-y-3 p-3 sm:p-4">
@@ -32,7 +32,7 @@ export function VendorActivityLogSection({ vendorId }: { vendorId: string }) {
           <div key={log.id} className="rounded-md border border-line p-3">
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-medium text-ink">{PRODUCT_ACTIVITY_ACTION_LABEL_BN[log.actionType]}</span>
-              <span className="whitespace-nowrap text-[11px] text-gray sm:text-xs">
+              <span className="whitespace-nowrap font-mono text-[11px] text-gray sm:text-xs">
                 {formatBnDate(log.createdAt)} {formatBnTime(log.createdAt)}
               </span>
             </div>

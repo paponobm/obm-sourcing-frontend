@@ -36,7 +36,7 @@ export function ProductActivityLogModal({
             <div key={log.id} className="rounded-md border border-line p-3">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-ink">{PRODUCT_ACTIVITY_ACTION_LABEL_BN[log.actionType]}</span>
-                <span className="whitespace-nowrap text-[11px] text-brass sm:text-xs ">
+                <span className="whitespace-nowrap font-mono text-[11px] text-brass sm:text-xs ">
                   {formatBnDate(log.createdAt)} {formatBnTime(log.createdAt)}
                 </span>
               </div>
