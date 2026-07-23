@@ -84,6 +84,7 @@ export function UnitSection() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10 text-center">ক্রমিক</TableHead>
                 <TableHead>ইউনিট</TableHead>
                 <TableHead>মোট প্রোডাক্ট</TableHead>
                 <TableHead>স্ট্যাটাস</TableHead>
@@ -91,8 +92,9 @@ export function UnitSection() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {units.map((u) => (
+              {units.map((u, index) => (
                 <TableRow key={u.id}>
+                  <TableCell className="text-center font-mono text-gray">{toBnDigits(index + 1)}</TableCell>
                   <TableCell>
                     <span className="text-sm md:text-base lg:text-lg xl:text-xl">{u.name}</span>
                   </TableCell>

@@ -85,6 +85,7 @@ export function CourierSection() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10 text-center">ক্রমিক</TableHead>
                 <TableHead>নাম</TableHead>
                 <TableHead>প্রাইমারি মোবাইল</TableHead>
                 <TableHead>লোকেশন</TableHead>
@@ -93,8 +94,9 @@ export function CourierSection() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredCouriers.map((c) => (
+              {filteredCouriers.map((c, index) => (
                 <TableRow key={c.id}>
+                  <TableCell className="text-center font-mono text-gray">{toBnDigits(index + 1)}</TableCell>
                   <TableCell>
                     <span className="flex items-center text-sm md:text-base lg:text-lg xl:text-xl">
                       <Avatar initials={c.name.slice(0, 2)} imageUrl={c.logoUrl} />
