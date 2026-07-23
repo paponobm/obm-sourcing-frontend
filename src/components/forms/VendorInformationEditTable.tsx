@@ -6,28 +6,34 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { StarRating } from "@/components/product/StarRating";
-import { useSetVendorProductPrice, useVendors } from "@/hooks/useVendors";
+import { useRemoveVendorFromProduct, useSetVendorProductPrice, useVendors } from "@/hooks/useVendors";
 import { formatBnDate } from "@/utils/date";
-import { VENDOR_STATUS_LABEL_BN } from "@/utils/status";
 import type { ProductVendorEntry, UpdateProductVendorInput } from "@/types/product.types";
-import type { VendorStatus } from "@/types/common.types";
 
-type RowState = { price: string; rating: number; status: VendorStatus };
+type RowState = { price: string; rating: number };
 
-/** A single vendor's price/rating/status — purely controlled by the parent
- * table's state, no local state or save button of its own, so every row's
- * edits are captured by the single "Save Changes" action for the whole
- * modal instead of each row saving independently. */
+/** A single vendor's price/rating — purely controlled by the parent table's
+ * state, no local state or save button of its own, so every row's edits are
+ * captured by the single "Save Changes" action for the whole modal instead
+ * of each row saving independently. The remove button is the one exception —
+ * it acts immediately (its own confirmation dialog), since detaching a
+ * vendor isn't something to stage alongside unrelated field edits. */
 function VendorInformationRow({
+  productId,
   vendor,
   row,
   onChange,
 }: {
+  productId: string;
   vendor: ProductVendorEntry;
   row: RowState;
   onChange: (patch: Partial<RowState>) => void;
 }) {
+  const removeVendorFromProduct = useRemoveVendorFromProduct();
+  const isRemoving = removeVendorFromProduct.isPending && removeVendorFromProduct.variables?.vendorId === vendor.vendorId;
+
   return (
     <TableRow>
       <TableCell className="text-sm md:text-base">{vendor.vendorName}</TableCell>
@@ -43,18 +49,21 @@ function VendorInformationRow({
       <TableCell>
         <StarRating value={row.rating} onChange={(rating) => onChange({ rating })} iconClassName="h-4 w-4" />
       </TableCell>
-      <TableCell>
-        <Select value={row.status} onValueChange={(v) => onChange({ status: v as VendorStatus })}>
-          <SelectTrigger className="w-28 sm:w-32">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ACTIVE">{VENDOR_STATUS_LABEL_BN.ACTIVE}</SelectItem>
-            <SelectItem value="INACTIVE">{VENDOR_STATUS_LABEL_BN.INACTIVE}</SelectItem>
-          </SelectContent>
-        </Select>
-      </TableCell>
       <TableCell className="text-gray">{formatBnDate(vendor.lastUpdatedAt)}</TableCell>
+      <TableCell>
+        <ConfirmDialog
+          trigger={
+            <Button type="button" variant="ghost" size="sm" aria-label="ভেন্ডর বাদ দিন">
+              <X className="h-3.5 w-3.5 text-red" />
+            </Button>
+          }
+          title="ভেন্ডর বাদ দেবেন?"
+          description={`"${vendor.vendorName}"-কে এই প্রোডাক্ট থেকে বাদ দেওয়া হবে। এটিই শেষ ভেন্ডর হলে প্রোডাক্টটি আবার পেন্ডিং অবস্থায় চলে যাবে।`}
+          confirmLabel="বাদ দিন"
+          onConfirm={() => removeVendorFromProduct.mutate({ vendorId: vendor.vendorId, productId })}
+          isLoading={isRemoving}
+        />
+      </TableCell>
     </TableRow>
   );
 }
@@ -142,26 +151,29 @@ function AddVendorRow({
 }
 
 export type VendorInformationEditTableHandle = {
-  /** Only the rows whose price/rating/status actually differ from what was
-   * loaded — called by the surrounding product form at submit time so its
-   * single "Save Changes" action can send both the product's own fields and
-   * these vendor rows together, in one request. */
+  /** Only the rows whose price/rating actually differ from what was loaded —
+   * called by the surrounding product form at submit time so its single
+   * "Save Changes" action can send both the product's own fields and these
+   * vendor rows together, in one request. */
   getDirtyVendors: () => UpdateProductVendorInput[];
 };
 
 /** The "ভেন্ডর তথ্য" (Vendor Information) section embedded in the Product
  * Edit modal, below the shared product-fields form — lets an admin change a
- * vendor's price/rating/global-status for this product without leaving the
- * modal. Row edits live here (not per-row) so the parent form can pull every
- * changed row at submit time via `getDirtyVendors()` and save them alongside
- * the product's own fields in a single atomic request. */
+ * vendor's price/rating for this product without leaving the modal, or
+ * remove that vendor from the product entirely (see VendorInformationRow's
+ * own confirm-and-remove button). Price/rating row edits live here (not
+ * per-row) so the parent form can pull every changed row at submit time via
+ * `getDirtyVendors()` and save them alongside the product's own fields in a
+ * single atomic request; removal acts immediately instead, since it isn't
+ * something to stage. */
 export const VendorInformationEditTable = forwardRef<VendorInformationEditTableHandle, {
   productId: string;
   vendors: ProductVendorEntry[];
 }>(function VendorInformationEditTable({ productId, vendors }, ref) {
   const [addingVendor, setAddingVendor] = useState(false);
   const [rows, setRows] = useState<Record<string, RowState>>(() =>
-    Object.fromEntries(vendors.map((v) => [v.vendorId, { price: String(v.price), rating: v.rating, status: v.status }])),
+    Object.fromEntries(vendors.map((v) => [v.vendorId, { price: String(v.price), rating: v.rating }])),
   );
 
   useImperativeHandle(
@@ -174,14 +186,8 @@ export const VendorInformationEditTable = forwardRef<VendorInformationEditTableH
           if (!row) continue;
           const priceChanged = Number(row.price) !== v.price;
           const ratingChanged = row.rating !== v.rating;
-          const statusChanged = row.status !== v.status;
-          if (priceChanged || ratingChanged || statusChanged) {
-            dirty.push({
-              vendorId: v.vendorId,
-              price: Number(row.price),
-              rating: row.rating,
-              status: statusChanged ? row.status : undefined,
-            });
+          if (priceChanged || ratingChanged) {
+            dirty.push({ vendorId: v.vendorId, price: Number(row.price), rating: row.rating });
           }
         }
         return dirty;
@@ -207,16 +213,17 @@ export const VendorInformationEditTable = forwardRef<VendorInformationEditTableH
                 <TableHead>ভেন্ডর</TableHead>
                 <TableHead>দাম</TableHead>
                 <TableHead>রেটিং</TableHead>
-                <TableHead>স্ট্যাটাস</TableHead>
                 <TableHead>সর্বশেষ আপডেট</TableHead>
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {vendors.map((v) => {
-                const defaultRow: RowState = { price: String(v.price), rating: v.rating, status: v.status };
+                const defaultRow: RowState = { price: String(v.price), rating: v.rating };
                 return (
                   <VendorInformationRow
                     key={v.vendorId}
+                    productId={productId}
                     vendor={v}
                     row={rows[v.vendorId] ?? defaultRow}
                     onChange={(patch) => updateRow(v.vendorId, defaultRow, patch)}

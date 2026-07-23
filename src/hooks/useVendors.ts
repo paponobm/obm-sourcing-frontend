@@ -120,6 +120,23 @@ export function useSetVendorProductPrice() {
   });
 }
 
+export function useRemoveVendorFromProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ vendorId, productId }: { vendorId: string; productId: string }) =>
+      vendorService.removeProduct(vendorId, productId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: VENDORS_KEY });
+      queryClient.invalidateQueries({ queryKey: [...VENDORS_KEY, variables.vendorId] });
+      // Removing the last vendor drops the product back to Pending, so the
+      // Product List (and its own Pending tab/count) must refetch too.
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success("ভেন্ডর বাদ দেওয়া হয়েছে");
+    },
+    onError: () => toast.error("ভেন্ডর বাদ দেওয়া যায়নি"),
+  });
+}
+
 export function useVendorActivityLogs(vendorId: string | undefined) {
   return useQuery({
     queryKey: [...VENDORS_KEY, "activity-logs", vendorId],

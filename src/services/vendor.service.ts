@@ -61,6 +61,10 @@ export const vendorService = {
       .then(() => undefined);
   },
 
+  async removeProduct(vendorId: string, productId: string): Promise<void> {
+    return apiClient.delete(`/vendors/${vendorId}/products/${productId}`).then(() => undefined);
+  },
+
   async getActivityLogs(id: string): Promise<VendorActivityLog[]> {
     return apiClient.get<VendorActivityLog[]>(`/vendors/${id}/activity-logs`).then((r) => r.data);
   },
