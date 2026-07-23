@@ -20,6 +20,15 @@ const badgeVariants = cva(
         pending: "bg-brass text-white",
         statusActive: "bg-green text-white",
         statusInactive: "bg-red text-white",
+        // Order workflow status badges (OrderStatusBadge only) — exact
+        // hex values used instead of Tailwind's named indigo/blue/purple/
+        // emerald/gray scales since this project's `gray`/`red` keys are
+        // already redefined as flat DEFAULT-only colors in tailwind.config.ts.
+        orderOnTheWay: "bg-[#2563eb] text-white",
+        orderReceived: "bg-[#9333ea] text-white",
+        orderVerified: "bg-[#4f46e5] text-white",
+        orderClosed: "bg-[#059669] text-white",
+        orderDiscrepancy: "bg-[#4b5563] text-white",
       },
     },
     defaultVariants: {

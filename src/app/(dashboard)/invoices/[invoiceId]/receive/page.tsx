@@ -427,7 +427,7 @@ export default function ReceiveCheckPage() {
         </h2>
         <span className="text-xs text-gray sm:text-sm">
           {invoice.status === "DISCREPANCY"
-            ? "ডিসক্রেপান্সি — পুনরায় চেক করুন"
+            ? "পণ্যের অমিল — পুনরায় চেক করুন"
             : invoice.status === "VERIFIED"
               ? "ভেরিফাইড (Manager) — অনুমোদনের অপেক্ষায়"
               : "রিসিভড — চেকিং চলছে"}
@@ -605,7 +605,7 @@ export default function ReceiveCheckPage() {
       <div className="mt-3.5 flex gap-2 rounded-md bg-brass-soft px-3 py-2.5 text-xs text-brass sm:mt-4 sm:text-sm">
         <AlertTriangle className="h-4 w-4 shrink-0" />
         <p className="m-0">
-          কোনো প্রোডাক্টের অর্ডার Qty আর রিসিভড Qty না মিললে সিস্টেম স্বয়ংক্রিয়ভাবে &ldquo;ডিসক্রেপান্সি&rdquo; হিসেবে
+          কোনো প্রোডাক্টের অর্ডার Qty আর রিসিভড Qty না মিললে সিস্টেম স্বয়ংক্রিয়ভাবে &ldquo;পণ্যের অমিল&rdquo; হিসেবে
           ফ্ল্যাগ করবে এবং ইনভয়েস ক্লোজ করার আগে রিভিউ চাইবে।
         </p>
       </div>
@@ -624,7 +624,7 @@ export default function ReceiveCheckPage() {
               onClick={() => submit("final")}
             >
               {hasMismatch
-                ? "⚠ ডিসক্রেপান্সি নোট করে সেভ করুন"
+                ? "⚠ পণ্যের অমিল নোট করে সেভ করুন"
                 : invoice.status === "VERIFIED"
                   ? "✓ অনুমোদন করে ক্লোজ করুন"
                   : "✓ সব মিলেছে — যাচাই করে ক্লোজ করুন"}

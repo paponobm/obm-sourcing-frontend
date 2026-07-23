@@ -73,7 +73,7 @@ export function OrderHistorySummaryCards({ invoices }: { invoices: InvoiceListIt
       />
       <SummaryCard
         icon={AlertTriangle}
-        label="ডিসক্রেপান্সি অর্ডার"
+        label="পণ্যের অমিল অর্ডার"
         value={`${toBnDigits(discrepancyOrders)} টি`}
         description="কোয়ান্টিটি মিসম্যাচ আছে"
       />

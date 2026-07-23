@@ -80,7 +80,7 @@ export function OrdersSection() {
             <AnalyticsStatCard icon={Clock} label="পেন্ডিং" value={`${toBnDigits(summary?.pendingOrders ?? 0)} টি`} />
             <AnalyticsStatCard icon={PackageCheck} label="রিসিভড" value={`${toBnDigits(summary?.receivedOrders ?? 0)} টি`} />
             <AnalyticsStatCard icon={CheckCircle2} label="ক্লোজড" value={`${toBnDigits(summary?.closedOrders ?? 0)} টি`} />
-            <AnalyticsStatCard icon={AlertTriangle} label="ডিসক্রেপান্সি" value={`${toBnDigits(summary?.discrepancyOrders ?? 0)} টি`} />
+            <AnalyticsStatCard icon={AlertTriangle} label="পণ্যের অমিল" value={`${toBnDigits(summary?.discrepancyOrders ?? 0)} টি`} />
             <AnalyticsStatCard
               icon={Wallet}
               label="গ্র্যান্ড টোটাল কস্ট"
@@ -99,7 +99,7 @@ export function OrdersSection() {
               { name: "পেন্ডিং", value: summary?.pendingOrders ?? 0, color: CHART_COLORS.orange },
               { name: "রিসিভড", value: summary?.receivedOrders ?? 0, color: CHART_COLORS.green },
               { name: "ক্লোজড", value: summary?.closedOrders ?? 0, color: CHART_COLORS.blue },
-              { name: "ডিসক্রেপান্সি", value: summary?.discrepancyOrders ?? 0, color: CHART_COLORS.red },
+              { name: "পণ্যের অমিল", value: summary?.discrepancyOrders ?? 0, color: CHART_COLORS.red },
             ]}
           />
         )

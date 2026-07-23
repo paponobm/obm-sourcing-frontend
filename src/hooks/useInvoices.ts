@@ -85,7 +85,7 @@ export function useReceiveCheck(id: string) {
       if (variables.mode === "draft") {
         toast.success("ড্রাফট হিসেবে সংরক্ষণ করা হয়েছে");
       } else if (invoice.status === "DISCREPANCY") {
-        toast.warning("ডিসক্রেপান্সি নোট করে সংরক্ষণ করা হয়েছে");
+        toast.warning("পণ্যের অমিল নোট করে সংরক্ষণ করা হয়েছে");
       } else {
         toast.success("সব মিলেছে — ইনভয়েস ক্লোজ করা হয়েছে");
       }

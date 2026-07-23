@@ -49,7 +49,7 @@ export function OrderSummaryCards({ summary }: { summary: OrderSummary | undefin
       <SummaryCard icon={Clock} label="পেন্ডিং অর্ডার" value={`${toBnDigits(summary?.pendingOrders ?? 0)} টি`} />
       <SummaryCard icon={PackageCheck} label="রিসিভড অর্ডার" value={`${toBnDigits(summary?.receivedOrders ?? 0)} টি`} />
       <SummaryCard icon={CheckCircle2} label="ক্লোজড অর্ডার" value={`${toBnDigits(summary?.closedOrders ?? 0)} টি`} />
-      <SummaryCard icon={AlertTriangle} label="ডিসক্রেপান্সি অর্ডার" value={`${toBnDigits(summary?.discrepancyOrders ?? 0)} টি`} />
+      <SummaryCard icon={AlertTriangle} label="পণ্যের অমিল অর্ডার" value={`${toBnDigits(summary?.discrepancyOrders ?? 0)} টি`} />
       <SummaryCard
         icon={Wallet}
         label="মোট প্রোকিউরমেন্ট কস্ট"

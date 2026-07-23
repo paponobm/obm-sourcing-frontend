@@ -3,17 +3,18 @@
 import { cn } from "@/lib/utils";
 
 /** Comma-joined OrderStatus value(s) this tab sets as the active status
- * filter — "" means no filter (All). Pending bundles IN_TRANSIT+CONFIRMED
- * (a Confirmed order still hasn't reached the warehouse) — Received and
- * Verified are their own separate tabs (a Manager-verified order awaiting
+ * filter — "" means no filter (All). Pending (IN_TRANSIT) and On The Way
+ * (CONFIRMED) are each their own distinct tab/status now — Received and
+ * Verified are their own separate tabs too (a Manager-verified order awaiting
  * Admin's Close is a distinctly actionable state, not just "received"). */
 const TABS = [
   { key: "", label: "সব" },
-  { key: "IN_TRANSIT,CONFIRMED", label: "পেন্ডিং" },
+  { key: "IN_TRANSIT", label: "পেন্ডিং" },
+  { key: "CONFIRMED", label: "পথে আছে" },
   { key: "RECEIVED", label: "রিসিভড" },
   { key: "VERIFIED", label: "ভেরিফায়েড" },
   { key: "CLOSED", label: "ক্লোজড" },
-  { key: "DISCREPANCY", label: "ডিসক্রেপান্সি" },
+  { key: "DISCREPANCY", label: "পণ্যের অমিল" },
 ] as const;
 
 export function OrderQuickFilters({

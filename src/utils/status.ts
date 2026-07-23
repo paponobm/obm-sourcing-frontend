@@ -67,29 +67,27 @@ export const ORDER_STATUS_LABEL_BN: Record<OrderStatus, string> = {
   IN_TRANSIT: "পেন্ডিং",
   CONFIRMED: "পথে আছে",
   RECEIVED: "রিসিভড",
-  DISCREPANCY: "ডিসক্রেপান্সি",
+  DISCREPANCY: "পণ্যের অমিল",
   VERIFIED: "ভেরিফায়েড",
   CLOSED: "ক্লোজড",
 };
 
 export function orderStatusBadgeVariant(
   status: OrderStatus,
-): "active" | "inactive" | "low" | "destructive" | "pending" {
+): "pending" | "orderOnTheWay" | "orderReceived" | "orderVerified" | "orderClosed" | "orderDiscrepancy" {
   switch (status) {
-    case "VERIFIED":
-    case "CLOSED":
-      return "active";
-    case "DISCREPANCY":
-      return "destructive";
-    // Labeled "পেন্ডিং" (see ORDER_STATUS_LABEL_BN) — same pending styling
-    // as Product/Vendor's PENDING status. CONFIRMED/RECEIVED keep the
-    // existing "low" look, unchanged.
     case "IN_TRANSIT":
       return "pending";
     case "CONFIRMED":
+      return "orderOnTheWay";
     case "RECEIVED":
-    default:
-      return "low";
+      return "orderReceived";
+    case "VERIFIED":
+      return "orderVerified";
+    case "CLOSED":
+      return "orderClosed";
+    case "DISCREPANCY":
+      return "orderDiscrepancy";
   }
 }
 

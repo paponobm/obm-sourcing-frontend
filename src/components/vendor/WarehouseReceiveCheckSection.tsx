@@ -415,7 +415,7 @@ export function WarehouseReceiveCheckSection({
         <div className="mb-3.5 flex gap-2 rounded-md bg-brass-soft px-3 py-2.5 text-xs text-brass sm:mb-4 sm:text-sm">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <p className="m-0">
-            কিছু প্রোডাক্টের কোয়ান্টিটি মিলছে না। সব ডিসক্রেপান্সি সমাধান না হওয়া পর্যন্ত এই ইনভয়েস ভেরিফাই করা যাবে না।
+            কিছু প্রোডাক্টের কোয়ান্টিটি মিলছে না। সব পণ্যের অমিল সমাধান না হওয়া পর্যন্ত এই ইনভয়েস ভেরিফাই করা যাবে না।
           </p>
         </div>
       )}
@@ -428,11 +428,11 @@ export function WarehouseReceiveCheckSection({
           <ConfirmDialog
             trigger={
               <Button type="button" variant="brass" disabled={receiveCheck.isPending || hasPending}>
-                ⚠ ডিসক্রেপান্সি নোট করে সাবমিট করুন
+                ⚠ পণ্যের অমিল নোট করে সাবমিট করুন
               </Button>
             }
             title="কোয়ান্টিটি মিসম্যাচ নিয়ে সাবমিট করবেন?"
-            description="কিছু প্রোডাক্টের রিসিভড Qty অর্ডার করা Qty-র সাথে মিলছে না। সাবমিট করলে এই ইনভয়েস 'ডিসক্রেপান্সি' হিসেবে চিহ্নিত হবে।"
+            description="কিছু প্রোডাক্টের রিসিভড Qty অর্ডার করা Qty-র সাথে মিলছে না। সাবমিট করলে এই ইনভয়েস 'পণ্যের অমিল' হিসেবে চিহ্নিত হবে।"
             confirmLabel="সাবমিট করুন"
             onConfirm={() => submit("final")}
             isLoading={receiveCheck.isPending}

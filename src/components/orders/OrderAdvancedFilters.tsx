@@ -21,7 +21,7 @@ const SORT_OPTIONS: { value: OrderSortMode; label: string }[] = [
   { value: "pendingFirst", label: "পেন্ডিং আগে" },
   { value: "receivedFirst", label: "রিসিভড আগে" },
   { value: "closedFirst", label: "ক্লোজড আগে" },
-  { value: "discrepancyFirst", label: "ডিসক্রেপান্সি আগে" },
+  { value: "discrepancyFirst", label: "পণ্যের অমিল আগে" },
 ];
 
 export function OrderAdvancedFilters({

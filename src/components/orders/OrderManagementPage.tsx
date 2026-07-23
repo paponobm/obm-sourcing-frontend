@@ -8,7 +8,7 @@ import { OrderQuickFilters } from "./OrderQuickFilters";
 import { OrderSearchBar } from "./OrderSearchBar";
 import { OrderAdvancedFilters } from "./OrderAdvancedFilters";
 import { OrdersTable } from "./OrdersTable";
-import { useOrders, useOrderSummary } from "@/hooks/useOrders";
+import { useOrders } from "@/hooks/useOrders";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useHasRole } from "@/hooks/useHasRole";
 import { ROUTES } from "@/constants/routes";
@@ -39,13 +39,12 @@ export function OrderManagementPage() {
   // swaps the entire table's content), so its active value lives in the URL
   // rather than local state: refresh preserves it, and each switch pushes a
   // real history entry instead of just skipping past it on Back. Defaults to
-  // Pending per spec ("show only Pending orders by default") — bundling
-  // IN_TRANSIT+CONFIRMED, since a Confirmed order still hasn't reached the
-  // warehouse, matching OrderQuickFilters' own "পেন্ডিং" tab. "ALL" is the
-  // URL's explicit marker for the "সব" tab (value "") — distinct from no
-  // `status` param at all, which means "freshly loaded, default to Pending".
+  // Pending (IN_TRANSIT only — see OrderQuickFilters, which now has its own
+  // separate "পথে আছে" tab for CONFIRMED). "ALL" is the URL's explicit marker
+  // for the "সব" tab (value "") — distinct from no `status` param at all,
+  // which means "freshly loaded, default to Pending".
   const statusParam = searchParams.get("status");
-  const defaultStatus = isManager ? "CONFIRMED" : "IN_TRANSIT,CONFIRMED";
+  const defaultStatus = isManager ? "CONFIRMED" : "IN_TRANSIT";
   const statusFilter = statusParam === null ? defaultStatus : statusParam === "ALL" ? "" : statusParam;
   const [vendorId, setVendorId] = useState("");
   const [createdById, setCreatedById] = useState("");
@@ -54,7 +53,6 @@ export function OrderManagementPage() {
   const [sortMode, setSortMode] = useState<OrderSortMode>("newest");
   const [page, setPage] = useState(1);
 
-  const { data: summary } = useOrderSummary();
   const { data, isLoading } = useOrders({
     page,
     pageSize: PAGE_SIZE,
@@ -74,14 +72,12 @@ export function OrderManagementPage() {
     setPage(1);
   };
 
-  const pendingCount = summary?.pendingOrders ?? 0;
-
   return (
     <>
       <Topbar
         title={
-          statusFilter === "IN_TRANSIT,CONFIRMED"
-            ? `পেন্ডিং অর্ডার (${toBnDigits(pendingCount)})`
+          statusFilter === "IN_TRANSIT"
+            ? `পেন্ডিং অর্ডার (${toBnDigits(data?.total ?? 0)})`
             : isManager && statusFilter === "CONFIRMED"
               ? "পথে আছে অর্ডার"
               : "অর্ডার ম্যানেজমেন্ট"
