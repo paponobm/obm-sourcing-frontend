@@ -184,7 +184,7 @@ export default function ReceiveCheckPage() {
           <h2 className="m-0 font-serif text-base text-teal-dark sm:text-lg lg:text-[1.1875rem] xl:text-xl">
             অ্যাডমিন রিভিউ ও ক্লোজ — {invoice.invoiceNumber}
           </h2>
-          <span className="text-xs text-gray sm:text-sm">ম্যানেজার ভেরিফিকেশন সম্পন্ন — চূড়ান্ত অনুমোদনের অপেক্ষায়</span>
+          <span className="text-xs text-brass sm:text-sm">ম্যানেজার ভেরিফিকেশন সম্পন্ন — চূড়ান্ত অনুমোদনের অপেক্ষায়</span>
         </div>
         <div className="border-b border-line px-4 py-4 sm:px-5 pb-10">
           <OrderStepper status={invoice.status} />
@@ -220,7 +220,7 @@ export default function ReceiveCheckPage() {
             <CardTitle>ম্যানেজার ভেরিফিকেশন তথ্য</CardTitle>
           </CardHeader>
           {invoice.verifiedAt && (
-            <div className="border-b border-line px-4 text-brass py-2.5 text-xs  sm:px-5 sm:text-sm">
+            <div className="border-b border-line px-4 font-mono text-brass py-2.5 text-xs  sm:px-5 sm:text-sm">
               ভেরিফাই করেছেন: <span className="font-mono  font-bold">{invoice.verifiedByName ?? "—"} (Manager)</span>{" "}
               — {formatBnDate(invoice.verifiedAt)} {formatBnTime(invoice.verifiedAt)}
             </div>
@@ -399,10 +399,10 @@ export default function ReceiveCheckPage() {
               অর্ডার ক্লোজ করুন
               </Button>
             }
-            title="Close this order?"
-            description="This action will permanently complete the order and no further editing will be allowed."
-            confirmLabel="Confirm & Close"
-            cancelLabel="Cancel"
+            title="এই অর্ডারটি বন্ধ করতে চান?"
+            description="এই অর্ডারটি বন্ধ করলে এটি স্থায়ীভাবে সম্পন্ন হিসেবে গণ্য হবে এবং পরবর্তীতে আর কোনো পরিবর্তন বা সম্পাদনা করা যাবে না।"
+            confirmLabel="অর্ডার বন্ধ করুন"
+            cancelLabel="বাতিল"
             onConfirm={() => submit("final")}
             isLoading={receiveCheck.isPending}
           />

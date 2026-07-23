@@ -76,7 +76,7 @@ export function OrdersTable({
     {
       key: "orderedAt",
       header: "অর্ডার তারিখ",
-      render: (o) => <span className="text-gray">{formatBnDate(o.orderedAt)}</span>,
+      render: (o) => <span className="font-mono text-gray">{formatBnDate(o.orderedAt)}</span>,
     },
     {
       key: "itemCount",
@@ -103,7 +103,7 @@ export function OrdersTable({
     {
       key: "updatedAt",
       header: "সর্বশেষ আপডেট",
-      render: (o) => <span className="text-gray">{formatBnDate(o.updatedAt)}</span>,
+      render: (o) => <span className="font-mono text-gray">{formatBnDate(o.updatedAt)}</span>,
     },
     {
       key: "actions",
