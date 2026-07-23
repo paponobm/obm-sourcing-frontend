@@ -60,7 +60,7 @@ export function ProductSectionTabs({
             type="button"
             onClick={() => onChange("pending")}
             className={cn(
-              "shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold transition-all duration-300 ease-in-out sm:px-4 sm:text-sm",
+              "shrink-0 whitespace-nowrap rounded-md px-3 py-2 font-mono font-semibold transition-all duration-300 ease-in-out sm:px-4 sm:text-sm",
               active === "pending" ? "bg-teal text-white shadow-md" : "bg-paper-2 text-ink hover:bg-line",
             )}
           >
