@@ -42,7 +42,7 @@ export function OrderHistoryTable({
       key: "orderedAt",
       header: "অর্ডার তারিখ",
       sortable: true,
-      render: (inv) => <span className="text-gray">{formatBnDate(inv.orderedAt)}</span>,
+      render: (inv) => <span className="font-mono text-gray">{formatBnDate(inv.orderedAt)}</span>,
     },
     {
       key: "itemCount",
@@ -75,7 +75,7 @@ export function OrderHistoryTable({
     {
       key: "updatedAt",
       header: "সর্বশেষ আপডেট",
-      render: (inv) => <span className="text-gray">{formatBnDate(inv.updatedAt)}</span>,
+      render: (inv) => <span className="font-mono text-gray">{formatBnDate(inv.updatedAt)}</span>,
     },
     {
       key: "actions",

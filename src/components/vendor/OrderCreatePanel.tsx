@@ -19,7 +19,7 @@ import { useSetVendorProductPrice } from "@/hooks/useVendors";
 import { useActivateProduct, useDeactivateProduct } from "@/hooks/useProducts";
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatBDT } from "@/utils/currency";
-import { toBnDigits } from "@/utils/date";
+import { toBnDigits, toEnDigits } from "@/utils/date";
 import type { VendorProductPrice, VendorWithProducts } from "@/types/vendor.types";
 
 type RowState = { selected: boolean; qty: string; requisitionItemId?: string };
@@ -97,7 +97,7 @@ export function OrderCreatePanel({
     setRows((prev) => ({ ...prev, [productId]: { ...getRow(productId), ...patch } }));
   };
 
-  const getPriceDraft = (p: VendorProductPrice): string => priceEdits[p.productId] ?? String(p.price);
+  const getPriceDraft = (p: VendorProductPrice): string => priceEdits[p.productId] ?? p.price.toFixed(2);
 
   const selectedRows = orderableProducts
     .map((p) => ({ product: p, row: getRow(p.productId) }))
@@ -224,13 +224,16 @@ export function OrderCreatePanel({
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Input
-                          type="number"
-                          min={0}
-                          value={priceDraft}
+                          type="text"
+                          inputMode="decimal"
+                          value={toBnDigits(priceDraft)}
                           onChange={(e) =>
-                            setPriceEdits((prev) => ({ ...prev, [p.productId]: e.target.value }))
+                            setPriceEdits((prev) => ({
+                              ...prev,
+                              [p.productId]: toEnDigits(e.target.value).replace(/[^\d.]/g, ""),
+                            }))
                           }
-                          className="w-24 font-mono text-brass sm:w-28"
+                          className="w-24 font-mono font-bold text-brass sm:w-28"
                         />
                         <ConfirmDialog
                           trigger={

@@ -1,6 +1,10 @@
+// "short" mistranslates some months in bn-BD ICU data (e.g. জানুয়ারী → জানু,
+// ফেব্রুয়ারী → ফেব, জুলাই → জুল — not real Bangla abbreviations); "long" gives
+// the correct full month name and is identical to "short" for every other
+// month anyway, so this only changes those three.
 const BN_DATE_FORMATTER = new Intl.DateTimeFormat("bn-BD", {
   day: "numeric",
-  month: "short",
+  month: "long",
   year: "numeric",
 });
 
@@ -22,10 +26,25 @@ export function formatBnTime(isoDate: string): string {
 
 const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 
-export function toBnDigits(n: number): string {
+export function toBnDigits(n: number | string): string {
   return String(n)
     .split("")
     .map((ch) => (/\d/.test(ch) ? BN_DIGITS[Number(ch)] : ch))
+    .join("");
+}
+
+const EN_DIGITS_BY_BN: Record<string, string> = BN_DIGITS.reduce(
+  (acc, bn, i) => ({ ...acc, [bn]: String(i) }),
+  {},
+);
+
+/** Reverse of toBnDigits — lets a text input show Bangla numerals while
+ * still accepting/normalizing whatever digits the user actually types
+ * (Bangla or English) back to a canonical English-digit string internally. */
+export function toEnDigits(s: string): string {
+  return s
+    .split("")
+    .map((ch) => EN_DIGITS_BY_BN[ch] ?? ch)
     .join("");
 }
 
