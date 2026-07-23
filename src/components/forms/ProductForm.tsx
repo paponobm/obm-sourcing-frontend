@@ -30,6 +30,7 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: units, isLoading: unitsLoading } = useUnits();
   const [thumbnailValue, setThumbnailValue] = useState<ImageValue>();
+  const [thumbnailError, setThumbnailError] = useState<string>();
   const [imageValues, setImageValues] = useState<(File | string)[]>([]);
 
   // A Manager's submission goes to Pending with no vendor/price at all (see
@@ -60,6 +61,12 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
   const watchedVendorPrices = watch("vendorPrices");
 
   const onSubmit = async (values: ProductFormValues) => {
+    if (!thumbnailValue) {
+      setThumbnailError("ছবি আবশ্যক");
+      return;
+    }
+    setThumbnailError(undefined);
+
     const upload = (file: File) => uploadImage.mutateAsync(file);
     const [thumbnailUrl, imageUrls] = await Promise.all([
       resolveImageValue(thumbnailValue, upload),
@@ -109,9 +116,14 @@ export function ProductForm({ onSuccess, onCancel }: { onSuccess: () => void; on
 
       <ImageUploadSection
         thumbnailValue={thumbnailValue}
-        onThumbnailChange={setThumbnailValue}
+        onThumbnailChange={(v) => {
+          setThumbnailValue(v);
+          setThumbnailError(undefined);
+        }}
         imageValues={imageValues}
         onImageValuesChange={setImageValues}
+        thumbnailRequired
+        thumbnailError={thumbnailError}
       />
 
       {isSuperAdmin && (
