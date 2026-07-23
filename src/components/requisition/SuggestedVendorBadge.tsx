@@ -36,16 +36,16 @@ export function SuggestedVendorBadge({
         <dl className="space-y-0.5 text-gray">
           <div>
             <dt className="inline">দাম: </dt>
-            <dd className="inline text-ink">{formatBDT(vendor.price)}</dd>
+            <dd className="inline font-mono text-ink">{formatBDT(vendor.price)}</dd>
           </div>
           <div>
             <dt className="inline">অর্ডার করা হয়েছে: </dt>
-            <dd className="inline text-ink">{toBnDigits(vendor.orderCount)} বার</dd>
+            <dd className="inline font-mono text-ink">{toBnDigits(vendor.orderCount)} বার</dd>
           </div>
           {vendor.lastOrderedAt && (
             <div>
               <dt className="inline">সর্বশেষ অর্ডার: </dt>
-              <dd className="inline text-ink">{formatBnDate(vendor.lastOrderedAt)}</dd>
+              <dd className="inline font-mono text-ink">{formatBnDate(vendor.lastOrderedAt)}</dd>
             </div>
           )}
         </dl>

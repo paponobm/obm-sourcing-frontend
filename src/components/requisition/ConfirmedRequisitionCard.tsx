@@ -50,8 +50,8 @@ export function ConfirmedRequisitionCard({
               {REQUISITION_PRIORITY_LABEL_BN[requisition.priority]}
             </Badge>
           </div>
-          <div className="mt-1 text-[11px] text-gray sm:text-xs">
-            কনফার্ম করেছেন: {requisition.confirmedByName} · {requisition.confirmedAt ? formatBnDate(requisition.confirmedAt) : ""}
+          <div className="mt-1 pb-3 text-[11px] text-gray sm:text-xs">
+            কনফার্ম করেছেন: {requisition.confirmedByName} · <span className="font-mono">{requisition.confirmedAt ? formatBnDate(requisition.confirmedAt) : ""}</span>
           </div>
         </div>
         <Button type="button" variant="ghost" size="sm" onClick={onViewDetails}>
@@ -59,11 +59,11 @@ export function ConfirmedRequisitionCard({
         </Button>
       </div>
 
-      <div className="mt-2.5 space-y-1">
+      <div className="mt-2.5 space-y-1 pb-2">
         {requisition.items.map((item) => (
           <div key={item.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs sm:text-sm">
-            <span className=" flex flex-wrap items-center gap-1.5 text-ink">
-              {item.productName} — {toBnDigits(item.requiredQty)} {item.unit}
+            <span className=" flex flex-wrap  items-center gap-1.5 text-ink">
+              {item.productName} — <span className="font-mono">{toBnDigits(item.requiredQty)}</span> {item.unit}
               {!isManager && (
                 <>
                   <SuggestedVendorBadge vendor={item.suggestedVendor} />
