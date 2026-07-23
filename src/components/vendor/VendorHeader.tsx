@@ -16,7 +16,7 @@ export function VendorHeader({ vendor }: { vendor: Vendor }) {
         <h2 className="m-0 font-serif text-base text-teal-dark sm:text-lg lg:text-[1.1875rem] xl:text-xl">
           {vendor.shopName}
         </h2>
-        <span className="text-xs text-gray sm:text-sm">Vendor ID: {vendor.vendorCode}</span>
+        <span className="text-xs text-brass sm:text-sm">Vendor ID: {vendor.vendorCode}</span>
       </div>
     </div>
   );
