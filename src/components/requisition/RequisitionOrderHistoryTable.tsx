@@ -52,9 +52,16 @@ export function RequisitionOrderHistoryTable({
     {
       key: "quantity",
       header: "পরিমাণ",
-      render: (r) => `${toBnDigits(r.items.reduce((sum, i) => sum + i.orderedQty, 0))} টি`,
+      render: (r) => (
+        <span className="font-mono">{toBnDigits(r.items.reduce((sum, i) => sum + i.orderedQty, 0))} টি</span>
+      ),
     },
-    { key: "orderedAt", header: "অর্ডার তারিখ", sortable: true, render: (r) => <span className="text-gray">{formatBnDate(r.orderedAt)}</span> },
+    {
+      key: "orderedAt",
+      header: "অর্ডার তারিখ",
+      sortable: true,
+      render: (r) => <span className="font-mono text-gray">{formatBnDate(r.orderedAt)}</span>,
+    },
     { key: "status", header: "স্ট্যাটাস", render: (r) => <OrderStatusBadge status={r.status} /> },
     {
       key: "invoiceNumber",

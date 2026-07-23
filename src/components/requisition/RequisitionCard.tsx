@@ -48,7 +48,7 @@ export function RequisitionCard({
             </Badge>
           </div>
           <div className="mt-1 text-[11px] text-brass sm:text-xs">
-            {formatBnDate(requisition.createdAt)} · অনুরোধ করেছেন: {requisition.requestedByName}
+           <span className="font-mono">{formatBnDate(requisition.createdAt)}</span> · অনুরোধ করেছেন: {requisition.requestedByName}
           </div>
         </div>
         <Badge variant="pending">{REQUISITION_STATUS_LABEL_BN[requisition.status]}</Badge>
@@ -56,10 +56,10 @@ export function RequisitionCard({
 
       <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-xs text-gray sm:text-sm">
         <span>
-          মোট প্রোডাক্ট: <strong className="text-ink">{toBnDigits(requisition.items.length)}</strong>
+          মোট প্রোডাক্ট: <strong className="text-ink font-mono">{toBnDigits(requisition.items.length)}</strong>
         </span>
         <span>
-          মোট পরিমাণ: <strong className="text-ink">{toBnDigits(totalQty)}</strong>
+          মোট পরিমাণ: <strong className="text-ink font-mono">{toBnDigits(totalQty)}</strong>
         </span>
       </div>
 
@@ -67,7 +67,7 @@ export function RequisitionCard({
         {requisition.items.map((item) => (
           <div key={item.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs sm:text-sm">
             <span className="text-ink">
-              {item.productName} — {toBnDigits(item.requiredQty)} {item.unit}
+              {item.productName} — <span className="font-mono">{toBnDigits(item.requiredQty)}</span> {item.unit}
             </span>
             {/* <SuggestedVendorBadge vendor={item.suggestedVendor} /> */}
           </div>

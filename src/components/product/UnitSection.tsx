@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Ban, CheckCircle2 } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { SearchBox } from "@/components/shared/SearchBox";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -17,19 +20,24 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { UnitForm } from "@/components/forms/UnitForm";
-import { useUnits, useDeleteUnit } from "@/hooks/useUnits";
+import { useUnits, useActivateUnit, useDeactivateUnit } from "@/hooks/useUnits";
 import { useHasRole } from "@/hooks/useHasRole";
+import { useDebounce } from "@/hooks/use-debounce";
 import { SUPER_ADMIN_ONLY } from "@/constants/roles";
+import { vendorStatusBadgeVariant, VENDOR_STATUS_LABEL_BN } from "@/utils/status";
 import { toBnDigits } from "@/utils/date";
 
 export function UnitSection() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const { data: units, isLoading } = useUnits();
-  const deleteUnit = useDeleteUnit();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search);
+  const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "all">("active");
+  const { data: units, isLoading } = useUnits({ search: debouncedSearch, statusFilter });
+  const activateUnit = useActivateUnit();
+  const deactivateUnit = useDeactivateUnit();
   const canManage = useHasRole(SUPER_ADMIN_ONLY);
-  const canDelete = useHasRole(SUPER_ADMIN_ONLY);
-  const showActionsColumn = canManage || canDelete;
+  const showActionsColumn = canManage;
 
   const editingUnit = units?.find((u) => u.id === editingId);
 
@@ -38,11 +46,24 @@ export function UnitSection() {
       <Topbar
         title={`ইউনিট ম্যানেজমেন্ট (${units != null ? toBnDigits(units.length) : "..."})`}
         actions={
-          canManage && (
-            <Button variant="brass" onClick={() => setCreateOpen(true)}>
-              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> নতুন ইউনিট
-            </Button>
-          )
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <SearchBox value={search} onChange={setSearch} placeholder="ইউনিট সার্চ করুন..." />
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "active" | "inactive" | "all")}>
+              <SelectTrigger className="sm:w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">অ্যাক্টিভ ইউনিট</SelectItem>
+                <SelectItem value="inactive">ইনঅ্যাক্টিভ ইউনিট</SelectItem>
+                <SelectItem value="all">সব ইউনিট</SelectItem>
+              </SelectContent>
+            </Select>
+            {canManage && (
+              <Button variant="brass" onClick={() => setCreateOpen(true)}>
+                <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> নতুন ইউনিট
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -56,7 +77,7 @@ export function UnitSection() {
         )}
 
         {!isLoading && units?.length === 0 && (
-          <EmptyState title="কোনো ইউনিট পাওয়া যায়নি" description="নতুন ইউনিট যোগ করুন।" />
+          <EmptyState title="কোনো ইউনিট পাওয়া যায়নি" description="অন্য কিছু সার্চ করুন অথবা নতুন ইউনিট যোগ করুন।" />
         )}
 
         {!isLoading && units && units.length > 0 && (
@@ -65,6 +86,7 @@ export function UnitSection() {
               <TableRow>
                 <TableHead>ইউনিট</TableHead>
                 <TableHead>মোট প্রোডাক্ট</TableHead>
+                <TableHead>স্ট্যাটাস</TableHead>
                 {showActionsColumn && <TableHead />}
               </TableRow>
             </TableHeader>
@@ -75,30 +97,44 @@ export function UnitSection() {
                     <span className="text-sm md:text-base lg:text-lg xl:text-xl">{u.name}</span>
                   </TableCell>
                   <TableCell className="font-mono">{toBnDigits(u.productCount)} টি</TableCell>
+                  <TableCell>
+                    <Badge variant={vendorStatusBadgeVariant(u.status)}>{VENDOR_STATUS_LABEL_BN[u.status]}</Badge>
+                  </TableCell>
                   {showActionsColumn && (
                     <TableCell>
                       <div className="flex justify-end gap-1.5">
-                        {canManage && (
-                          <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(u.id)}>
-                            <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
-                          </Button>
-                        )}
-                        {canDelete && (
+                        <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(u.id)}>
+                          <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                        </Button>
+                        {u.status === "ACTIVE" ? (
                           <ConfirmDialog
                             trigger={
                               <Button type="button" variant="ghost" size="sm">
-                                <Trash2 className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                                <Ban className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
                               </Button>
                             }
-                            title="ইউনিট মুছে ফেলবেন?"
+                            title="ইউনিট নিষ্ক্রিয় করুন"
                             description={
-                              u.productCount > 0
-                                ? "এই ইউনিটটি বর্তমানে প্রোডাক্টে ব্যবহৃত হচ্ছে। আগে প্রোডাক্ট থেকে ইউনিট পরিবর্তন করুন।"
-                                : `"${u.name}" ইউনিটটি মুছে ফেলা হবে। এই কাজটি ফিরিয়ে আনা যাবে না।`
+                              u.activeProductCount > 0
+                                ? `এই ইউনিটে ${toBnDigits(u.activeProductCount)}টি অ্যাক্টিভ প্রোডাক্ট আছে — নিষ্ক্রিয় করার আগে সেগুলো নিষ্ক্রিয় করতে হবে।`
+                                : `"${u.name}" ইউনিটটি নিষ্ক্রিয় করা হবে। আপনি কি নিশ্চিত?`
                             }
-                            confirmLabel="মুছে ফেলুন"
-                            onConfirm={() => deleteUnit.mutate(u.id)}
-                            isLoading={deleteUnit.isPending}
+                            confirmLabel="নিষ্ক্রিয় করুন"
+                            onConfirm={() => deactivateUnit.mutate(u.id)}
+                            isLoading={deactivateUnit.isPending}
+                          />
+                        ) : (
+                          <ConfirmDialog
+                            trigger={
+                              <Button type="button" variant="ghost" size="sm">
+                                <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                              </Button>
+                            }
+                            title="ইউনিটটি সক্রিয় করবেন?"
+                            description={`আপনি কি নিশ্চিত "${u.name}" সক্রিয় করতে চান?`}
+                            confirmLabel="সক্রিয় করুন"
+                            onConfirm={() => activateUnit.mutate(u.id)}
+                            isLoading={activateUnit.isPending}
                           />
                         )}
                       </div>

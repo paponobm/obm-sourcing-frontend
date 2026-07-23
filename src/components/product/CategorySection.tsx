@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Ban, CheckCircle2 } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { SearchBox } from "@/components/shared/SearchBox";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -18,19 +21,24 @@ import {
 } from "@/components/ui/dialog";
 import { CategoryForm } from "@/components/forms/CategoryForm";
 import { Avatar } from "@/components/shared/Avatar";
-import { useCategories, useDeleteCategory } from "@/hooks/useCategories";
+import { useCategories, useActivateCategory, useDeactivateCategory } from "@/hooks/useCategories";
 import { useHasRole } from "@/hooks/useHasRole";
+import { useDebounce } from "@/hooks/use-debounce";
 import { SUPER_ADMIN_ONLY } from "@/constants/roles";
+import { vendorStatusBadgeVariant, VENDOR_STATUS_LABEL_BN } from "@/utils/status";
 import { toBnDigits } from "@/utils/date";
 
 export function CategorySection() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const { data: categories, isLoading } = useCategories();
-  const deleteCategory = useDeleteCategory();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search);
+  const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "all">("active");
+  const { data: categories, isLoading } = useCategories({ search: debouncedSearch, statusFilter });
+  const activateCategory = useActivateCategory();
+  const deactivateCategory = useDeactivateCategory();
   const canManage = useHasRole(SUPER_ADMIN_ONLY);
-  const canDelete = useHasRole(SUPER_ADMIN_ONLY);
-  const showActionsColumn = canManage || canDelete;
+  const showActionsColumn = canManage;
 
   const editingCategory = categories?.find((c) => c.id === editingId);
 
@@ -39,11 +47,24 @@ export function CategorySection() {
       <Topbar
         title={`প্রোডাক্ট ক্যাটাগরি (${categories != null ? toBnDigits(categories.length) : "..."})`}
         actions={
-          canManage && (
-            <Button variant="brass" onClick={() => setCreateOpen(true)}>
-              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> নতুন ক্যাটাগরি
-            </Button>
-          )
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <SearchBox value={search} onChange={setSearch} placeholder="ক্যাটাগরি সার্চ করুন..." />
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "active" | "inactive" | "all")}>
+              <SelectTrigger className="sm:w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">অ্যাক্টিভ ক্যাটাগরি</SelectItem>
+                <SelectItem value="inactive">ইনঅ্যাক্টিভ ক্যাটাগরি</SelectItem>
+                <SelectItem value="all">সব ক্যাটাগরি</SelectItem>
+              </SelectContent>
+            </Select>
+            {canManage && (
+              <Button variant="brass" onClick={() => setCreateOpen(true)}>
+                <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> নতুন ক্যাটাগরি
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -59,7 +80,7 @@ export function CategorySection() {
         {!isLoading && categories?.length === 0 && (
           <EmptyState
             title="কোনো ক্যাটাগরি পাওয়া যায়নি"
-            description="নতুন ক্যাটাগরি যোগ করুন।"
+            description="অন্য কিছু সার্চ করুন অথবা নতুন ক্যাটাগরি যোগ করুন।"
           />
         )}
 
@@ -69,6 +90,7 @@ export function CategorySection() {
               <TableRow>
                 <TableHead>নাম</TableHead>
                 <TableHead>প্রোডাক্ট সংখ্যা</TableHead>
+                <TableHead>স্ট্যাটাস</TableHead>
                 {showActionsColumn && <TableHead />}
               </TableRow>
             </TableHeader>
@@ -82,30 +104,44 @@ export function CategorySection() {
                     </span>
                   </TableCell>
                   <TableCell className="font-mono">{toBnDigits(c.productCount)} টি</TableCell>
+                  <TableCell>
+                    <Badge variant={vendorStatusBadgeVariant(c.status)}>{VENDOR_STATUS_LABEL_BN[c.status]}</Badge>
+                  </TableCell>
                   {showActionsColumn && (
                     <TableCell>
                       <div className="flex justify-end gap-1.5">
-                        {canManage && (
-                          <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(c.id)}>
-                            <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
-                          </Button>
-                        )}
-                        {canDelete && (
+                        <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(c.id)}>
+                          <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                        </Button>
+                        {c.status === "ACTIVE" ? (
                           <ConfirmDialog
                             trigger={
                               <Button type="button" variant="ghost" size="sm">
-                                <Trash2 className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                                <Ban className="h-3 w-3 text-red sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
                               </Button>
                             }
-                            title="ক্যাটাগরি মুছে ফেলবেন?"
+                            title="ক্যাটাগরি নিষ্ক্রিয় করুন"
                             description={
-                              c.productCount > 0
-                                ? `এই ক্যাটাগরিতে ${toBnDigits(c.productCount)}টি প্রোডাক্ট আছে — মুছে ফেলার আগে সেগুলোকে অন্য ক্যাটাগরিতে সরাতে হবে।`
-                                : `"${c.name}" ক্যাটাগরিটি মুছে ফেলা হবে। এই কাজটি ফিরিয়ে আনা যাবে না।`
+                              c.activeProductCount > 0
+                                ? `এই ক্যাটাগরিতে ${toBnDigits(c.activeProductCount)}টি অ্যাক্টিভ প্রোডাক্ট আছে — নিষ্ক্রিয় করার আগে সেগুলো নিষ্ক্রিয় করতে হবে।`
+                                : `"${c.name}" ক্যাটাগরিটি নিষ্ক্রিয় করা হবে। আপনি কি নিশ্চিত?`
                             }
-                            confirmLabel="মুছে ফেলুন"
-                            onConfirm={() => deleteCategory.mutate(c.id)}
-                            isLoading={deleteCategory.isPending}
+                            confirmLabel="নিষ্ক্রিয় করুন"
+                            onConfirm={() => deactivateCategory.mutate(c.id)}
+                            isLoading={deactivateCategory.isPending}
+                          />
+                        ) : (
+                          <ConfirmDialog
+                            trigger={
+                              <Button type="button" variant="ghost" size="sm">
+                                <CheckCircle2 className="h-3 w-3 text-teal sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
+                              </Button>
+                            }
+                            title="ক্যাটাগরিটি সক্রিয় করবেন?"
+                            description={`আপনি কি নিশ্চিত "${c.name}" সক্রিয় করতে চান?`}
+                            confirmLabel="সক্রিয় করুন"
+                            onConfirm={() => activateCategory.mutate(c.id)}
+                            isLoading={activateCategory.isPending}
                           />
                         )}
                       </div>

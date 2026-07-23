@@ -24,7 +24,7 @@ function CancelledRequisitionCard({ requisition, onViewDetails }: { requisition:
             </Badge>
           </div>
           <div className="mt-1 text-[11px] text-gray sm:text-xs">
-            বাতিল করেছেন: {requisition.cancelledByName} · {requisition.cancelledAt ? formatBnDate(requisition.cancelledAt) : ""}
+            বাতিল করেছেন: {requisition.cancelledByName} · <span className="font-mono">{requisition.cancelledAt ? formatBnDate(requisition.cancelledAt) : ""}</span>
           </div>
         </div>
         <Button type="button" variant="ghost" size="sm" onClick={onViewDetails}>

@@ -4,14 +4,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { categoryService } from "@/services/category.service";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { CreateCategoryInput, UpdateCategoryInput } from "@/types/category.types";
+import type { CategoryListQuery, CreateCategoryInput, UpdateCategoryInput } from "@/types/category.types";
 
 const CATEGORIES_KEY = ["categories"] as const;
 
-export function useCategories() {
+export function useCategories(query: CategoryListQuery = {}) {
   return useQuery({
-    queryKey: CATEGORIES_KEY,
-    queryFn: () => categoryService.list(),
+    queryKey: [...CATEGORIES_KEY, query],
+    queryFn: () => categoryService.list(query),
     staleTime: 60 * 1000,
   });
 }
@@ -51,5 +51,29 @@ export function useDeleteCategory() {
       toast.success("ক্যাটাগরি মুছে ফেলা হয়েছে");
     },
     onError: (error) => toast.error(getApiErrorMessage(error, "ক্যাটাগরি মুছে ফেলা যায়নি")),
+  });
+}
+
+export function useActivateCategory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => categoryService.activate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY });
+      toast.success("ক্যাটাগরি সক্রিয় করা হয়েছে");
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, "ক্যাটাগরি সক্রিয় করা যায়নি")),
+  });
+}
+
+export function useDeactivateCategory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => categoryService.deactivate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY });
+      toast.success("ক্যাটাগরি নিষ্ক্রিয় করা হয়েছে");
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, "ক্যাটাগরি নিষ্ক্রিয় করা যায়নি")),
   });
 }
