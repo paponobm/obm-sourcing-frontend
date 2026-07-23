@@ -7,6 +7,7 @@ import { authService } from "@/services/auth.service";
 import { authStorage } from "@/lib/auth-storage";
 import { ROUTES } from "@/constants/routes";
 import { transientErrorRetryConfig } from "@/lib/retry";
+import { getApiErrorMessage } from "@/lib/api-error";
 import type { AuthTokens, LoginInput, VerifyOtpInput } from "@/types/auth.types";
 
 export function useCurrentUser() {
@@ -38,8 +39,8 @@ export function useLogin() {
         completeLogin(data, queryClient, router);
       }
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "লগইন ব্যর্থ হয়েছে");
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "লগইন ব্যর্থ হয়েছে"));
     },
     // A Render free-tier cold start makes the very first login attempt(s)
     // fail with a connection error, not a real "wrong password" — retrying
@@ -60,8 +61,8 @@ export function useVerifyOtp() {
     onSuccess: (data) => {
       completeLogin(data, queryClient, router);
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "কোডটি সঠিক নয়");
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "কোডটি সঠিক নয়"));
     },
   });
 }
