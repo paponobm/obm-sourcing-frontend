@@ -39,13 +39,13 @@ export function PendingRequisitionBadge({ product }: { product: VendorProductPri
                     {toBnDigits(r.requiredQty)} {product.unit}
                   </dd>
                 </div>
+                <div>
+                  <dt className="inline">তৈরির তারিখ: </dt>
+                  <dd className="inline font-mono text-ink">{formatBnDate(r.createdAt)}</dd>
+                </div>
                 {/* <div>
                   <dt className="inline">প্রয়োজনীয় মূল্য: </dt>
                   <dd className="inline font-semibold text-brass">{formatBDT(r.requiredQty * product.price)}</dd>
-                </div>
-                <div>
-                  <dt className="inline">তৈরির তারিখ: </dt>
-                  <dd className="inline text-ink">{formatBnDate(r.createdAt)}</dd>
                 </div>
                 <div>
                   <dt className="inline">অনুরোধকারী: </dt>

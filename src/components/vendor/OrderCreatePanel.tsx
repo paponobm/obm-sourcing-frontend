@@ -352,6 +352,7 @@ export function OrderCreatePanel({
         productId={historyProduct?.id ?? null}
         productName={historyProduct?.name ?? ""}
         onOpenChange={(open) => !open && setHistoryProduct(null)}
+        onlyActionTypes={["VENDOR_ADDED", "PRICE_CHANGED"]}
       />
     </TooltipProvider>
   );

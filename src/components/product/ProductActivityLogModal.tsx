@@ -5,17 +5,26 @@ import { useProductActivityLogs } from "@/hooks/useProducts";
 import { PRODUCT_ACTIVITY_ACTION_LABEL_BN } from "@/utils/status";
 import { formatBnDate, formatBnTime } from "@/utils/date";
 import { PriceChangeActivityDetails } from "@/components/shared/PriceChangeActivityDetails";
+import type { ProductActivityActionType } from "@/types/product.types";
 
 export function ProductActivityLogModal({
   productId,
   productName,
   onOpenChange,
+  onlyActionTypes,
 }: {
   productId: string | null;
   productName: string;
   onOpenChange: (open: boolean) => void;
+  /** New Order's per-product history icon is meant purely for reviewing
+   * vendor/price history before ordering — order-creation and requisition
+   * entries for that product just clutter it there, so this narrows the log
+   * to only these action types. Omitted (the Product List page's own history
+   * icon) shows the full log exactly as before. */
+  onlyActionTypes?: ProductActivityActionType[];
 }) {
-  const { data: logs, isLoading } = useProductActivityLogs(productId ?? undefined);
+  const { data: allLogs, isLoading } = useProductActivityLogs(productId ?? undefined);
+  const logs = onlyActionTypes ? allLogs?.filter((log) => onlyActionTypes.includes(log.actionType)) : allLogs;
 
   return (
     <Dialog open={Boolean(productId)} onOpenChange={onOpenChange}>
