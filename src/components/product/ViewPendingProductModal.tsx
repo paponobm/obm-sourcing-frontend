@@ -36,15 +36,15 @@ export function ViewPendingProductModal({
             <div className="grid grid-cols-2 gap-x-3.5 gap-y-2">
               <div>
                 <div className="text-xs text-gray">SKU</div>
-                <div className="font-mono">{product.sku}</div>
+                <div className="font-mono">{product.sku ?? "—"}</div>
               </div>
               <div>
                 <div className="text-xs text-gray">ইউনিট</div>
-                <div>{product.unit}</div>
+                <div>{product.unit ?? "—"}</div>
               </div>
               <div>
                 <div className="text-xs text-gray">ক্যাটাগরি</div>
-                <div>{product.categories.map((c) => c.name).join(", ")}</div>
+                <div>{product.categories.length > 0 ? product.categories.map((c) => c.name).join(", ") : "—"}</div>
               </div>
               <div>
                 <div className="text-xs text-gray">তৈরি করেছেন</div>

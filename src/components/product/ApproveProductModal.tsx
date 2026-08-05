@@ -66,14 +66,17 @@ export function ApproveProductModal({
   const { fields, append, remove } = useFieldArray({ control, name: "vendorPrices" });
   const watchedVendorPrices = watch("vendorPrices");
 
-  // Pre-fill with this product's current (Manager-submitted) data each time
-  // a different product opens.
+  // Pre-fill with this product's current (Manager-submitted, or WordPress-
+  // synced) data each time a different product opens — a WordPress import
+  // can arrive with sku/unitId null, so those start blank for the Admin to
+  // fill in; the form's own validation (see productSchema) already requires
+  // both non-empty before this can be submitted.
   useEffect(() => {
     if (product) {
       reset({
-        sku: product.sku,
+        sku: product.sku ?? "",
         name: product.name,
-        unitId: product.unitId,
+        unitId: product.unitId ?? "",
         categoryIds: product.categories.map((c) => c.id),
         description: product.description ?? "",
         vendorPrices: [{ vendorId: "", price: "", rating: 0 }],

@@ -43,14 +43,17 @@ export type Product = {
   vendors: ProductVendorEntry[];
 };
 
-/** A Manager's product submission awaiting Admin approval — never has
- * vendor/price data, since that's only assignable on approval. */
+/** A Manager's product submission, or a WordPress-synced import, awaiting
+ * Admin approval — never has vendor/price data, since that's only assignable
+ * on approval. sku/unitId (and unit) can be null here specifically for a
+ * WordPress import whose WooCommerce listing had no SKU/unit — only `name`
+ * is mandatory at that point; approving still requires both be filled in. */
 export type PendingProduct = {
   id: string;
   name: string;
-  sku: string;
-  unit: string;
-  unitId: string;
+  sku: string | null;
+  unit: string | null;
+  unitId: string | null;
   description?: string | null;
   thumbnailUrl?: string;
   imageUrls: string[];
