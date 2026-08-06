@@ -55,7 +55,7 @@ export function PendingProductsSection() {
           )}
         </div>
       </div>
-      {/* <div className="flex items-center gap-1.5 sm:gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <Button type="button" variant="brass" disabled={wordpressSync.isPending} onClick={() => wordpressSync.mutate()}>
           {wordpressSync.isPending ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin sm:h-4 sm:w-4" />
@@ -73,7 +73,7 @@ export function PendingProductsSection() {
         >
           <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
-      </div> */}
+      </div>
     </div>
   );
 
